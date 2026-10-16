@@ -142,8 +142,11 @@ export function useRoom() {
       if (!view || !option.evaluation.plan) return;
       dispatch({ type: "pending", pending: "apply" });
       try {
-        const next = await api.apply(view.revision, option.baseRevisionId, option.evaluation.patch, option.evaluation.plan);
-        dispatch({ type: "applied", view: next, title: option.title });
+        const plan = option.evaluation.plan;
+        // The notice diffs against the plan people currently hold, so it is computed on the pre-apply revision.
+        const notice = await api.notice(view.revision, option.evaluation.patch, plan).catch(() => null);
+        const next = await api.apply(view.revision, option.baseRevisionId, option.evaluation.patch, plan);
+        dispatch({ type: "applied", view: next, title: option.title, notice });
       } catch (err) {
         dispatch({ type: "failed", error: asError(err) });
       }

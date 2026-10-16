@@ -1,5 +1,5 @@
 import type { AgentEvent } from "@/lib/api/sse";
-import type { DemoPayload, Evaluation, Health, Interpretation, PreferenceReport, Preferences, RevisionView } from "@/lib/api/types";
+import type { ChangeNotice, DemoPayload, Evaluation, Health, Interpretation, PreferenceReport, Preferences, RevisionView } from "@/lib/api/types";
 
 /**
  * Journey: boot → ready → impact → running → options → (applied) ready.
@@ -51,6 +51,7 @@ export interface RoomState {
   pending: null | "shock" | "apply" | "search";
   error: { code: string; message: string } | null;
   lastAppliedTitle: string | null;
+  notice: ChangeNotice | null;
   rippleKey: number;
 }
 
@@ -90,6 +91,7 @@ export const initialRoom: RoomState = {
   pending: null,
   error: null,
   lastAppliedTitle: null,
+  notice: null,
   rippleKey: 0,
 };
 
@@ -109,7 +111,7 @@ export type RoomAction =
   | { type: "runFailed"; error: { code: string; message: string } }
   | { type: "searchDone"; options: RecoveryOption[] }
   | { type: "preview"; optionId: string | null }
-  | { type: "applied"; view: RevisionView; title: string }
+  | { type: "applied"; view: RevisionView; title: string; notice: ChangeNotice | null }
   | { type: "undo" }
   | { type: "reset" }
   | { type: "focus"; taskId: string | null };
@@ -230,10 +232,11 @@ export function roomReducer(state: RoomState, action: RoomAction): RoomState {
         run: emptyRun,
         previewId: null,
         lastAppliedTitle: action.title,
+        notice: action.notice,
       };
     case "undo":
       if (state.history.length <= 1) return state;
-      return { ...state, history: state.history.slice(0, -1), run: emptyRun, previewId: null, lastAppliedTitle: null, error: null };
+      return { ...state, history: state.history.slice(0, -1), run: emptyRun, previewId: null, lastAppliedTitle: null, notice: null, error: null };
     case "reset":
       return state.demo ? { ...initialRoom, demo: state.demo, health: state.health, history: [state.demo.initial] } : state;
     case "focus":

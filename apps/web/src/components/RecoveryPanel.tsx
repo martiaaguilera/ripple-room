@@ -6,6 +6,7 @@ import type { Health, Preferences, Scenario } from "@/lib/api/types";
 import { clock, delta, eur } from "@/lib/format";
 import type { RoomView } from "@/lib/viewmodel";
 import type { Phase, RecoveryOption, RoomState } from "@/state/room";
+import { NoticeCard } from "./NoticeCard";
 import { PreferencesPanel } from "./PreferencesPanel";
 import { VerifierBoard } from "./VerifierBoard";
 
@@ -243,6 +244,7 @@ export function RecoveryPanel(props: PanelProps) {
             </button>
           </div>
         )}
+        {phase === "applied" && state.notice && <NoticeCard notice={state.notice} />}
         <div className="rounded-xl border border-line bg-panel p-3 text-sm">
           <h3 className="font-semibold">What sets the doors time</h3>
           <ol className="mt-2 space-y-1 text-muted">

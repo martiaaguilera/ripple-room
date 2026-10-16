@@ -32,6 +32,8 @@ test.describe("control room journey", () => {
 
     await apply.click();
     await expect(page.getByRole("heading", { name: "Recovery applied" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Who needs to know" })).toBeVisible();
+    await expect(page.getByText(/tell by \d\d:\d\d/).first()).toBeVisible();
 
     await page.getByRole("button", { name: "Undo" }).first().click();
     await expect(page.getByRole("heading", { name: "Doors 15 min late" })).toBeVisible();

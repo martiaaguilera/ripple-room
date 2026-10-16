@@ -1,4 +1,5 @@
 import type {
+  ChangeNotice,
   DemoPayload,
   Evaluation,
   Health,
@@ -62,6 +63,7 @@ export const api = {
   interpret: (revision: Revision, text: string) => post<Interpretation>("/api/interpret", { revision, text }),
   evaluate: (revision: Revision, patch: Patch) => post<Evaluation>("/api/evaluate", { revision, patch }),
   search: (revision: Revision, preferences: Preferences) => post<SearchResponse>("/api/search", { revision, preferences }),
+  notice: (revision: Revision, patch: Patch, plan: Plan) => post<ChangeNotice>("/api/notice", { revision, patch, plan }),
   apply: (revision: Revision, baseRevisionId: string, patch: Patch, plan: Plan) =>
     post<RevisionView>("/api/apply", { revision, base_revision_id: baseRevisionId, patch, plan }),
 };

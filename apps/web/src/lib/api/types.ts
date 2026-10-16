@@ -28,3 +28,4 @@ export type Preferences = S["Preferences"];
 export type PreferenceReport = S["PreferenceReport"];
 export type Interpretation = S["Interpretation"];
 export type Shock = S["TaskDelayShock"] | S["ResourceUnavailableShock"];
+export type ChangeNotice = S["ChangeNotice"];
