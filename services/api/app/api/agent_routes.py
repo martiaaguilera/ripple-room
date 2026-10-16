@@ -76,7 +76,7 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
                     log.info(
                         "agent_event type=%s data=%s",
                         ev.type,
-                        json.dumps({k: v for k, v in ev.data.items() if k != "reasoning_excerpt"}, default=str)[:600],
+                        json.dumps(ev.data, default=str)[:600],
                     )
                 yield f"event: {ev.type}\ndata: {ev.model_dump_json()}\n\n"
         finally:

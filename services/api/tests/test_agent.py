@@ -251,7 +251,8 @@ async def test_nebius_loop_revises_after_infeasible_candidate(
     assert "revise" in phases
     model_calls = [e for e in events if e.type == "model_call"]
     assert model_calls[0].data["request_id"] == "req-123"
-    assert model_calls[0].data["reasoning_excerpt"]
+    assert model_calls[0].data["reasoning_returned"] is True
+    assert "Thinking about the driving path" not in json.dumps([e.model_dump() for e in events])
     options = next(e for e in events if e.type == "options").data["options"]
     assert [o["candidate_id"] for o in options] == ["c2"]
     # Tool results are fed back to the model as tool messages.

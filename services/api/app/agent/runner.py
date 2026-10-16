@@ -146,7 +146,8 @@ async def run_agent(
                 "total_tokens": result.usage.total_tokens,
             },
             tool_calls=[c.name for c in result.tool_calls],
-            reasoning_excerpt=_excerpt(result.reasoning),
+            # Raw model reasoning is never forwarded or stored; only whether the model returned any.
+            reasoning_returned=bool(result.reasoning),
             content_excerpt=_excerpt(result.content),
         )
         messages.append(result.raw_message or {"role": "assistant", "content": result.content or ""})

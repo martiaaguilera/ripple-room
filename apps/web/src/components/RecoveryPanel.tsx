@@ -89,12 +89,6 @@ function TraceRow({ event }: { event: AgentEvent }) {
           {d.request_id || Number(d.latency_ms) > 0 ? `Model call ${String(d.n)}: ${((Number(d.latency_ms) || 0) / 1000).toFixed(1)}s` : `Scripted step ${String(d.n)}`}
           {usage?.total_tokens ? `, ${usage.total_tokens.toLocaleString("en")} tokens` : ""}
           {rid ? `, request ${rid}` : ""}
-          {typeof d.reasoning_excerpt === "string" && (
-            <details className="mt-1 text-muted">
-              <summary className="cursor-pointer">Model reasoning (excerpt)</summary>
-              <p className="mt-1 whitespace-pre-wrap">{d.reasoning_excerpt}</p>
-            </details>
-          )}
         </li>
       );
     }
