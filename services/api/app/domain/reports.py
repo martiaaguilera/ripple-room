@@ -97,7 +97,7 @@ class ServiceImpact(Out):
     kind: Literal["compress", "defer"]
     task_id: str
     text: str
-    severity: int  # 1 = noticeable quality trade-off, 2 = guest-facing scope cut
+    severity: float  # compress: share of the compressible range used (0-1]; defer: 2 (scope cut)
 
 
 class SolverInfo(Out):

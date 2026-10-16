@@ -89,6 +89,14 @@ class Requirement(Frozen):
     skill: str
 
 
+class HelperSpec(Frozen):
+    """A second person with ``skill`` can join the task, shortening it to ``duration``."""
+
+    skill: str
+    duration: Duration
+    note: str = ""
+
+
 class Task(Frozen):
     id: Identifier
     label: str
@@ -104,9 +112,12 @@ class Task(Frozen):
     defer_note: str = ""
     milestone: bool = False
     requirements: tuple[Requirement, ...] = ()
+    helper: HelperSpec | None = None
 
     @model_validator(mode="after")
     def _consistent(self) -> Task:
+        if self.helper is not None and not (0 < self.helper.duration < self.duration):
+            raise ValueError(f"task {self.id}: helper duration must be in (0, duration)")
         if self.milestone and (self.duration != 0 or self.requirements):
             raise ValueError(f"milestone {self.id} must have zero duration and no requirements")
         if self.min_duration is not None and not (0 < self.min_duration < self.duration):
@@ -253,8 +264,16 @@ class PinStart(Frozen):
     start: Minute
 
 
+class AddHelper(Frozen):
+    """Put a second qualified person on a task that allows a helper, shortening it."""
+
+    type: Literal["add_helper"] = "add_helper"
+    task_id: Identifier
+    resource_id: Identifier
+
+
 Intervention = Annotated[
-    ActivateResource | CompressTask | DeferTask | AssignResource | PinStart,
+    ActivateResource | CompressTask | DeferTask | AssignResource | PinStart | AddHelper,
     Field(discriminator="type"),
 ]
 

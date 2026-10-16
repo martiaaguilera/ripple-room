@@ -120,11 +120,17 @@ _ACTION_SCHEMA: dict[str, Any] = {
     "properties": {
         "type": {
             "type": "string",
-            "enum": ["activate_resource", "compress_task", "defer_task", "assign_resource", "pin_start"],
+            "enum": ["activate_resource", "compress_task", "defer_task", "assign_resource", "pin_start", "add_helper"],
         },
-        "resource_id": {"type": "string", "description": "activate_resource, assign_resource"},
-        "task_id": {"type": "string", "description": "compress_task, defer_task, assign_resource, pin_start"},
-        "duration": {"type": "integer", "description": "compress_task: new duration in minutes"},
+        "resource_id": {"type": "string", "description": "activate_resource, assign_resource, add_helper"},
+        "task_id": {
+            "type": "string",
+            "description": "compress_task, defer_task, assign_resource, pin_start, add_helper",
+        },
+        "duration": {
+            "type": "integer",
+            "description": "compress_task: any duration between the task minimum and nominal",
+        },
         "requirement_id": {"type": "string", "description": "assign_resource: slot id such as crew, tech, lead"},
         "start": {"type": "string", "description": "pin_start: local time HH:MM"},
     },
@@ -233,6 +239,13 @@ def _situation(ctx: AgentContext) -> dict[str, Any]:
             row |= {"start": fmt_clock(t.start), "end": fmt_clock(t.end), "assigned": t.assignments}
         if task.min_duration is not None:
             row["can_shorten_to"] = task.min_duration
+        if task.helper is not None:
+            row["helper"] = {
+                "shortens_to": task.helper.duration,
+                "needs_skill": task.helper.skill,
+                "qualified": [r.id for r in sc.resources if task.helper.skill in r.skills],
+                "note": task.helper.note,
+            }
         if task.optional:
             row["optional"] = True
         if task.deadline is not None:
@@ -320,6 +333,10 @@ def _menu(ctx: AgentContext) -> ToolOutcome:
         "free_form_rules": [
             "assign_resource {task_id, requirement_id, resource_id}: resource must have the skill and be active (activate standby first).",
             "pin_start {task_id, start 'HH:MM'}: fix a start time to force a resequence (e.g. unload something earlier).",
+            "add_helper {task_id, resource_id}: a second qualified person joins a task that allows it, shortening it."
+            " The helper is then busy for that time, which can delay their other work; the verifier shows the net effect.",
+            "compress_task accepts any duration between the minimum and the nominal; guest impact scales with the minutes cut,"
+            " so cut only what is needed.",
             "Combine menu actions and free-form actions in one patch. Smaller patches are better.",
         ],
         "evaluations_remaining": ctx.max_evaluations - ctx.evaluations_used,

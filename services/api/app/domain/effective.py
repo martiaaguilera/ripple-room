@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 
 from app.domain.models import (
     ActivateResource,
+    AddHelper,
     AssignResource,
     CompressTask,
     DeferTask,
@@ -28,6 +29,8 @@ from app.domain.models import (
     Window,
 )
 from app.domain.violations import Violation
+
+HELPER_REQUIREMENT = "helper"
 
 
 class InvalidShockError(ValueError):
@@ -76,6 +79,7 @@ class EffectiveProblem:
     assigns: dict[tuple[str, str], str]
     activated: frozenset[str]
     shocks: tuple[Shock, ...] = field(default=())
+    helpers: dict[str, str] = field(default_factory=dict)  # task id -> helper resource id
 
     def eligible(self, requirement: Requirement) -> list[str]:
         """Active resources holding the requirement's skill, in stable id order."""
@@ -97,6 +101,7 @@ def _patch_violations(scenario: Scenario, patch: Patch) -> list[Violation]:
     resources = {r.id: r for r in scenario.resources}
     activated = {a.resource_id for a in patch.actions if isinstance(a, ActivateResource)}
     deferred = {a.task_id for a in patch.actions if isinstance(a, DeferTask)}
+    compressed_ids = {a.task_id for a in patch.actions if isinstance(a, CompressTask)}
     out: list[Violation] = []
     seen: set[tuple[str, ...]] = set()
 
@@ -218,6 +223,55 @@ def _patch_violations(scenario: Scenario, patch: Patch) -> list[Violation]:
                                 task_id=tid,
                             )
                         )
+            case AddHelper(task_id=tid, resource_id=rid):
+                key = ("helper", tid)
+                if not unknown_task(tid):
+                    task = tasks[tid]
+                    res = resources.get(rid)
+                    if task.helper is None:
+                        out.append(
+                            Violation.of(
+                                "NO_HELPER_SLOT",
+                                f"helper:{tid}",
+                                f"{task.label} cannot take a second person.",
+                                task_id=tid,
+                            )
+                        )
+                    elif res is None:
+                        out.append(
+                            Violation.of(
+                                "UNKNOWN_RESOURCE", f"patch:{rid}", f"Unknown resource '{rid}'.", resource_id=rid
+                            )
+                        )
+                    elif task.helper.skill not in res.skills:
+                        out.append(
+                            Violation.of(
+                                "SKILL_MISMATCH",
+                                f"skill:{tid}:{HELPER_REQUIREMENT}",
+                                f"{res.label} lacks skill '{task.helper.skill}' needed to help with {task.label}.",
+                                task_id=tid,
+                                resource_id=rid,
+                            )
+                        )
+                    elif res.standby and rid not in activated:
+                        out.append(
+                            Violation.of(
+                                "RESOURCE_INACTIVE",
+                                f"standby:{rid}",
+                                f"{res.label} is on standby; activate it before assigning work.",
+                                task_id=tid,
+                                resource_id=rid,
+                            )
+                        )
+                    elif tid in deferred or tid in compressed_ids:
+                        out.append(
+                            Violation.of(
+                                "CONFLICTING_ACTIONS",
+                                f"patch:{tid}",
+                                f"{task.label} cannot be both helped and deferred or shortened.",
+                                task_id=tid,
+                            )
+                        )
             case PinStart(task_id=tid):
                 key = ("pin", tid)
                 if not unknown_task(tid):
@@ -256,8 +310,18 @@ def _resource(res: Resource, shocks: Sequence[Shock], activated: set[str]) -> Ef
     )
 
 
-def _task(task: Task, shocks: Sequence[Shock], compressed: dict[str, int]) -> EffTask:
+def _task(task: Task, shocks: Sequence[Shock], compressed: dict[str, int], helpers: dict[str, str]) -> EffTask:
     delay = sum(s.delay_minutes for s in shocks if isinstance(s, TaskDelayShock) and s.task_id == task.id)
+    if task.id in helpers and task.helper is not None:
+        return EffTask(
+            id=task.id,
+            label=task.label,
+            duration=task.helper.duration,
+            release=task.release + delay,
+            deadline=task.deadline,
+            milestone=task.milestone,
+            requirements=(*task.requirements, Requirement(id=HELPER_REQUIREMENT, skill=task.helper.skill)),
+        )
     return EffTask(
         id=task.id,
         label=task.label,
@@ -284,8 +348,11 @@ def compile_problem(
     compressed = {a.task_id: a.duration for a in patch.actions if isinstance(a, CompressTask)}
     pins = {a.task_id: a.start for a in patch.actions if isinstance(a, PinStart)}
     assigns = {(a.task_id, a.requirement_id): a.resource_id for a in patch.actions if isinstance(a, AssignResource)}
+    helpers = {a.task_id: a.resource_id for a in patch.actions if isinstance(a, AddHelper)}
+    for tid, rid in helpers.items():
+        assigns[(tid, HELPER_REQUIREMENT)] = rid
 
-    tasks = {t.id: _task(t, shocks, compressed) for t in scenario.tasks if t.id not in deferred}
+    tasks = {t.id: _task(t, shocks, compressed, helpers) for t in scenario.tasks if t.id not in deferred}
     resources = {
         r.id: _resource(r, shocks, activated) for r in scenario.resources if not r.standby or r.id in activated
     }
@@ -302,6 +369,7 @@ def compile_problem(
             assigns=assigns,
             activated=frozenset(activated),
             shocks=tuple(shocks),
+            helpers=helpers,
         ),
         [],
     )

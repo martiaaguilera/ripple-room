@@ -255,13 +255,24 @@ def intervention_cost_cents(problem: EffectiveProblem, plan: Plan) -> int:
     return total
 
 
+def _compress_severity(nominal: int, minimum: int | None, duration: int) -> float:
+    """Graded guest impact: cutting 5 of a possible 15 minutes is a third of a full cut."""
+    span = nominal - (minimum if minimum is not None else 0)
+    return round((nominal - duration) / span, 2) if span > 0 else 1.0
+
+
 def service_impacts(scenario: Scenario, problem: EffectiveProblem) -> list[ServiceImpact]:
     out: list[ServiceImpact] = []
     for tid, dur in sorted(problem.compressed.items()):
         task = scenario.task(tid)
         note = task.compress_note or f"{task.label} shortened"
         out.append(
-            ServiceImpact(kind="compress", task_id=tid, text=f"{note} ({task.duration} → {dur} min)", severity=1)
+            ServiceImpact(
+                kind="compress",
+                task_id=tid,
+                text=f"{note} ({task.duration} → {dur} min)",
+                severity=_compress_severity(task.duration, task.min_duration, dur),
+            )
         )
     for tid in sorted(problem.deferred):
         task = scenario.task(tid)
@@ -301,6 +312,8 @@ def plan_changes(
             if ref[tid].assignments.get(req) != rid
         ]
         dur_to = problem.compressed.get(tid)
+        if dur_to is None and tid in problem.helpers:
+            dur_to = problem.tasks[tid].duration
         if moved or reassigned or dur_to is not None:
             changes.append(
                 TaskChange(

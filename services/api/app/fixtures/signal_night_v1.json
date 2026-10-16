@@ -16,8 +16,8 @@
     { "id": "entrance", "label": "Entrance", "order": 4 }
   ],
   "resources": [
-    { "id": "event-lead", "label": "Event lead", "kind": "person", "skills": ["ops", "safety", "lead"], "available": { "start": "12:00", "end": "23:00" } },
-    { "id": "transport-crew", "label": "Transport crew", "kind": "person", "skills": ["unload"], "available": { "start": "12:00", "end": "18:00" }, "note": "Two drivers; leave after load-in." },
+    { "id": "event-lead", "label": "Event lead", "kind": "person", "skills": ["ops", "safety", "lead", "assist"], "available": { "start": "12:00", "end": "23:00" } },
+    { "id": "transport-crew", "label": "Transport crew", "kind": "person", "skills": ["unload", "assist"], "available": { "start": "12:00", "end": "18:00" }, "note": "Two drivers; leave after load-in." },
     { "id": "setup-team", "label": "Setup team", "kind": "person", "skills": ["unload", "rigging", "setup"], "available": { "start": "12:00", "end": "23:00" } },
     { "id": "av-tech", "label": "AV technician", "kind": "person", "skills": ["audio"], "available": { "start": "13:00", "end": "23:00" } },
     { "id": "light-tech", "label": "Lighting technician", "kind": "person", "skills": ["lighting"], "available": { "start": "13:00", "end": "23:00" } },
@@ -58,6 +58,7 @@
     },
     {
       "id": "stage-rigging", "label": "Stage rigging", "zone_id": "stage", "duration": 60, "release": "12:00",
+      "helper": { "skill": "assist", "duration": 45, "note": "A second crew can carry and hold truss sections." },
       "requirements": [{ "id": "crew", "skill": "rigging" }, { "id": "space", "skill": "stage" }]
     },
     {

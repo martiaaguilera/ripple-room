@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.domain.models import (
     ActivateResource,
+    AddHelper,
     CompressTask,
     DeferTask,
     Intervention,
@@ -112,6 +113,50 @@ def intervention_menu(scenario: Scenario) -> list[MenuItem]:
     return list(unique.values())
 
 
+COMPRESS_STEP = 5
+
+
+def extended_menu(scenario: Scenario) -> list[MenuItem]:
+    """Playbook plus every helper assignment and every 5-minute partial compression.
+
+    This is the same action space the agent can reach with free-form actions, enumerated
+    exhaustively. It is used only as the evaluation oracle (an upper bound), not in the UI.
+    """
+    items = list(intervention_menu(scenario))
+    seen = {i.id for i in items}
+    for task in scenario.tasks:
+        if task.min_duration is not None:
+            for dur in range(task.duration - COMPRESS_STEP, task.min_duration - 1, -COMPRESS_STEP):
+                item_id = f"compress:{task.id}:{dur}"
+                if dur == task.min_duration or item_id in seen:
+                    continue  # the playbook already holds the full cut
+                seen.add(item_id)
+                items.append(
+                    MenuItem(
+                        id=item_id,
+                        label=f"Shorten {task.label.lower()} to {dur} min",
+                        kind="compress_task",
+                        actions=(CompressTask(task_id=task.id, duration=dur),),
+                        cost_hint="€0",
+                        tradeoff=task.compress_note or "Quality trade-off.",
+                    )
+                )
+        if task.helper is not None:
+            for res in scenario.resources:
+                if task.helper.skill in res.skills and not res.standby:
+                    items.append(
+                        MenuItem(
+                            id=f"helper:{task.id}:{res.id}",
+                            label=f"{res.label} helps with {task.label.lower()}",
+                            kind="add_helper",
+                            actions=(AddHelper(task_id=task.id, resource_id=res.id),),
+                            cost_hint="€0",
+                            tradeoff=task.helper.note or "Pulls a person off other work.",
+                        )
+                    )
+    return items
+
+
 @dataclass(frozen=True)
 class SearchResult:
     verified: list[tuple[MenuItem, ...]]
@@ -120,7 +165,7 @@ class SearchResult:
     solver_ms: int
 
 
-def rank_key(ev: Evaluation) -> tuple[int, int, int]:
+def rank_key(ev: Evaluation) -> tuple[float, int, int]:
     """Documented lexicographic ranking among verified plans:
     guest-facing service impact, then money, then disruption to the original plan."""
     return (sum(s.severity for s in ev.service_impacts), ev.cost_cents, ev.disruption_minutes)
@@ -134,15 +179,18 @@ def search_recoveries(
     *,
     max_size: int = MAX_MENU_COMBINATION,
     config: SolveConfig | None = None,
+    menu: list[MenuItem] | None = None,
 ) -> SearchResult:
-    menu = intervention_menu(scenario)
+    menu = menu if menu is not None else intervention_menu(scenario)
     verified: list[tuple[MenuItem, ...]] = []
     evaluations: list[Evaluation] = []
     tried = 0
     solver_ms = 0
     for size in range(0, max_size + 1):
         for combo in combinations(menu, size):
-            touched = [a.task_id for item in combo for a in item.actions if isinstance(a, DeferTask)]
+            touched = [
+                a.task_id for item in combo for a in item.actions if isinstance(a, DeferTask | CompressTask | AddHelper)
+            ]
             if len(touched) != len(set(touched)):
                 continue
             ids = {item.id for item in combo}

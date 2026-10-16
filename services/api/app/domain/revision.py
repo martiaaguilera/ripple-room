@@ -10,6 +10,7 @@ from pydantic import Field
 
 from app.domain.models import (
     ActivateResource,
+    AddHelper,
     CompressTask,
     DeferTask,
     Frozen,
@@ -60,7 +61,7 @@ def baseline_revision(scenario: Scenario) -> Revision:
 
 def structural_actions(patch: Patch) -> tuple[Intervention, ...]:
     """Actions that persist after apply. Pins/assignments are already encoded in the applied plan."""
-    return tuple(a for a in patch.actions if isinstance(a, ActivateResource | CompressTask | DeferTask))
+    return tuple(a for a in patch.actions if isinstance(a, ActivateResource | CompressTask | DeferTask | AddHelper))
 
 
 def merge_committed(committed: Patch, applied: Patch) -> Patch:
