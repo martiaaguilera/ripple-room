@@ -218,6 +218,8 @@ export interface components {
             planner_model: string;
             /** Provider */
             provider: string;
+            /** Status */
+            status: string;
         };
         /** ApplyRequest */
         ApplyRequest: {

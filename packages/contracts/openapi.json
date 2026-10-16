@@ -71,10 +71,15 @@
      "provider": {
       "title": "Provider",
       "type": "string"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
      }
     },
     "required": [
      "mode",
+     "status",
      "provider",
      "planner_model",
      "fast_model",

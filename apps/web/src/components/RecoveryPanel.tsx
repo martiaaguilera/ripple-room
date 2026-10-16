@@ -43,6 +43,13 @@ export function modelName(id: string): string {
 
 export function AiBadge({ health }: { health: Health | null }) {
   if (!health) return <span className="text-xs text-faint">AI status unknown</span>;
+  if (health.ai.status === "paused" || health.ai.status === "budget_exhausted")
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber/50 px-2.5 py-1 text-xs text-amber">
+        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />
+        {health.ai.status === "paused" ? "Live AI paused" : "Today's live AI budget used"}
+      </span>
+    );
   const live = health.ai.mode === "live";
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${live ? "border-focus/50 text-focus" : "border-line text-muted"}`}>
@@ -230,6 +237,7 @@ export function RecoveryPanel(props: PanelProps) {
   const [showForm, setShowForm] = useState(false);
   const run = state.run;
   const live = state.health?.ai.mode === "live";
+  const aiBlocked = state.health?.ai.status === "paused" || state.health?.ai.status === "budget_exhausted";
   const late = doNothingReadiness != null && doNothingReadiness > room.deadline;
   const hasOptions = run.options.length > 0;
   const showComposer = (phase === "impact" || phase === "options") && run.status !== "running" && (!hasOptions || showForm);
@@ -306,14 +314,23 @@ export function RecoveryPanel(props: PanelProps) {
           </div>
           <button
             type="button"
+            disabled={aiBlocked}
             onClick={() => {
               setShowForm(false);
               onRecover(words);
             }}
-            className="w-full rounded-lg bg-focus px-3 py-2.5 text-sm font-bold text-graphite hover:brightness-110"
+            className="w-full rounded-lg bg-focus px-3 py-2.5 text-sm font-bold text-graphite hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Find recovery options
           </button>
+          {aiBlocked && (
+            <p role="status" className="text-xs text-amber">
+              {state.health?.ai.status === "paused"
+                ? "Live AI is paused by the operator."
+                : "Today's live AI budget is used up; it resets at midnight UTC."}{" "}
+              The playbook search below still finds and verifies recoveries, without AI.
+            </p>
+          )}
           <p className="text-[11px] leading-snug text-faint">
             {live
               ? "NVIDIA Nemotron on Nebius Token Factory proposes fixes; a constraint solver decides which ones actually work; your priorities rank them."

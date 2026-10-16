@@ -29,8 +29,14 @@ class Settings(BaseSettings):
     agent_timeout_seconds: float = Field(default=90.0, gt=0, le=280)
     agent_max_output_tokens: int = Field(default=4_096, ge=256, le=16_384)
 
-    recover_rate_per_minute: int = Field(default=6, ge=1, le=120)
-    recover_max_concurrent: int = Field(default=4, ge=1, le=64)
+    recover_rate_per_minute: int = Field(default=3, ge=1, le=120)
+    recover_max_concurrent: int = Field(default=3, ge=1, le=64)
+
+    # Spend controls (per process, per UTC day). See docs/operations.md for the real worst case.
+    ai_kill_switch: bool = Field(default=False, description="Emergency stop: no model calls at all.")
+    ai_daily_token_budget: int = Field(default=1_500_000, ge=0, le=50_000_000)
+    ai_daily_run_budget: int = Field(default=60, ge=0, le=10_000)
+    ai_per_ip_daily_runs: int = Field(default=12, ge=0, le=1_000)
 
     cors_origins: str = "http://localhost:3000"
     static_dir: str | None = None

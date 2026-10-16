@@ -11,6 +11,8 @@ ErrorCode = Literal[
     "PLAN_INVALID",
     "SOLVER_TIMEOUT",
     "MODEL_UNAVAILABLE",
+    "AI_PAUSED",
+    "AI_BUDGET_EXHAUSTED",
     "RATE_LIMITED",
     "CREDIT_EXHAUSTED",
     "BUSY",

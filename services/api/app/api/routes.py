@@ -8,6 +8,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import __version__
+from app.api.agent_routes import inference_budget
 from app.core.config import get_settings
 from app.core.errors import ApiError
 from app.domain.models import Patch, Plan, Scenario, Shock
@@ -28,6 +29,7 @@ class In(BaseModel):
 
 class AiStatus(BaseModel):
     mode: str
+    status: str  # live | mock | paused | budget_exhausted | unconfigured
     provider: str
     planner_model: str
     fast_model: str
@@ -78,7 +80,16 @@ class ApplyRequest(In):
 def ai_status() -> AiStatus:
     s = get_settings()
     live = s.live_ready
+    if s.ai_mode == "live" and s.ai_kill_switch:
+        status = "paused"
+    elif s.ai_mode == "live" and not live:
+        status = "unconfigured"
+    elif live and inference_budget.exhausted():
+        status = "budget_exhausted"
+    else:
+        status = "live" if live else "mock"
     return AiStatus(
+        status=status,
         mode="live" if live else "mock",
         provider="nebius-token-factory" if live else "mock",
         planner_model=s.nebius_model_planner,

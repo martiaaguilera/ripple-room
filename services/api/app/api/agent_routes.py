@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.agent.interpret import MAX_TEXT, Interpretation, interpret
 from app.agent.runner import Budget, run_agent
 from app.agent.tools import AgentContext
+from app.core.budget import BudgetLimits, InferenceBudget
 from app.core.config import get_settings
 from app.core.errors import ApiError
 from app.core.ratelimit import ConcurrencyGate, SlidingWindowLimiter
@@ -29,6 +30,13 @@ router = APIRouter(prefix="/api")
 _settings = get_settings()
 _limiter = SlidingWindowLimiter(_settings.recover_rate_per_minute)
 _gate = ConcurrencyGate(_settings.recover_max_concurrent)
+inference_budget = InferenceBudget(
+    BudgetLimits(
+        daily_tokens=_settings.ai_daily_token_budget,
+        daily_runs=_settings.ai_daily_run_budget,
+        per_ip_daily_runs=_settings.ai_per_ip_daily_runs,
+    )
+)
 
 
 class RecoverRequest(BaseModel):
@@ -47,8 +55,33 @@ class InterpretRequest(BaseModel):
 
 
 def _client_key(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for", "")
-    return forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    """Client IP for rate limiting. Prefer headers the platform sets and clients cannot forge:
+    on Vercel, x-vercel-forwarded-for / x-real-ip; the first x-forwarded-for entry is client-controlled."""
+    for header in ("x-vercel-forwarded-for", "x-real-ip"):
+        value = request.headers.get(header, "").split(",")[0].strip()
+        if value:
+            return value
+    forwarded = [h.strip() for h in request.headers.get("x-forwarded-for", "").split(",") if h.strip()]
+    if forwarded:
+        return forwarded[-1]  # the hop appended by the nearest proxy, not the client's claim
+    return request.client.host if request.client else "unknown"
+
+
+def _guard(request: Request, scope: str) -> None:
+    """Kill switch, daily budget and per-client limits, checked before any model call."""
+    settings = get_settings()
+    if settings.ai_kill_switch:
+        raise ApiError(503, "AI_PAUSED", "Live AI is paused by the operator. The playbook search (no AI) still works.")
+    client = _client_key(request)
+    if not _limiter.allow(f"{scope}:{client}"):
+        raise ApiError(429, "RATE_LIMITED", "Too many requests. Try again in a minute.")
+    refusal = inference_budget.try_start(client)
+    if refusal == "budget":
+        raise ApiError(
+            503, "AI_BUDGET_EXHAUSTED", "Today's live AI budget is used up. The playbook search (no AI) still works."
+        )
+    if refusal == "client":
+        raise ApiError(429, "RATE_LIMITED", "Daily limit for live AI requests reached from this connection.")
 
 
 @router.post("/recover")
@@ -65,8 +98,8 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
         provider = planner_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
-    if not _limiter.allow(_client_key(request)):
-        raise ApiError(429, "RATE_LIMITED", "Too many recovery runs. Try again in a minute.")
+    if provider.live:
+        _guard(request, "recover")
     if not _gate.try_acquire():
         raise ApiError(503, "BUSY", "Recovery engine is busy. Try again shortly.")
 
@@ -88,6 +121,9 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
                         ev.type,
                         json.dumps(ev.data, default=str)[:600],
                     )
+                if ev.type == "model_call" and provider.live:
+                    # Counted per call, so a client that disconnects mid-run is still charged to the budget.
+                    inference_budget.record_tokens(int(ev.data.get("usage", {}).get("total_tokens", 0)))
                 yield f"event: {ev.type}\ndata: {ev.model_dump_json()}\n\n"
         finally:
             _gate.release()
@@ -108,10 +144,13 @@ async def interpret_incident(req: InterpretRequest, request: Request) -> Interpr
         provider = fast_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
-    if not _limiter.allow("interpret:" + _client_key(request)):
-        raise ApiError(429, "RATE_LIMITED", "Too many requests. Try again in a minute.")
+    if provider.live:
+        _guard(request, "interpret")
     try:
-        return await interpret(scenario, req.text, provider)
+        result = await interpret(scenario, req.text, provider)
+        if provider.live:
+            inference_budget.record_tokens(result.total_tokens)
+        return result
     except ProviderError as exc:
         status = 429 if exc.code == "RATE_LIMITED" else 503
         code = exc.code if exc.code in ("RATE_LIMITED", "CREDIT_EXHAUSTED") else "MODEL_UNAVAILABLE"
