@@ -49,9 +49,19 @@ show the chain reaction.
 - Built with Claude Code as the development tool. Claude is not used at runtime.
 
 ## Evaluation (measured, not estimated)
-_Fill from `docs/evaluation/RESULTS-live-*.md` (final prompt version). Report: verified-recovery rate vs
-playbook search and greedy, best-option-matches-oracle rate, invalid options (0), honest "none" rate,
-median latency, real cost. Include the shortfalls list._
+Live NVIDIA Nemotron 3 Super on Nebius Token Factory, 20 fixed cases (incidents × priority profiles), one
+run per agent version, compared with a deterministic playbook search, a greedy heuristic and an
+exhaustive oracle over the same action space:
+- Verified recovery found when one exists: agent 16/17 (both versions); playbook search 15/17; greedy 15/17.
+- Honest "no verified recovery" when none exists: 3/3 for every method.
+- Options failing independent re-validation: 0 for every method.
+- Best option equals the oracle's: agent 9/17 (v2) and 7/17 (v4); playbook search 8/17; greedy 6/17.
+  We do not claim better overall plan quality than the playbook; the samples are small.
+- Where the agent adds something the baselines miss: in c19 (setup team away) it finds a verified,
+  zero-cost recovery (a free person helps rig + a line check) that both baselines report as impossible.
+- Median latency ~18–20 s per recovery; 20 runs cost $0.22–0.24 at list price.
+- Still weak: fixes that need three simultaneous changes (c09).
+Full data and per-case tables: `docs/evaluation/`.
 
 ## Challenges
 - Making the model's output safe to act on: a strict tool boundary (allow-listed actions, extra fields
