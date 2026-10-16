@@ -48,3 +48,9 @@ def test_people_without_changes_are_listed_as_unchanged(scenario: Scenario) -> N
     recipients = {i.recipient_id for i in notice.items}
     assert all(label for label in notice.unchanged)
     assert "event-lead" not in recipients or "Event lead" not in notice.unchanged
+
+
+def test_equipment_is_never_a_recipient(scenario: Scenario) -> None:
+    notice = _notice(scenario, Patch(actions=(ActivateResource(resource_id="trolley-2"),)))
+    crew_ids = {i.recipient_id for i in notice.items if i.kind == "crew"}
+    assert not crew_ids & {"trolley-1", "trolley-2", "stage"}

@@ -66,7 +66,7 @@ def build_notice(problem: EffectiveProblem, before: Plan, after: Plan, patch: Pa
         new_people = set(new[2].values()) if new else set()
         for rid in sorted(old_people | new_people):
             res = scenario.resource(rid)
-            if res.kind == "space":
+            if res.kind != "person":
                 continue
             was, now_span = (
                 _span(b, task.id) if rid in old_people else None,

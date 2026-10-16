@@ -158,11 +158,32 @@ body {
     fill 300ms ease;
 }
 
+@keyframes room-hit {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.22;
+  }
+  100% {
+    opacity: 0.05;
+  }
+}
+
+.room-hit {
+  opacity: 0;
+  animation: room-hit 1400ms ease-out var(--wave-delay, 0ms) both;
+}
+
 .scene-move {
   transition: transform 520ms cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .room-hit {
+    animation: none !important;
+    opacity: 0.08;
+  }
   .scene-move,
   .verifier-point,
   .timeline-bar {

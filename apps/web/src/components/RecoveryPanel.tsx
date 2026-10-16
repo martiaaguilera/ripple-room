@@ -141,7 +141,13 @@ function OptionCard({
             <div className="min-w-0 flex-1">
               <h3 className="text-[15px] leading-snug font-bold">{option.title}</h3>
               <p className="text-[11px] text-faint">
-                {option.modelRank === 1 ? "Nemotron's own first choice" : option.modelRank ? `Nemotron listed it #${option.modelRank}` : SOURCE_TEXT[option.source]}
+                {option.modelRank == null
+                  ? SOURCE_TEXT[option.source]
+                  : option.source === "nemotron"
+                    ? option.modelRank === 1
+                      ? "Nemotron's own first choice"
+                      : `Nemotron listed it #${option.modelRank}`
+                    : `Simulated agent listed it #${option.modelRank}`}
               </p>
             </div>
             <span className="shrink-0 rounded border border-signal/40 px-1.5 py-px text-[11px] font-semibold text-signal">Verified</span>

@@ -137,7 +137,13 @@ export function ControlRoom() {
       <div className="grid flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-6">
         <main className="min-w-0 space-y-4">
           <section aria-labelledby="scene-h" className="overflow-hidden rounded-2xl border border-line bg-panel">
-            <SceneHeader room={room} story={story} title={`${scenario.name} at ${scenario.venue}`} />
+            <SceneHeader
+              room={room}
+              story={story}
+              title={`${scenario.name} at ${scenario.venue}`}
+              beforeIncident={view.revision.state.plan.entries.find((e) => e.task_id === scenario.deadline_task_id)?.start ?? null}
+              doNothing={view.impact?.schedule.readiness ?? null}
+            />
             <div className="overflow-x-auto">
               <VenueScene scenario={scenario} room={room} rippleKey={state.rippleKey} previewKey={state.previewId ?? ""} />
             </div>

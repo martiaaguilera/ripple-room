@@ -185,8 +185,25 @@ export function VenueScene({ scenario, room, rippleKey, previewKey }: { scenario
         {zones.map((z, i) => {
           const tasks = room.tasks.filter((tk) => tk.zoneId === z.id && !tk.milestone);
           const x = roomX(i);
+          const waves = room.mode === "impact" ? tasks.flatMap((tk) => (tk.wave != null && tk.status !== "on_track" ? [tk.wave] : [])) : [];
+          const firstWave = waves.length ? Math.min(...waves) : null;
+          const hot = tasks.some((tk) => tk.status === "breach" || tk.status === "blocked");
           return (
             <g key={z.id}>
+              {firstWave != null && (
+                <rect
+                  key={`hit-${rippleKey}`}
+                  x={x + 2}
+                  y={BUILDING.y + 2}
+                  width={roomW - 4}
+                  height={BUILDING.h - 52}
+                  rx={8}
+                  fill={hot ? "var(--coral)" : "var(--amber)"}
+                  className="room-hit"
+                  style={{ "--wave-delay": `${firstWave * 240}ms` } as React.CSSProperties}
+                  aria-hidden
+                />
+              )}
               {i > 0 && <line x1={x} x2={x} y1={BUILDING.y + 12} y2={BUILDING.y + BUILDING.h - 48} stroke="var(--line)" />}
               <text x={x + 14} y={BUILDING.y + 26} fontSize={13} fill="var(--muted)" className="font-display" style={{ fontWeight: 700, letterSpacing: "0.04em" }}>
                 {z.label}
