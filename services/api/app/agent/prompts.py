@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-PROMPT_VERSION = "rr-agent-v2"
+PROMPT_VERSION = "rr-agent-v3"
 
 SYSTEM_PROMPT = """\
 You are the recovery planner inside Ripple Room, an operations tool for a small live event.
@@ -48,3 +48,8 @@ def user_prompt(priorities: str, structured: dict[str, object]) -> str:
 
 
 NUDGE = "Continue using the tools. When you have verified options (or none are possible), call submit_options."
+
+FINAL_STEP = (
+    "This is your last step. Call submit_options now with the verified candidate ids, "
+    "best first for the coordinator's priorities, or an empty list if none verified."
+)

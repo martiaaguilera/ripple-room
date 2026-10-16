@@ -362,3 +362,35 @@ def test_recover_endpoint_streams_sse(scenario: Scenario) -> None:
         body = "".join(res.iter_text())
     assert "event: run_started" in body and "event: done" in body
     assert "test-key" not in body
+
+
+async def test_last_call_forces_submit_when_candidates_exist(scenario: Scenario) -> None:
+    """The model keeps evaluating; on its final allowed call the runner forces submit_options."""
+    evaluate = (
+        "evaluate_patch",
+        {"actions": [{"type": "activate_resource", "resource_id": "trolley-2"}], "rationale": "x"},
+    )
+    submit = (
+        "submit_options",
+        {"options": [{"candidate_id": "c1", "title": "Rent trolley", "why": "w"}], "summary": "s"},
+    )
+
+    def handler_factory():  # type: ignore[no-untyped-def]
+        seen: list[dict[str, Any]] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            body = json.loads(request.content)
+            seen.append(body)
+            forced = isinstance(body.get("tool_choice"), dict)
+            return httpx.Response(200, json=_completion([submit if forced else evaluate]))
+
+        return handler, seen
+
+    handler, seen = handler_factory()
+    budget = Budget(max_model_calls=3, max_total_tokens=50_000, timeout_seconds=30, max_output_tokens=512)
+    events = await _collect(_ctx(scenario, _shocked(scenario)), _provider(httpx.MockTransport(handler)), budget)
+    assert seen[-1]["tool_choice"] == {"type": "function", "function": {"name": "submit_options"}}
+    assert all(b["tool_choice"] == "auto" for b in seen[:-1])
+    options = next(e for e in events if e.type == "options")
+    assert options.data["finalized_by_model"] is True
+    assert next(e for e in events if e.type == "done").data["stop_reason"] == "submitted"

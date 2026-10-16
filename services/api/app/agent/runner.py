@@ -18,8 +18,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from app.agent.prompts import NUDGE, PROMPT_VERSION, SYSTEM_PROMPT, user_prompt
-from app.agent.tools import AgentContext, execute_tool, preferences_view, tool_specs
+from app.agent.prompts import FINAL_STEP, NUDGE, PROMPT_VERSION, SYSTEM_PROMPT, user_prompt
+from app.agent.tools import TOOL_SUBMIT_OPTIONS, AgentContext, execute_tool, preferences_view, tool_specs
 from app.domain.preferences import PreferenceReport
 from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, EvaluationStatus
@@ -30,6 +30,8 @@ EventType = Literal[
 ]
 
 _EXCERPT = 600
+# On the last allowed call the model must choose from what it has verified, so every run ends with its own pick.
+_FINALIZE: dict[str, Any] = {"type": "function", "function": {"name": TOOL_SUBMIT_OPTIONS}}
 
 
 class AgentEvent(BaseModel):
@@ -124,9 +126,16 @@ async def run_agent(
             stop_reason = "token_budget"
             break
         calls += 1
+        if calls == budget.max_model_calls and ctx.candidates:
+            messages.append({"role": "user", "content": FINAL_STEP})
         try:
             result = await asyncio.wait_for(
-                provider.complete(messages, tools=tools, max_tokens=budget.max_output_tokens),
+                provider.complete(
+                    messages,
+                    tools=tools,
+                    max_tokens=budget.max_output_tokens,
+                    tool_choice=_FINALIZE if calls == budget.max_model_calls and ctx.candidates else "auto",
+                ),
                 timeout=remaining,
             )
         except TimeoutError:
