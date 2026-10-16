@@ -44,7 +44,17 @@ Status legend: **PROVEN** (run and observed) · **NOT VERIFIED** · **BLOCKED** 
 - CI workflow written (`.github/workflows/ci.yml`) — **NOT VERIFIED** (repo not pushed).
 - Claude-in-Chrome extension not connected; visual QA done with Playwright screenshots instead.
 
+### Live Nebius verification (16 Oct, ~23:15 CEST)
+- Owner supplied key (pasted in chat → stored only in gitignored `services/api/.env`; recommend rotation after hackathon).
+- **PROVEN** `GET /v1/models?verbose=true`: 28 models; NVIDIA: `nvidia/nemotron-3-super-120b-a12b` (256K ctx, $0.30/$0.90 per 1M, tools+reasoning, eu-north1), `nvidia/Nemotron-3-Ultra-550b-a55b` (us-central1 only, $1/$3), `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/Nemotron-3_5-Lightning` (both $0.06/$0.24).
+- **PROVEN** Super: plain chat 649 ms; native tool call 933 ms; `reasoning_content` field present.
+- **PROVEN** 3 live agent runs via real loop (`scripts/run_live_recovery.py`):
+  - truck+35, "zero spend": 6 calls, 11.1 s, 21,978 tok; c2 rejected by verifier then revised; 2 verified options (both compress; trolley not explored).
+  - truck+35, "guest first": 7 calls, 16.6 s, 27,432 tok; found trolley (€35) + 2 compress options; ranked a guest-impacting option first (priority-alignment miss → eval harness).
+  - truck+90: model submitted 0 options citing the 18:30 bound (honest infeasibility).
+- **PROVEN** UI live run (AV out, zero spend) at localhost with real request ids in trace.
+
 ### Next three actions
-1. Owner: Nebius key → run `smoke_nebius.py --list-models --probe`, pin model IDs, run first live recovery, record evidence.
+1. ~~Owner: Nebius key~~ DONE. Next: evaluation harness → run `smoke_nebius.py --list-models --probe`, pin model IDs, run first live recovery, record evidence.
 2. Landing section (P0-A) + "How it works" panel; evaluation harness (20 seeded cases, agent vs search vs greedy).
 3. Owner: Vercel account → smoke-deploy OR-Tools on Vercel Python; fallback Render Docker.

@@ -13,18 +13,18 @@ are reported as impossible.
 > Built for the Nebius x NVIDIA Global AI Hackathon 2026 (track: Best Apps and Agents).
 > The scenario, venue, people and costs are fictional test data.
 
-## Status (honest, updated 16 Oct 2026)
+## Status (honest, updated 16 Oct 2026, evening)
 
 | Area | State |
 |---|---|
 | Constraint engine, impact analysis, verifier | Working, 88 backend tests |
 | Stateless API (shock, evaluate, search, apply) | Working |
-| Agent loop, tool boundary, Nebius adapter | Working against a scripted mock and a faked HTTP transport |
-| **Live Nemotron calls on Nebius Token Factory** | **NOT VERIFIED yet** (waiting for API credentials) |
+| Agent loop, tool boundary, Nebius adapter | Working; unit-tested against a scripted mock and a faked HTTP transport |
+| **Live Nemotron calls on Nebius Token Factory** | **Verified 16 Oct 2026** with `nvidia/nemotron-3-super-120b-a12b`: native tool calling, full recovery runs with verifier rejections and revisions (traces in `docs/evidence/`) |
 | Web control room | Working; 14 unit tests, 10 Playwright E2E runs (desktop + mobile) |
 | Public deployment | Not deployed yet |
 
-Until live inference is verified, the UI labels every run "Simulated agent, no model calls".
+When the server runs in mock mode (CI, local dev without a key) the UI labels every run "Simulated agent, no model calls".
 
 ## How it works
 

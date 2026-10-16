@@ -1,0 +1,3560 @@
+{
+ "timestamp_utc": "2026-10-16T21:17:26.504321+00:00",
+ "preset": "truck-delay-35",
+ "priorities": "Protect the guest experience; spending is fine.",
+ "base_revision_id": "rev_53c5fc1da4b7829c",
+ "events": [
+  {
+   "seq": 1,
+   "type": "run_started",
+   "at_ms": 0,
+   "data": {
+    "run_id": "run_71b422b2053b",
+    "base_revision_id": "rev_53c5fc1da4b7829c",
+    "provider": "nebius-token-factory",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "live": true,
+    "mode": "live",
+    "prompt_version": "rr-agent-v1",
+    "budget": {
+     "model_calls": 8,
+     "evaluations": 6,
+     "tokens": 80000,
+     "seconds": 90.0
+    }
+   }
+  },
+  {
+   "seq": 2,
+   "type": "model_call",
+   "at_ms": 1004,
+   "data": {
+    "n": 1,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 760,
+    "request_id": "a17cbe487a883d4daa2f2876663312f7",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 1341,
+     "completion_tokens": 25,
+     "total_tokens": 1366
+    },
+    "tool_calls": [
+     "get_situation"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 3,
+   "type": "tool_call",
+   "at_ms": 1004,
+   "data": {
+    "id": "chatcmpl-tool-9e1fe60a77f61f72",
+    "name": "get_situation",
+    "arguments": "{}"
+   }
+  },
+  {
+   "seq": 4,
+   "type": "phase",
+   "at_ms": 1004,
+   "data": {
+    "name": "perceive"
+   }
+  },
+  {
+   "seq": 5,
+   "type": "tool_result",
+   "at_ms": 1004,
+   "data": {
+    "id": "chatcmpl-tool-9e1fe60a77f61f72",
+    "name": "get_situation",
+    "ok": true,
+    "summary": "doors ready 18:15 vs deadline 18:00"
+   }
+  },
+  {
+   "seq": 6,
+   "type": "model_call",
+   "at_ms": 1725,
+   "data": {
+    "n": 2,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 525,
+    "request_id": "e90eb0c0699e96ebd62801a3e233111f",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 3223,
+     "completion_tokens": 28,
+     "total_tokens": 3251
+    },
+    "tool_calls": [
+     "list_interventions"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 7,
+   "type": "tool_call",
+   "at_ms": 1725,
+   "data": {
+    "id": "chatcmpl-tool-8af8a4345e000d11",
+    "name": "list_interventions",
+    "arguments": "{}"
+   }
+  },
+  {
+   "seq": 8,
+   "type": "phase",
+   "at_ms": 1725,
+   "data": {
+    "name": "plan"
+   }
+  },
+  {
+   "seq": 9,
+   "type": "tool_result",
+   "at_ms": 1725,
+   "data": {
+    "id": "chatcmpl-tool-8af8a4345e000d11",
+    "name": "list_interventions",
+    "ok": true,
+    "summary": "6 permitted interventions"
+   }
+  },
+  {
+   "seq": 10,
+   "type": "model_call",
+   "at_ms": 5476,
+   "data": {
+    "n": 3,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 3561,
+    "request_id": "65991388cbe96d65ae419aa8c9ff547c",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 3754,
+     "completion_tokens": 686,
+     "total_tokens": 4440
+    },
+    "tool_calls": [
+     "evaluate_patch"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 11,
+   "type": "tool_call",
+   "at_ms": 5476,
+   "data": {
+    "id": "chatcmpl-tool-83f2d5b6978bd5c2",
+    "name": "evaluate_patch",
+    "arguments": "{\"actions\": [{\"type\": \"compress_task\", \"task_id\": \"soundcheck\", \"duration\": 15}], \"rationale\": \"Shorten soundcheck to save 15 minutes on critical path.\"}"
+   }
+  },
+  {
+   "seq": 12,
+   "type": "phase",
+   "at_ms": 5494,
+   "data": {
+    "name": "verify"
+   }
+  },
+  {
+   "seq": 13,
+   "type": "tool_result",
+   "at_ms": 5494,
+   "data": {
+    "id": "chatcmpl-tool-83f2d5b6978bd5c2",
+    "name": "evaluate_patch",
+    "ok": true,
+    "summary": "c1: verified, doors ready 18:00"
+   }
+  },
+  {
+   "seq": 14,
+   "type": "candidate",
+   "at_ms": 5494,
+   "data": {
+    "candidate_id": "c1",
+    "rationale": "Shorten soundcheck to save 15 minutes on critical path.",
+    "evaluation": {
+     "status": "verified",
+     "patch": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "rationale": "Shorten soundcheck to save 15 minutes on critical path."
+     },
+     "violations": [],
+     "plan": {
+      "entries": [
+       {
+        "task_id": "dock-open",
+        "start": 835,
+        "assignments": {}
+       },
+       {
+        "task_id": "truck-arrival",
+        "start": 875,
+        "assignments": {}
+       },
+       {
+        "task_id": "unload-deck",
+        "start": 875,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "unload-truss",
+        "start": 895,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "scanner-setup",
+        "start": 900,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "stage-rigging",
+        "start": 915,
+        "assignments": {
+         "crew": "setup-team",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "unload-av",
+        "start": 915,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "audio-setup",
+        "start": 940,
+        "assignments": {
+         "tech": "av-tech"
+        }
+       },
+       {
+        "task_id": "unload-vendor",
+        "start": 940,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "lighting-focus",
+        "start": 975,
+        "assignments": {
+         "tech": "light-tech",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "vendor-tables",
+        "start": 975,
+        "assignments": {
+         "crew": "setup-team"
+        }
+       },
+       {
+        "task_id": "soundcheck",
+        "start": 1025,
+        "assignments": {
+         "tech": "av-tech",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "safety-walkthrough",
+        "start": 1040,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "crew-briefing",
+        "start": 1065,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "doors-open",
+        "start": 1080,
+        "assignments": {}
+       }
+      ]
+     },
+     "timings": [
+      {
+       "task_id": "dock-open",
+       "start": 835,
+       "end": 835,
+       "duration": 0,
+       "assignments": {},
+       "slack": 40,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:dock-open",
+        "text": "Cannot start before 13:55.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "truck-arrival",
+       "start": 875,
+       "end": 875,
+       "duration": 0,
+       "assignments": {},
+       "slack": 0,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:truck-arrival",
+        "text": "Cannot start before 14:35.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "unload-deck",
+       "start": 875,
+       "end": 895,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:truck-arrival->unload-deck",
+        "text": "Waits for Truck arrives.",
+        "via": "truck-arrival"
+       }
+      },
+      {
+       "task_id": "unload-truss",
+       "start": 895,
+       "end": 915,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload stage deck until 14:55.",
+        "via": "unload-deck"
+       }
+      },
+      {
+       "task_id": "scanner-setup",
+       "start": 900,
+       "end": 925,
+       "duration": 25,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 115,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:scanner-setup",
+        "text": "Cannot start before 15:00.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "stage-rigging",
+       "start": 915,
+       "end": 975,
+       "duration": 60,
+       "assignments": {
+        "crew": "setup-team",
+        "space": "stage"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:unload-truss->stage-rigging",
+        "text": "Waits for Unload truss.",
+        "via": "unload-truss"
+       }
+      },
+      {
+       "task_id": "unload-av",
+       "start": 915,
+       "end": 940,
+       "duration": 25,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 35,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload truss until 15:15.",
+        "via": "unload-truss"
+       }
+      },
+      {
+       "task_id": "audio-setup",
+       "start": 940,
+       "end": 990,
+       "duration": 50,
+       "assignments": {
+        "tech": "av-tech"
+       },
+       "slack": 35,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:unload-av->audio-setup",
+        "text": "Waits for Unload AV gear.",
+        "via": "unload-av"
+       }
+      },
+      {
+       "task_id": "unload-vendor",
+       "start": 940,
+       "end": 960,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 40,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload AV gear until 15:40.",
+        "via": "unload-av"
+       }
+      },
+      {
+       "task_id": "lighting-focus",
+       "start": 975,
+       "end": 1025,
+       "duration": 50,
+       "assignments": {
+        "tech": "light-tech",
+        "space": "stage"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:stage-rigging->lighting-focus",
+        "text": "Waits for Stage rigging.",
+        "via": "stage-rigging"
+       }
+      },
+      {
+       "task_id": "vendor-tables",
+       "start": 975,
+       "end": 1015,
+       "duration": 40,
+       "assignments": {
+        "crew": "setup-team"
+       },
+       "slack": 25,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:setup-team",
+        "text": "Setup team is busy with Stage rigging until 16:15.",
+        "via": "stage-rigging"
+       }
+      },
+      {
+       "task_id": "soundcheck",
+       "start": 1025,
+       "end": 1040,
+       "duration": 15,
+       "assignments": {
+        "tech": "av-tech",
+        "space": "stage"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:lighting-focus->soundcheck",
+        "text": "Waits for Lighting focus.",
+        "via": "lighting-focus"
+       }
+      },
+      {
+       "task_id": "safety-walkthrough",
+       "start": 1040,
+       "end": 1065,
+       "duration": 25,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:soundcheck->safety-walkthrough",
+        "text": "Waits for Soundcheck.",
+        "via": "soundcheck"
+       }
+      },
+      {
+       "task_id": "crew-briefing",
+       "start": 1065,
+       "end": 1080,
+       "duration": 15,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:safety-walkthrough->crew-briefing",
+        "text": "Waits for Safety walkthrough.",
+        "via": "safety-walkthrough"
+       }
+      },
+      {
+       "task_id": "doors-open",
+       "start": 1080,
+       "end": 1080,
+       "duration": 0,
+       "assignments": {},
+       "slack": 0,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:crew-briefing->doors-open",
+        "text": "Waits for Crew briefing.",
+        "via": "crew-briefing"
+       }
+      }
+     ],
+     "schedule": {
+      "readiness": 1080,
+      "deadline": 1080,
+      "deadline_delta": 0,
+      "driving_path": [
+       "truck-arrival",
+       "unload-deck",
+       "unload-truss",
+       "stage-rigging",
+       "lighting-focus",
+       "soundcheck",
+       "safety-walkthrough",
+       "crew-briefing",
+       "doors-open"
+      ]
+     },
+     "changes": [
+      {
+       "task_id": "truck-arrival",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-truss",
+       "moved_minutes": 55,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-deck",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-av",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-vendor",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "stage-rigging",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "lighting-focus",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "audio-setup",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "soundcheck",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": 30,
+       "duration_to": 15,
+       "deferred": false
+      },
+      {
+       "task_id": "vendor-tables",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "safety-walkthrough",
+       "moved_minutes": 20,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "crew-briefing",
+       "moved_minutes": 20,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "doors-open",
+       "moved_minutes": 20,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      }
+     ],
+     "cost_cents": 0,
+     "service_impacts": [
+      {
+       "kind": "compress",
+       "task_id": "soundcheck",
+       "text": "Line check instead of full soundcheck (30 \u2192 15 min)",
+       "severity": 1
+      }
+     ],
+     "disruption_minutes": 410,
+     "reassignments": 0,
+     "solver": {
+      "status": "OPTIMAL",
+      "wall_ms": 10,
+      "objective": 410
+     },
+     "infeasibility": null,
+     "proven_optimal": true
+    }
+   }
+  },
+  {
+   "seq": 15,
+   "type": "model_call",
+   "at_ms": 6841,
+   "data": {
+    "n": 4,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 1137,
+    "request_id": "0da37fef2c430cd9d4d925f30a91cd01",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 3937,
+     "completion_tokens": 116,
+     "total_tokens": 4053
+    },
+    "tool_calls": [
+     "evaluate_patch"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 16,
+   "type": "tool_call",
+   "at_ms": 6841,
+   "data": {
+    "id": "chatcmpl-tool-83bfcf6db81e2b8f",
+    "name": "evaluate_patch",
+    "arguments": "{\"actions\": [{\"type\": \"compress_task\", \"task_id\": \"crew-briefing\", \"duration\": 10}], \"rationale\": \"Shorten crew briefing to save 5 minutes on critical path.\"}"
+   }
+  },
+  {
+   "seq": 17,
+   "type": "tool_result",
+   "at_ms": 6859,
+   "data": {
+    "id": "chatcmpl-tool-83bfcf6db81e2b8f",
+    "name": "evaluate_patch",
+    "ok": true,
+    "summary": "c2: infeasible"
+   }
+  },
+  {
+   "seq": 18,
+   "type": "candidate",
+   "at_ms": 6859,
+   "data": {
+    "candidate_id": "c2",
+    "rationale": "Shorten crew briefing to save 5 minutes on critical path.",
+    "evaluation": {
+     "status": "infeasible",
+     "patch": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       }
+      ],
+      "rationale": "Shorten crew briefing to save 5 minutes on critical path."
+     },
+     "violations": [],
+     "plan": null,
+     "timings": [],
+     "schedule": null,
+     "changes": [],
+     "cost_cents": 0,
+     "service_impacts": [],
+     "disruption_minutes": 0,
+     "reassignments": 0,
+     "solver": {
+      "status": "INFEASIBLE",
+      "wall_ms": 2,
+      "objective": null
+     },
+     "infeasibility": {
+      "best_readiness": 1090,
+      "best_delta": 10,
+      "precedence_bound": 1070,
+      "bound_chain": [
+       "truck-arrival",
+       "unload-deck",
+       "stage-rigging",
+       "lighting-focus",
+       "soundcheck",
+       "safety-walkthrough",
+       "crew-briefing",
+       "doors-open"
+      ],
+      "reasons": [
+       "Dependencies alone would allow readiness at 17:50, but crew, equipment and space limits push the best achievable readiness to 18:10 (10 min late)."
+      ]
+     },
+     "proven_optimal": false
+    }
+   }
+  },
+  {
+   "seq": 19,
+   "type": "model_call",
+   "at_ms": 11790,
+   "data": {
+    "n": 5,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 4718,
+    "request_id": "d8061ad3e37a39528c9d2b92ad5d7028",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 4113,
+     "completion_tokens": 731,
+     "total_tokens": 4844
+    },
+    "tool_calls": [
+     "evaluate_patch"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 20,
+   "type": "tool_call",
+   "at_ms": 11790,
+   "data": {
+    "id": "chatcmpl-tool-9a33b62eafa34500",
+    "name": "evaluate_patch",
+    "arguments": "{\"actions\": [{\"type\": \"compress_task\", \"task_id\": \"soundcheck\", \"duration\": 15}, {\"type\": \"compress_task\", \"task_id\": \"crew-briefing\", \"duration\": 10}], \"rationale\": \"Compress soundcheck and crew briefing to save time.\"}"
+   }
+  },
+  {
+   "seq": 21,
+   "type": "phase",
+   "at_ms": 11800,
+   "data": {
+    "name": "revise"
+   }
+  },
+  {
+   "seq": 22,
+   "type": "tool_result",
+   "at_ms": 11800,
+   "data": {
+    "id": "chatcmpl-tool-9a33b62eafa34500",
+    "name": "evaluate_patch",
+    "ok": true,
+    "summary": "c3: verified, doors ready 17:55"
+   }
+  },
+  {
+   "seq": 23,
+   "type": "candidate",
+   "at_ms": 11801,
+   "data": {
+    "candidate_id": "c3",
+    "rationale": "Compress soundcheck and crew briefing to save time.",
+    "evaluation": {
+     "status": "verified",
+     "patch": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       },
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       }
+      ],
+      "rationale": "Compress soundcheck and crew briefing to save time."
+     },
+     "violations": [],
+     "plan": {
+      "entries": [
+       {
+        "task_id": "dock-open",
+        "start": 835,
+        "assignments": {}
+       },
+       {
+        "task_id": "truck-arrival",
+        "start": 875,
+        "assignments": {}
+       },
+       {
+        "task_id": "unload-deck",
+        "start": 875,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "unload-truss",
+        "start": 895,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "scanner-setup",
+        "start": 900,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "stage-rigging",
+        "start": 915,
+        "assignments": {
+         "crew": "setup-team",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "unload-av",
+        "start": 915,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "audio-setup",
+        "start": 940,
+        "assignments": {
+         "tech": "av-tech"
+        }
+       },
+       {
+        "task_id": "unload-vendor",
+        "start": 940,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "lighting-focus",
+        "start": 975,
+        "assignments": {
+         "tech": "light-tech",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "vendor-tables",
+        "start": 975,
+        "assignments": {
+         "crew": "setup-team"
+        }
+       },
+       {
+        "task_id": "soundcheck",
+        "start": 1025,
+        "assignments": {
+         "tech": "av-tech",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "safety-walkthrough",
+        "start": 1040,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "crew-briefing",
+        "start": 1065,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "doors-open",
+        "start": 1075,
+        "assignments": {}
+       }
+      ]
+     },
+     "timings": [
+      {
+       "task_id": "dock-open",
+       "start": 835,
+       "end": 835,
+       "duration": 0,
+       "assignments": {},
+       "slack": 45,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:dock-open",
+        "text": "Cannot start before 13:55.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "truck-arrival",
+       "start": 875,
+       "end": 875,
+       "duration": 0,
+       "assignments": {},
+       "slack": 5,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:truck-arrival",
+        "text": "Cannot start before 14:35.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "unload-deck",
+       "start": 875,
+       "end": 895,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:truck-arrival->unload-deck",
+        "text": "Waits for Truck arrives.",
+        "via": "truck-arrival"
+       }
+      },
+      {
+       "task_id": "unload-truss",
+       "start": 895,
+       "end": 915,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload stage deck until 14:55.",
+        "via": "unload-deck"
+       }
+      },
+      {
+       "task_id": "scanner-setup",
+       "start": 900,
+       "end": 925,
+       "duration": 25,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 120,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:scanner-setup",
+        "text": "Cannot start before 15:00.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "stage-rigging",
+       "start": 915,
+       "end": 975,
+       "duration": 60,
+       "assignments": {
+        "crew": "setup-team",
+        "space": "stage"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:unload-truss->stage-rigging",
+        "text": "Waits for Unload truss.",
+        "via": "unload-truss"
+       }
+      },
+      {
+       "task_id": "unload-av",
+       "start": 915,
+       "end": 940,
+       "duration": 25,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 40,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload truss until 15:15.",
+        "via": "unload-truss"
+       }
+      },
+      {
+       "task_id": "audio-setup",
+       "start": 940,
+       "end": 990,
+       "duration": 50,
+       "assignments": {
+        "tech": "av-tech"
+       },
+       "slack": 40,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:unload-av->audio-setup",
+        "text": "Waits for Unload AV gear.",
+        "via": "unload-av"
+       }
+      },
+      {
+       "task_id": "unload-vendor",
+       "start": 940,
+       "end": 960,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 45,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload AV gear until 15:40.",
+        "via": "unload-av"
+       }
+      },
+      {
+       "task_id": "lighting-focus",
+       "start": 975,
+       "end": 1025,
+       "duration": 50,
+       "assignments": {
+        "tech": "light-tech",
+        "space": "stage"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:stage-rigging->lighting-focus",
+        "text": "Waits for Stage rigging.",
+        "via": "stage-rigging"
+       }
+      },
+      {
+       "task_id": "vendor-tables",
+       "start": 975,
+       "end": 1015,
+       "duration": 40,
+       "assignments": {
+        "crew": "setup-team"
+       },
+       "slack": 30,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:setup-team",
+        "text": "Setup team is busy with Stage rigging until 16:15.",
+        "via": "stage-rigging"
+       }
+      },
+      {
+       "task_id": "soundcheck",
+       "start": 1025,
+       "end": 1040,
+       "duration": 15,
+       "assignments": {
+        "tech": "av-tech",
+        "space": "stage"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:lighting-focus->soundcheck",
+        "text": "Waits for Lighting focus.",
+        "via": "lighting-focus"
+       }
+      },
+      {
+       "task_id": "safety-walkthrough",
+       "start": 1040,
+       "end": 1065,
+       "duration": 25,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:soundcheck->safety-walkthrough",
+        "text": "Waits for Soundcheck.",
+        "via": "soundcheck"
+       }
+      },
+      {
+       "task_id": "crew-briefing",
+       "start": 1065,
+       "end": 1075,
+       "duration": 10,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:safety-walkthrough->crew-briefing",
+        "text": "Waits for Safety walkthrough.",
+        "via": "safety-walkthrough"
+       }
+      },
+      {
+       "task_id": "doors-open",
+       "start": 1075,
+       "end": 1075,
+       "duration": 0,
+       "assignments": {},
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:crew-briefing->doors-open",
+        "text": "Waits for Crew briefing.",
+        "via": "crew-briefing"
+       }
+      }
+     ],
+     "schedule": {
+      "readiness": 1075,
+      "deadline": 1080,
+      "deadline_delta": -5,
+      "driving_path": [
+       "truck-arrival",
+       "unload-deck",
+       "unload-truss",
+       "stage-rigging",
+       "lighting-focus",
+       "soundcheck",
+       "safety-walkthrough",
+       "crew-briefing",
+       "doors-open"
+      ]
+     },
+     "changes": [
+      {
+       "task_id": "truck-arrival",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-truss",
+       "moved_minutes": 55,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-deck",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-av",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-vendor",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "stage-rigging",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "lighting-focus",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "audio-setup",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "soundcheck",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": 30,
+       "duration_to": 15,
+       "deferred": false
+      },
+      {
+       "task_id": "vendor-tables",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "safety-walkthrough",
+       "moved_minutes": 20,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "crew-briefing",
+       "moved_minutes": 20,
+       "reassigned": [],
+       "duration_from": 15,
+       "duration_to": 10,
+       "deferred": false
+      },
+      {
+       "task_id": "doors-open",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      }
+     ],
+     "cost_cents": 0,
+     "service_impacts": [
+      {
+       "kind": "compress",
+       "task_id": "crew-briefing",
+       "text": "Short-form crew briefing (15 \u2192 10 min)",
+       "severity": 1
+      },
+      {
+       "kind": "compress",
+       "task_id": "soundcheck",
+       "text": "Line check instead of full soundcheck (30 \u2192 15 min)",
+       "severity": 1
+      }
+     ],
+     "disruption_minutes": 405,
+     "reassignments": 0,
+     "solver": {
+      "status": "OPTIMAL",
+      "wall_ms": 6,
+      "objective": 405
+     },
+     "infeasibility": null,
+     "proven_optimal": true
+    }
+   }
+  },
+  {
+   "seq": 24,
+   "type": "model_call",
+   "at_ms": 13830,
+   "data": {
+    "n": 6,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 1804,
+    "request_id": "8ef827ba398f1dd060a0f9de21f56005",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 4340,
+     "completion_tokens": 216,
+     "total_tokens": 4556
+    },
+    "tool_calls": [
+     "evaluate_patch"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 25,
+   "type": "tool_call",
+   "at_ms": 13830,
+   "data": {
+    "id": "chatcmpl-tool-b1b8185f17993205",
+    "name": "evaluate_patch",
+    "arguments": "{\"actions\": [{\"type\": \"activate_resource\", \"resource_id\": \"trolley-2\"}], \"rationale\": \"Add second trolley to allow parallel unloading of truss and deck.\"}"
+   }
+  },
+  {
+   "seq": 26,
+   "type": "tool_result",
+   "at_ms": 13840,
+   "data": {
+    "id": "chatcmpl-tool-b1b8185f17993205",
+    "name": "evaluate_patch",
+    "ok": true,
+    "summary": "c4: verified, doors ready 17:55"
+   }
+  },
+  {
+   "seq": 27,
+   "type": "candidate",
+   "at_ms": 13840,
+   "data": {
+    "candidate_id": "c4",
+    "rationale": "Add second trolley to allow parallel unloading of truss and deck.",
+    "evaluation": {
+     "status": "verified",
+     "patch": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "rationale": "Add second trolley to allow parallel unloading of truss and deck."
+     },
+     "violations": [],
+     "plan": {
+      "entries": [
+       {
+        "task_id": "dock-open",
+        "start": 835,
+        "assignments": {}
+       },
+       {
+        "task_id": "truck-arrival",
+        "start": 875,
+        "assignments": {}
+       },
+       {
+        "task_id": "unload-deck",
+        "start": 875,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-2"
+        }
+       },
+       {
+        "task_id": "unload-truss",
+        "start": 875,
+        "assignments": {
+         "crew": "setup-team",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "stage-rigging",
+        "start": 895,
+        "assignments": {
+         "crew": "setup-team",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "unload-av",
+        "start": 895,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "scanner-setup",
+        "start": 900,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "audio-setup",
+        "start": 920,
+        "assignments": {
+         "tech": "av-tech"
+        }
+       },
+       {
+        "task_id": "unload-vendor",
+        "start": 920,
+        "assignments": {
+         "crew": "transport-crew",
+         "cart": "trolley-1"
+        }
+       },
+       {
+        "task_id": "lighting-focus",
+        "start": 955,
+        "assignments": {
+         "tech": "light-tech",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "vendor-tables",
+        "start": 955,
+        "assignments": {
+         "crew": "setup-team"
+        }
+       },
+       {
+        "task_id": "soundcheck",
+        "start": 1005,
+        "assignments": {
+         "tech": "av-tech",
+         "space": "stage"
+        }
+       },
+       {
+        "task_id": "safety-walkthrough",
+        "start": 1035,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "crew-briefing",
+        "start": 1060,
+        "assignments": {
+         "lead": "event-lead"
+        }
+       },
+       {
+        "task_id": "doors-open",
+        "start": 1075,
+        "assignments": {}
+       }
+      ]
+     },
+     "timings": [
+      {
+       "task_id": "dock-open",
+       "start": 835,
+       "end": 835,
+       "duration": 0,
+       "assignments": {},
+       "slack": 45,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:dock-open",
+        "text": "Cannot start before 13:55.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "truck-arrival",
+       "start": 875,
+       "end": 875,
+       "duration": 0,
+       "assignments": {},
+       "slack": 5,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:truck-arrival",
+        "text": "Cannot start before 14:35.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "unload-deck",
+       "start": 875,
+       "end": 895,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-2"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:truck-arrival->unload-deck",
+        "text": "Waits for Truck arrives.",
+        "via": "truck-arrival"
+       }
+      },
+      {
+       "task_id": "unload-truss",
+       "start": 875,
+       "end": 895,
+       "duration": 20,
+       "assignments": {
+        "crew": "setup-team",
+        "cart": "trolley-1"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:truck-arrival->unload-truss",
+        "text": "Waits for Truck arrives.",
+        "via": "truck-arrival"
+       }
+      },
+      {
+       "task_id": "stage-rigging",
+       "start": 895,
+       "end": 955,
+       "duration": 60,
+       "assignments": {
+        "crew": "setup-team",
+        "space": "stage"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:unload-deck->stage-rigging",
+        "text": "Waits for Unload stage deck.",
+        "via": "unload-deck"
+       }
+      },
+      {
+       "task_id": "unload-av",
+       "start": 895,
+       "end": 920,
+       "duration": 25,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 40,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload stage deck until 14:55.",
+        "via": "unload-deck"
+       }
+      },
+      {
+       "task_id": "scanner-setup",
+       "start": 900,
+       "end": 925,
+       "duration": 25,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 115,
+       "binding": {
+        "kind": "release",
+        "constraint_id": "release:scanner-setup",
+        "text": "Cannot start before 15:00.",
+        "via": null
+       }
+      },
+      {
+       "task_id": "audio-setup",
+       "start": 920,
+       "end": 970,
+       "duration": 50,
+       "assignments": {
+        "tech": "av-tech"
+       },
+       "slack": 40,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:unload-av->audio-setup",
+        "text": "Waits for Unload AV gear.",
+        "via": "unload-av"
+       }
+      },
+      {
+       "task_id": "unload-vendor",
+       "start": 920,
+       "end": 940,
+       "duration": 20,
+       "assignments": {
+        "crew": "transport-crew",
+        "cart": "trolley-1"
+       },
+       "slack": 60,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:transport-crew",
+        "text": "Transport crew is busy with Unload AV gear until 15:20.",
+        "via": "unload-av"
+       }
+      },
+      {
+       "task_id": "lighting-focus",
+       "start": 955,
+       "end": 1005,
+       "duration": 50,
+       "assignments": {
+        "tech": "light-tech",
+        "space": "stage"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:stage-rigging->lighting-focus",
+        "text": "Waits for Stage rigging.",
+        "via": "stage-rigging"
+       }
+      },
+      {
+       "task_id": "vendor-tables",
+       "start": 955,
+       "end": 995,
+       "duration": 40,
+       "assignments": {
+        "crew": "setup-team"
+       },
+       "slack": 45,
+       "binding": {
+        "kind": "resource",
+        "constraint_id": "overlap:setup-team",
+        "text": "Setup team is busy with Stage rigging until 15:55.",
+        "via": "stage-rigging"
+       }
+      },
+      {
+       "task_id": "soundcheck",
+       "start": 1005,
+       "end": 1035,
+       "duration": 30,
+       "assignments": {
+        "tech": "av-tech",
+        "space": "stage"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:lighting-focus->soundcheck",
+        "text": "Waits for Lighting focus.",
+        "via": "lighting-focus"
+       }
+      },
+      {
+       "task_id": "safety-walkthrough",
+       "start": 1035,
+       "end": 1060,
+       "duration": 25,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:soundcheck->safety-walkthrough",
+        "text": "Waits for Soundcheck.",
+        "via": "soundcheck"
+       }
+      },
+      {
+       "task_id": "crew-briefing",
+       "start": 1060,
+       "end": 1075,
+       "duration": 15,
+       "assignments": {
+        "lead": "event-lead"
+       },
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:safety-walkthrough->crew-briefing",
+        "text": "Waits for Safety walkthrough.",
+        "via": "safety-walkthrough"
+       }
+      },
+      {
+       "task_id": "doors-open",
+       "start": 1075,
+       "end": 1075,
+       "duration": 0,
+       "assignments": {},
+       "slack": 5,
+       "binding": {
+        "kind": "precedence",
+        "constraint_id": "prec:crew-briefing->doors-open",
+        "text": "Waits for Crew briefing.",
+        "via": "crew-briefing"
+       }
+      }
+     ],
+     "schedule": {
+      "readiness": 1075,
+      "deadline": 1080,
+      "deadline_delta": -5,
+      "driving_path": [
+       "truck-arrival",
+       "unload-deck",
+       "stage-rigging",
+       "lighting-focus",
+       "soundcheck",
+       "safety-walkthrough",
+       "crew-briefing",
+       "doors-open"
+      ]
+     },
+     "changes": [
+      {
+       "task_id": "truck-arrival",
+       "moved_minutes": 35,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-truss",
+       "moved_minutes": 35,
+       "reassigned": [
+        [
+         "crew",
+         "transport-crew",
+         "setup-team"
+        ]
+       ],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-deck",
+       "moved_minutes": 15,
+       "reassigned": [
+        [
+         "cart",
+         "trolley-1",
+         "trolley-2"
+        ]
+       ],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-av",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "unload-vendor",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "stage-rigging",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "lighting-focus",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "audio-setup",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "soundcheck",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "vendor-tables",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "safety-walkthrough",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "crew-briefing",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      },
+      {
+       "task_id": "doors-open",
+       "moved_minutes": 15,
+       "reassigned": [],
+       "duration_from": null,
+       "duration_to": null,
+       "deferred": false
+      }
+     ],
+     "cost_cents": 3500,
+     "service_impacts": [],
+     "disruption_minutes": 265,
+     "reassignments": 2,
+     "solver": {
+      "status": "OPTIMAL",
+      "wall_ms": 6,
+      "objective": 265
+     },
+     "infeasibility": null,
+     "proven_optimal": true
+    }
+   }
+  },
+  {
+   "seq": 28,
+   "type": "model_call",
+   "at_ms": 16549,
+   "data": {
+    "n": 7,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "latency_ms": 2486,
+    "request_id": "f1dc2d2bebd0bb47370f77a39bd4e332",
+    "finish_reason": "tool_calls",
+    "usage": {
+     "prompt_tokens": 4498,
+     "completion_tokens": 424,
+     "total_tokens": 4922
+    },
+    "tool_calls": [
+     "submit_options"
+    ],
+    "content_excerpt": null,
+    "reasoning_returned": true
+   }
+  },
+  {
+   "seq": 29,
+   "type": "tool_call",
+   "at_ms": 16549,
+   "data": {
+    "id": "chatcmpl-tool-a461131eca6d4759",
+    "name": "submit_options",
+    "arguments": "{\"options\": [{\"candidate_id\": \"c1\", \"title\": \"Shorten soundcheck\", \"why\": \"Compress soundcheck from 30 to 15 min saves 15 min on critical path, meets deadline with no cost; minor guest impact (line check).\"}, {\"candidate_id\": \"c4\", \"title\": \"Add rental trolley\", \"why\": \"Activate trolley-2 enables parallel unload, saving 20 min; costs \u20ac35, no service impact, meets deadline.\"}, {\"candidate_id\": \"c3\", \"title\": \"Compress soundcheck & briefing\", \"why\": \"Shorten soundcheck to 15 min and crew briefing to 10 min saves 20 total; zero cost, meets deadline with 5 min early.\"}], \"summary\": \"Three verified\u2026"
+   }
+  },
+  {
+   "seq": 30,
+   "type": "phase",
+   "at_ms": 16549,
+   "data": {
+    "name": "present"
+   }
+  },
+  {
+   "seq": 31,
+   "type": "tool_result",
+   "at_ms": 16549,
+   "data": {
+    "id": "chatcmpl-tool-a461131eca6d4759",
+    "name": "submit_options",
+    "ok": true,
+    "summary": "3 option(s) submitted"
+   }
+  },
+  {
+   "seq": 32,
+   "type": "options",
+   "at_ms": 16550,
+   "data": {
+    "finalized_by_model": true,
+    "summary": "Three verified recovery patches: soundcheck compression alone, adding a second trolley, and combined soundcheck/briefing compression. All achieve doors-open by 18:00 or earlier.",
+    "options": [
+     {
+      "candidate_id": "c1",
+      "title": "Shorten soundcheck",
+      "why": "Compress soundcheck from 30 to 15 min saves 15 min on critical path, meets deadline with no cost; minor guest impact (line check).",
+      "evaluation": {
+       "status": "verified",
+       "patch": {
+        "actions": [
+         {
+          "type": "compress_task",
+          "task_id": "soundcheck",
+          "duration": 15
+         }
+        ],
+        "rationale": "Shorten soundcheck to save 15 minutes on critical path."
+       },
+       "violations": [],
+       "plan": {
+        "entries": [
+         {
+          "task_id": "dock-open",
+          "start": 835,
+          "assignments": {}
+         },
+         {
+          "task_id": "truck-arrival",
+          "start": 875,
+          "assignments": {}
+         },
+         {
+          "task_id": "unload-deck",
+          "start": 875,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "unload-truss",
+          "start": 895,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "scanner-setup",
+          "start": 900,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "stage-rigging",
+          "start": 915,
+          "assignments": {
+           "crew": "setup-team",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "unload-av",
+          "start": 915,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "audio-setup",
+          "start": 940,
+          "assignments": {
+           "tech": "av-tech"
+          }
+         },
+         {
+          "task_id": "unload-vendor",
+          "start": 940,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "lighting-focus",
+          "start": 975,
+          "assignments": {
+           "tech": "light-tech",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "vendor-tables",
+          "start": 975,
+          "assignments": {
+           "crew": "setup-team"
+          }
+         },
+         {
+          "task_id": "soundcheck",
+          "start": 1025,
+          "assignments": {
+           "tech": "av-tech",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "safety-walkthrough",
+          "start": 1040,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "crew-briefing",
+          "start": 1065,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "doors-open",
+          "start": 1080,
+          "assignments": {}
+         }
+        ]
+       },
+       "timings": [
+        {
+         "task_id": "dock-open",
+         "start": 835,
+         "end": 835,
+         "duration": 0,
+         "assignments": {},
+         "slack": 40,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:dock-open",
+          "text": "Cannot start before 13:55.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "truck-arrival",
+         "start": 875,
+         "end": 875,
+         "duration": 0,
+         "assignments": {},
+         "slack": 0,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:truck-arrival",
+          "text": "Cannot start before 14:35.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "unload-deck",
+         "start": 875,
+         "end": 895,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:truck-arrival->unload-deck",
+          "text": "Waits for Truck arrives.",
+          "via": "truck-arrival"
+         }
+        },
+        {
+         "task_id": "unload-truss",
+         "start": 895,
+         "end": 915,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload stage deck until 14:55.",
+          "via": "unload-deck"
+         }
+        },
+        {
+         "task_id": "scanner-setup",
+         "start": 900,
+         "end": 925,
+         "duration": 25,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 115,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:scanner-setup",
+          "text": "Cannot start before 15:00.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "stage-rigging",
+         "start": 915,
+         "end": 975,
+         "duration": 60,
+         "assignments": {
+          "crew": "setup-team",
+          "space": "stage"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:unload-truss->stage-rigging",
+          "text": "Waits for Unload truss.",
+          "via": "unload-truss"
+         }
+        },
+        {
+         "task_id": "unload-av",
+         "start": 915,
+         "end": 940,
+         "duration": 25,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 35,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload truss until 15:15.",
+          "via": "unload-truss"
+         }
+        },
+        {
+         "task_id": "audio-setup",
+         "start": 940,
+         "end": 990,
+         "duration": 50,
+         "assignments": {
+          "tech": "av-tech"
+         },
+         "slack": 35,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:unload-av->audio-setup",
+          "text": "Waits for Unload AV gear.",
+          "via": "unload-av"
+         }
+        },
+        {
+         "task_id": "unload-vendor",
+         "start": 940,
+         "end": 960,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 40,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload AV gear until 15:40.",
+          "via": "unload-av"
+         }
+        },
+        {
+         "task_id": "lighting-focus",
+         "start": 975,
+         "end": 1025,
+         "duration": 50,
+         "assignments": {
+          "tech": "light-tech",
+          "space": "stage"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:stage-rigging->lighting-focus",
+          "text": "Waits for Stage rigging.",
+          "via": "stage-rigging"
+         }
+        },
+        {
+         "task_id": "vendor-tables",
+         "start": 975,
+         "end": 1015,
+         "duration": 40,
+         "assignments": {
+          "crew": "setup-team"
+         },
+         "slack": 25,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:setup-team",
+          "text": "Setup team is busy with Stage rigging until 16:15.",
+          "via": "stage-rigging"
+         }
+        },
+        {
+         "task_id": "soundcheck",
+         "start": 1025,
+         "end": 1040,
+         "duration": 15,
+         "assignments": {
+          "tech": "av-tech",
+          "space": "stage"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:lighting-focus->soundcheck",
+          "text": "Waits for Lighting focus.",
+          "via": "lighting-focus"
+         }
+        },
+        {
+         "task_id": "safety-walkthrough",
+         "start": 1040,
+         "end": 1065,
+         "duration": 25,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:soundcheck->safety-walkthrough",
+          "text": "Waits for Soundcheck.",
+          "via": "soundcheck"
+         }
+        },
+        {
+         "task_id": "crew-briefing",
+         "start": 1065,
+         "end": 1080,
+         "duration": 15,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:safety-walkthrough->crew-briefing",
+          "text": "Waits for Safety walkthrough.",
+          "via": "safety-walkthrough"
+         }
+        },
+        {
+         "task_id": "doors-open",
+         "start": 1080,
+         "end": 1080,
+         "duration": 0,
+         "assignments": {},
+         "slack": 0,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:crew-briefing->doors-open",
+          "text": "Waits for Crew briefing.",
+          "via": "crew-briefing"
+         }
+        }
+       ],
+       "schedule": {
+        "readiness": 1080,
+        "deadline": 1080,
+        "deadline_delta": 0,
+        "driving_path": [
+         "truck-arrival",
+         "unload-deck",
+         "unload-truss",
+         "stage-rigging",
+         "lighting-focus",
+         "soundcheck",
+         "safety-walkthrough",
+         "crew-briefing",
+         "doors-open"
+        ]
+       },
+       "changes": [
+        {
+         "task_id": "truck-arrival",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-truss",
+         "moved_minutes": 55,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-deck",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-av",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-vendor",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "stage-rigging",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "lighting-focus",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "audio-setup",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "soundcheck",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": 30,
+         "duration_to": 15,
+         "deferred": false
+        },
+        {
+         "task_id": "vendor-tables",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "safety-walkthrough",
+         "moved_minutes": 20,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "crew-briefing",
+         "moved_minutes": 20,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "doors-open",
+         "moved_minutes": 20,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        }
+       ],
+       "cost_cents": 0,
+       "service_impacts": [
+        {
+         "kind": "compress",
+         "task_id": "soundcheck",
+         "text": "Line check instead of full soundcheck (30 \u2192 15 min)",
+         "severity": 1
+        }
+       ],
+       "disruption_minutes": 410,
+       "reassignments": 0,
+       "solver": {
+        "status": "OPTIMAL",
+        "wall_ms": 10,
+        "objective": 410
+       },
+       "infeasibility": null,
+       "proven_optimal": true
+      }
+     },
+     {
+      "candidate_id": "c4",
+      "title": "Add rental trolley",
+      "why": "Activate trolley-2 enables parallel unload, saving 20 min; costs \u20ac35, no service impact, meets deadline.",
+      "evaluation": {
+       "status": "verified",
+       "patch": {
+        "actions": [
+         {
+          "type": "activate_resource",
+          "resource_id": "trolley-2"
+         }
+        ],
+        "rationale": "Add second trolley to allow parallel unloading of truss and deck."
+       },
+       "violations": [],
+       "plan": {
+        "entries": [
+         {
+          "task_id": "dock-open",
+          "start": 835,
+          "assignments": {}
+         },
+         {
+          "task_id": "truck-arrival",
+          "start": 875,
+          "assignments": {}
+         },
+         {
+          "task_id": "unload-deck",
+          "start": 875,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-2"
+          }
+         },
+         {
+          "task_id": "unload-truss",
+          "start": 875,
+          "assignments": {
+           "crew": "setup-team",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "stage-rigging",
+          "start": 895,
+          "assignments": {
+           "crew": "setup-team",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "unload-av",
+          "start": 895,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "scanner-setup",
+          "start": 900,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "audio-setup",
+          "start": 920,
+          "assignments": {
+           "tech": "av-tech"
+          }
+         },
+         {
+          "task_id": "unload-vendor",
+          "start": 920,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "lighting-focus",
+          "start": 955,
+          "assignments": {
+           "tech": "light-tech",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "vendor-tables",
+          "start": 955,
+          "assignments": {
+           "crew": "setup-team"
+          }
+         },
+         {
+          "task_id": "soundcheck",
+          "start": 1005,
+          "assignments": {
+           "tech": "av-tech",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "safety-walkthrough",
+          "start": 1035,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "crew-briefing",
+          "start": 1060,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "doors-open",
+          "start": 1075,
+          "assignments": {}
+         }
+        ]
+       },
+       "timings": [
+        {
+         "task_id": "dock-open",
+         "start": 835,
+         "end": 835,
+         "duration": 0,
+         "assignments": {},
+         "slack": 45,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:dock-open",
+          "text": "Cannot start before 13:55.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "truck-arrival",
+         "start": 875,
+         "end": 875,
+         "duration": 0,
+         "assignments": {},
+         "slack": 5,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:truck-arrival",
+          "text": "Cannot start before 14:35.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "unload-deck",
+         "start": 875,
+         "end": 895,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-2"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:truck-arrival->unload-deck",
+          "text": "Waits for Truck arrives.",
+          "via": "truck-arrival"
+         }
+        },
+        {
+         "task_id": "unload-truss",
+         "start": 875,
+         "end": 895,
+         "duration": 20,
+         "assignments": {
+          "crew": "setup-team",
+          "cart": "trolley-1"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:truck-arrival->unload-truss",
+          "text": "Waits for Truck arrives.",
+          "via": "truck-arrival"
+         }
+        },
+        {
+         "task_id": "stage-rigging",
+         "start": 895,
+         "end": 955,
+         "duration": 60,
+         "assignments": {
+          "crew": "setup-team",
+          "space": "stage"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:unload-deck->stage-rigging",
+          "text": "Waits for Unload stage deck.",
+          "via": "unload-deck"
+         }
+        },
+        {
+         "task_id": "unload-av",
+         "start": 895,
+         "end": 920,
+         "duration": 25,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 40,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload stage deck until 14:55.",
+          "via": "unload-deck"
+         }
+        },
+        {
+         "task_id": "scanner-setup",
+         "start": 900,
+         "end": 925,
+         "duration": 25,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 115,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:scanner-setup",
+          "text": "Cannot start before 15:00.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "audio-setup",
+         "start": 920,
+         "end": 970,
+         "duration": 50,
+         "assignments": {
+          "tech": "av-tech"
+         },
+         "slack": 40,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:unload-av->audio-setup",
+          "text": "Waits for Unload AV gear.",
+          "via": "unload-av"
+         }
+        },
+        {
+         "task_id": "unload-vendor",
+         "start": 920,
+         "end": 940,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 60,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload AV gear until 15:20.",
+          "via": "unload-av"
+         }
+        },
+        {
+         "task_id": "lighting-focus",
+         "start": 955,
+         "end": 1005,
+         "duration": 50,
+         "assignments": {
+          "tech": "light-tech",
+          "space": "stage"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:stage-rigging->lighting-focus",
+          "text": "Waits for Stage rigging.",
+          "via": "stage-rigging"
+         }
+        },
+        {
+         "task_id": "vendor-tables",
+         "start": 955,
+         "end": 995,
+         "duration": 40,
+         "assignments": {
+          "crew": "setup-team"
+         },
+         "slack": 45,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:setup-team",
+          "text": "Setup team is busy with Stage rigging until 15:55.",
+          "via": "stage-rigging"
+         }
+        },
+        {
+         "task_id": "soundcheck",
+         "start": 1005,
+         "end": 1035,
+         "duration": 30,
+         "assignments": {
+          "tech": "av-tech",
+          "space": "stage"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:lighting-focus->soundcheck",
+          "text": "Waits for Lighting focus.",
+          "via": "lighting-focus"
+         }
+        },
+        {
+         "task_id": "safety-walkthrough",
+         "start": 1035,
+         "end": 1060,
+         "duration": 25,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:soundcheck->safety-walkthrough",
+          "text": "Waits for Soundcheck.",
+          "via": "soundcheck"
+         }
+        },
+        {
+         "task_id": "crew-briefing",
+         "start": 1060,
+         "end": 1075,
+         "duration": 15,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:safety-walkthrough->crew-briefing",
+          "text": "Waits for Safety walkthrough.",
+          "via": "safety-walkthrough"
+         }
+        },
+        {
+         "task_id": "doors-open",
+         "start": 1075,
+         "end": 1075,
+         "duration": 0,
+         "assignments": {},
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:crew-briefing->doors-open",
+          "text": "Waits for Crew briefing.",
+          "via": "crew-briefing"
+         }
+        }
+       ],
+       "schedule": {
+        "readiness": 1075,
+        "deadline": 1080,
+        "deadline_delta": -5,
+        "driving_path": [
+         "truck-arrival",
+         "unload-deck",
+         "stage-rigging",
+         "lighting-focus",
+         "soundcheck",
+         "safety-walkthrough",
+         "crew-briefing",
+         "doors-open"
+        ]
+       },
+       "changes": [
+        {
+         "task_id": "truck-arrival",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-truss",
+         "moved_minutes": 35,
+         "reassigned": [
+          [
+           "crew",
+           "transport-crew",
+           "setup-team"
+          ]
+         ],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-deck",
+         "moved_minutes": 15,
+         "reassigned": [
+          [
+           "cart",
+           "trolley-1",
+           "trolley-2"
+          ]
+         ],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-av",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-vendor",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "stage-rigging",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "lighting-focus",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "audio-setup",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "soundcheck",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "vendor-tables",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "safety-walkthrough",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "crew-briefing",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "doors-open",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        }
+       ],
+       "cost_cents": 3500,
+       "service_impacts": [],
+       "disruption_minutes": 265,
+       "reassignments": 2,
+       "solver": {
+        "status": "OPTIMAL",
+        "wall_ms": 6,
+        "objective": 265
+       },
+       "infeasibility": null,
+       "proven_optimal": true
+      }
+     },
+     {
+      "candidate_id": "c3",
+      "title": "Compress soundcheck & briefing",
+      "why": "Shorten soundcheck to 15 min and crew briefing to 10 min saves 20 total; zero cost, meets deadline with 5 min early.",
+      "evaluation": {
+       "status": "verified",
+       "patch": {
+        "actions": [
+         {
+          "type": "compress_task",
+          "task_id": "soundcheck",
+          "duration": 15
+         },
+         {
+          "type": "compress_task",
+          "task_id": "crew-briefing",
+          "duration": 10
+         }
+        ],
+        "rationale": "Compress soundcheck and crew briefing to save time."
+       },
+       "violations": [],
+       "plan": {
+        "entries": [
+         {
+          "task_id": "dock-open",
+          "start": 835,
+          "assignments": {}
+         },
+         {
+          "task_id": "truck-arrival",
+          "start": 875,
+          "assignments": {}
+         },
+         {
+          "task_id": "unload-deck",
+          "start": 875,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "unload-truss",
+          "start": 895,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "scanner-setup",
+          "start": 900,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "stage-rigging",
+          "start": 915,
+          "assignments": {
+           "crew": "setup-team",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "unload-av",
+          "start": 915,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "audio-setup",
+          "start": 940,
+          "assignments": {
+           "tech": "av-tech"
+          }
+         },
+         {
+          "task_id": "unload-vendor",
+          "start": 940,
+          "assignments": {
+           "crew": "transport-crew",
+           "cart": "trolley-1"
+          }
+         },
+         {
+          "task_id": "lighting-focus",
+          "start": 975,
+          "assignments": {
+           "tech": "light-tech",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "vendor-tables",
+          "start": 975,
+          "assignments": {
+           "crew": "setup-team"
+          }
+         },
+         {
+          "task_id": "soundcheck",
+          "start": 1025,
+          "assignments": {
+           "tech": "av-tech",
+           "space": "stage"
+          }
+         },
+         {
+          "task_id": "safety-walkthrough",
+          "start": 1040,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "crew-briefing",
+          "start": 1065,
+          "assignments": {
+           "lead": "event-lead"
+          }
+         },
+         {
+          "task_id": "doors-open",
+          "start": 1075,
+          "assignments": {}
+         }
+        ]
+       },
+       "timings": [
+        {
+         "task_id": "dock-open",
+         "start": 835,
+         "end": 835,
+         "duration": 0,
+         "assignments": {},
+         "slack": 45,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:dock-open",
+          "text": "Cannot start before 13:55.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "truck-arrival",
+         "start": 875,
+         "end": 875,
+         "duration": 0,
+         "assignments": {},
+         "slack": 5,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:truck-arrival",
+          "text": "Cannot start before 14:35.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "unload-deck",
+         "start": 875,
+         "end": 895,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:truck-arrival->unload-deck",
+          "text": "Waits for Truck arrives.",
+          "via": "truck-arrival"
+         }
+        },
+        {
+         "task_id": "unload-truss",
+         "start": 895,
+         "end": 915,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload stage deck until 14:55.",
+          "via": "unload-deck"
+         }
+        },
+        {
+         "task_id": "scanner-setup",
+         "start": 900,
+         "end": 925,
+         "duration": 25,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 120,
+         "binding": {
+          "kind": "release",
+          "constraint_id": "release:scanner-setup",
+          "text": "Cannot start before 15:00.",
+          "via": null
+         }
+        },
+        {
+         "task_id": "stage-rigging",
+         "start": 915,
+         "end": 975,
+         "duration": 60,
+         "assignments": {
+          "crew": "setup-team",
+          "space": "stage"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:unload-truss->stage-rigging",
+          "text": "Waits for Unload truss.",
+          "via": "unload-truss"
+         }
+        },
+        {
+         "task_id": "unload-av",
+         "start": 915,
+         "end": 940,
+         "duration": 25,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 40,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload truss until 15:15.",
+          "via": "unload-truss"
+         }
+        },
+        {
+         "task_id": "audio-setup",
+         "start": 940,
+         "end": 990,
+         "duration": 50,
+         "assignments": {
+          "tech": "av-tech"
+         },
+         "slack": 40,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:unload-av->audio-setup",
+          "text": "Waits for Unload AV gear.",
+          "via": "unload-av"
+         }
+        },
+        {
+         "task_id": "unload-vendor",
+         "start": 940,
+         "end": 960,
+         "duration": 20,
+         "assignments": {
+          "crew": "transport-crew",
+          "cart": "trolley-1"
+         },
+         "slack": 45,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:transport-crew",
+          "text": "Transport crew is busy with Unload AV gear until 15:40.",
+          "via": "unload-av"
+         }
+        },
+        {
+         "task_id": "lighting-focus",
+         "start": 975,
+         "end": 1025,
+         "duration": 50,
+         "assignments": {
+          "tech": "light-tech",
+          "space": "stage"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:stage-rigging->lighting-focus",
+          "text": "Waits for Stage rigging.",
+          "via": "stage-rigging"
+         }
+        },
+        {
+         "task_id": "vendor-tables",
+         "start": 975,
+         "end": 1015,
+         "duration": 40,
+         "assignments": {
+          "crew": "setup-team"
+         },
+         "slack": 30,
+         "binding": {
+          "kind": "resource",
+          "constraint_id": "overlap:setup-team",
+          "text": "Setup team is busy with Stage rigging until 16:15.",
+          "via": "stage-rigging"
+         }
+        },
+        {
+         "task_id": "soundcheck",
+         "start": 1025,
+         "end": 1040,
+         "duration": 15,
+         "assignments": {
+          "tech": "av-tech",
+          "space": "stage"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:lighting-focus->soundcheck",
+          "text": "Waits for Lighting focus.",
+          "via": "lighting-focus"
+         }
+        },
+        {
+         "task_id": "safety-walkthrough",
+         "start": 1040,
+         "end": 1065,
+         "duration": 25,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:soundcheck->safety-walkthrough",
+          "text": "Waits for Soundcheck.",
+          "via": "soundcheck"
+         }
+        },
+        {
+         "task_id": "crew-briefing",
+         "start": 1065,
+         "end": 1075,
+         "duration": 10,
+         "assignments": {
+          "lead": "event-lead"
+         },
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:safety-walkthrough->crew-briefing",
+          "text": "Waits for Safety walkthrough.",
+          "via": "safety-walkthrough"
+         }
+        },
+        {
+         "task_id": "doors-open",
+         "start": 1075,
+         "end": 1075,
+         "duration": 0,
+         "assignments": {},
+         "slack": 5,
+         "binding": {
+          "kind": "precedence",
+          "constraint_id": "prec:crew-briefing->doors-open",
+          "text": "Waits for Crew briefing.",
+          "via": "crew-briefing"
+         }
+        }
+       ],
+       "schedule": {
+        "readiness": 1075,
+        "deadline": 1080,
+        "deadline_delta": -5,
+        "driving_path": [
+         "truck-arrival",
+         "unload-deck",
+         "unload-truss",
+         "stage-rigging",
+         "lighting-focus",
+         "soundcheck",
+         "safety-walkthrough",
+         "crew-briefing",
+         "doors-open"
+        ]
+       },
+       "changes": [
+        {
+         "task_id": "truck-arrival",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-truss",
+         "moved_minutes": 55,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-deck",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-av",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "unload-vendor",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "stage-rigging",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "lighting-focus",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "audio-setup",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "soundcheck",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": 30,
+         "duration_to": 15,
+         "deferred": false
+        },
+        {
+         "task_id": "vendor-tables",
+         "moved_minutes": 35,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "safety-walkthrough",
+         "moved_minutes": 20,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        },
+        {
+         "task_id": "crew-briefing",
+         "moved_minutes": 20,
+         "reassigned": [],
+         "duration_from": 15,
+         "duration_to": 10,
+         "deferred": false
+        },
+        {
+         "task_id": "doors-open",
+         "moved_minutes": 15,
+         "reassigned": [],
+         "duration_from": null,
+         "duration_to": null,
+         "deferred": false
+        }
+       ],
+       "cost_cents": 0,
+       "service_impacts": [
+        {
+         "kind": "compress",
+         "task_id": "crew-briefing",
+         "text": "Short-form crew briefing (15 \u2192 10 min)",
+         "severity": 1
+        },
+        {
+         "kind": "compress",
+         "task_id": "soundcheck",
+         "text": "Line check instead of full soundcheck (30 \u2192 15 min)",
+         "severity": 1
+        }
+       ],
+       "disruption_minutes": 405,
+       "reassignments": 0,
+       "solver": {
+        "status": "OPTIMAL",
+        "wall_ms": 6,
+        "objective": 405
+       },
+       "infeasibility": null,
+       "proven_optimal": true
+      }
+     }
+    ]
+   }
+  },
+  {
+   "seq": 33,
+   "type": "done",
+   "at_ms": 16550,
+   "data": {
+    "run_id": "run_71b422b2053b",
+    "stop_reason": "submitted",
+    "model_calls": 7,
+    "evaluations": 4,
+    "tokens": 27432,
+    "elapsed_ms": 16550
+   }
+  }
+ ]
+}

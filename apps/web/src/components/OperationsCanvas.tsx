@@ -43,7 +43,7 @@ function badge(task: TaskView, mode: RoomView["mode"]): { text: string; color: s
     const c = task.change;
     if (!c) return null;
     if (c.deferred) return { text: "deferred", color: "var(--faint)" };
-    if (c.duration_to != null) return { text: `${c.duration_to} min`, color: "var(--focus)" };
+    if (c.duration_to != null) return { text: `now ${c.duration_to} min`, color: "var(--focus)" };
     if (c.reassigned.length) return { text: "new crew", color: "var(--focus)" };
     if (task.shift) return { text: delta(task.shift), color: "var(--focus)" };
     return null;
@@ -112,8 +112,8 @@ function Card({
       </text>
       {b && (
         <g>
-          <rect x={box.x + box.w - 60} y={box.y - 9} width={54} height={18} rx={9} fill="var(--graphite)" stroke={b.color} strokeWidth={1} />
-          <text x={box.x + box.w - 33} y={box.y + 4} textAnchor="middle" fill={b.color} fontSize={11} fontWeight={700}>
+          <rect x={box.x + box.w - 6 - (14 + b.text.length * 6.4)} y={box.y - 9} width={14 + b.text.length * 6.4} height={18} rx={9} fill="var(--graphite)" stroke={b.color} strokeWidth={1} />
+          <text x={box.x + box.w - 6 - (14 + b.text.length * 6.4) / 2} y={box.y + 4} textAnchor="middle" fill={b.color} fontSize={11} fontWeight={700}>
             {b.text}
           </text>
         </g>
