@@ -130,6 +130,7 @@ export function useRoom() {
         modelRank: null,
         report: o.report,
         touched: [...o.touched],
+        origin: "playbook" as const,
       }));
       dispatch({ type: "searchDone", options: options.slice(0, 4) });
     } catch (err) {

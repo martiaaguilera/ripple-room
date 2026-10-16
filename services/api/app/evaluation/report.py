@@ -77,6 +77,27 @@ def summarize(results: Sequence[CaseResult], meta: dict[str, object]) -> str:
         "Beyond-playbook actions tried (total)",
         lambda v, m: str(sum(x.beyond_playbook_actions for x in v)) if m == "agent" else "–",
     )
+
+    def model_matches(r: CaseResult) -> bool:
+        a, o = r.methods.get("agent"), r.methods["oracle"]
+        if a is None or a.model_best is None or o.best is None:
+            return False
+        return len(a.model_best.breaches) <= len(o.best.breaches) and a.model_best.penalty <= o.best.penalty
+
+    row(
+        "System best comes from a model-proposed option",
+        lambda v, m: (
+            f"{sum(1 for x in v if x.best_origin == 'model')}/{sum(1 for x in v if x.best_origin)}"
+            if m == "agent"
+            else "–"
+        ),
+    )
+    row(
+        "Model-proposed option alone matches oracle",
+        lambda v, m: (
+            f"{sum(1 for r in feasible_cases if model_matches(r))}/{len(feasible_cases)}" if m == "agent" else "–"
+        ),
+    )
     row(
         "Model's own #1 = deterministic #1",
         lambda v, m: (

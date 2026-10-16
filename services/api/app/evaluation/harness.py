@@ -65,6 +65,9 @@ class MethodResult(BaseModel):
     top_pick_agrees: bool | None = None
     stop_reason: str | None = None
     error: str | None = None
+    # Hybrid runs mix model-proposed and server-supplied (playbook / no-change) options.
+    best_origin: str | None = None
+    model_best: BestOption | None = None  # best among options the model itself proposed
 
 
 class CaseResult(BaseModel):
@@ -216,6 +219,8 @@ async def run_agent_case(
         case.profile.preferences,
         [(o["candidate_id"], e) for o, e in zip(options, evaluations, strict=True)],
     )
+    origin = {o["candidate_id"]: o.get("origin", "model") for o in options}
+    model_ranked = [r for r in ranked if origin.get(r.id) == "model"]
     model_first = next((o["candidate_id"] for o in options if o.get("model_rank") == 1), None)
     all_candidates = list(ctx.candidates.values())
     return MethodResult(
@@ -236,4 +241,6 @@ async def run_agent_case(
         top_pick_agrees=None if model_first is None or not ranked else model_first == ranked[0].id,
         stop_reason=stop,
         error=error,
+        best_origin=origin.get(ranked[0].id) if ranked else None,
+        model_best=_best(model_ranked),
     )

@@ -19,6 +19,8 @@ export interface RecoveryOption {
   modelRank: number | null;
   report: PreferenceReport;
   touched: string[];
+  /** model = proposed by the agent; playbook = deterministic search; no_change = keep the plan. */
+  origin: "model" | "playbook" | "no_change";
 }
 
 export interface RunState {
@@ -137,6 +139,7 @@ interface RawAgentOption {
   model_rank: number | null;
   report: PreferenceReport;
   touched: string[];
+  origin?: "model" | "playbook" | "no_change";
 }
 
 function optionFromEvent(raw: unknown, source: OptionSource, baseRevisionId: string): RecoveryOption {
@@ -152,6 +155,7 @@ function optionFromEvent(raw: unknown, source: OptionSource, baseRevisionId: str
     modelRank: o.model_rank,
     report: o.report,
     touched: o.touched,
+    origin: o.origin ?? "model",
   };
 }
 

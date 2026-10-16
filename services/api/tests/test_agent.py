@@ -254,7 +254,9 @@ async def test_nebius_loop_revises_after_infeasible_candidate(
     assert model_calls[0].data["reasoning_returned"] is True
     assert "Thinking about the driving path" not in json.dumps([e.model_dump() for e in events])
     options = next(e for e in events if e.type == "options").data["options"]
-    assert [o["candidate_id"] for o in options] == ["c2"]
+    by_id = {o["candidate_id"]: o for o in options}
+    assert by_id["c2"]["model_rank"] == 1 and by_id["c2"]["origin"] == "model"
+    assert {o["origin"] for o in options if o["candidate_id"] != "c2"} == {"playbook"}
     # Tool results are fed back to the model as tool messages.
     assert any(m.get("role") == "tool" for m in seen[-1]["messages"])
     assert seen[0]["tools"] and seen[0]["model"] == "nvidia/test-model"
@@ -274,7 +276,9 @@ async def test_nebius_loop_stops_when_model_will_not_use_tools(scenario: Scenari
     events = await _collect(_ctx(scenario, _shocked(scenario)), _provider(transport))
     assert len(seen) == 2  # one nudge, then stop
     assert next(e for e in events if e.type == "done").data["stop_reason"] == "no_tool_calls"
-    assert next(e for e in events if e.type == "options").data["options"] == []
+    # The model contributed nothing; only the verified playbook options are offered, labelled as such.
+    options = next(e for e in events if e.type == "options").data["options"]
+    assert options and {o["origin"] for o in options} == {"playbook"}
 
 
 async def _no_sleep(_s: float) -> None:

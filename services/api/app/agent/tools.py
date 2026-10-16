@@ -22,7 +22,7 @@ from app.domain.ranking import do_nothing_plan, touched_tasks
 from app.domain.reports import Evaluation, EvaluationStatus, ImpactReport
 from app.domain.revision import Revision
 from app.solver.evaluate import evaluate_patch
-from app.solver.search import MenuItem, intervention_menu
+from app.solver.search import MenuItem, intervention_menu, search_recoveries
 
 TOOL_GET_SITUATION = "get_situation"
 TOOL_INSPECT_TASK = "inspect_task"
@@ -30,6 +30,8 @@ TOOL_LIST_INTERVENTIONS = "list_interventions"
 TOOL_EVALUATE_PATCH = "evaluate_patch"
 TOOL_SUBMIT_OPTIONS = "submit_options"
 NO_CHANGE_ID = "c0"
+PLAYBOOK_PREFIX = "p"
+IDLE_MIN_MINUTES = 20
 
 
 class Strict(BaseModel):
@@ -68,6 +70,7 @@ class Candidate:
     id: str
     evaluation: Evaluation
     rationale: str
+    origin: Literal["model", "playbook", "no_change"] = "model"
 
 
 @dataclass
@@ -104,6 +107,20 @@ class AgentContext:
             preferences=preferences or Preferences(),
             do_nothing=do_nothing_plan(problem, revision.state.plan),
         )
+        # Hybrid: the deterministic playbook search contributes known, verified alternatives (p1..pn).
+        # They are always in the final pool, so the system never does worse than the playbook; the
+        # model's job is to understand priorities and find strategies the playbook cannot express.
+        state = revision.state
+        playbook = search_recoveries(scenario, state.shocks, state.committed, state.plan)
+        absorbed = ctx.impact.schedule.deadline_delta is not None and ctx.impact.schedule.deadline_delta <= 0
+        # An empty playbook patch means "reschedule only, no new resources"; when the delay is already
+        # absorbed without rescheduling, c0 (registered below) covers it instead.
+        pairs = [(c, e) for c, e in zip(playbook.verified, playbook.evaluations, strict=True) if c or not absorbed]
+        for i, (combo, ev) in enumerate(pairs, start=1):
+            label = " + ".join(item.label for item in combo) or "Reschedule only: no extra people, kit or cuts"
+            ctx.candidates[f"{PLAYBOOK_PREFIX}{i}"] = Candidate(
+                id=f"{PLAYBOOK_PREFIX}{i}", evaluation=ev, rationale=label, origin="playbook"
+            )
         # If the incident is absorbed by slack, "change nothing" is itself a verified option (c0).
         # It is verified by the same pipeline as any proposal and does not use the model's budget.
         if ctx.impact.schedule.deadline_delta is not None and ctx.impact.schedule.deadline_delta <= 0:
@@ -113,7 +130,10 @@ class AgentContext:
             )
             if ev.status == EvaluationStatus.VERIFIED:
                 ctx.candidates[NO_CHANGE_ID] = Candidate(
-                    id=NO_CHANGE_ID, evaluation=ev, rationale="Keep the current plan: slack absorbs the delay."
+                    id=NO_CHANGE_ID,
+                    evaluation=ev,
+                    rationale="Keep the current plan: slack absorbs the delay.",
+                    origin="no_change",
                 )
         return ctx
 
@@ -294,6 +314,12 @@ def _situation(ctx: AgentContext) -> dict[str, Any]:
         "tasks": tasks,
         "resources": resources,
         "dependencies": [f"{d.from_id} -> {d.to_id}" for d in ctx.problem.dependencies],
+        "idle_people_during_critical_chain": idle_people(ctx),
+        "verified_playbook_options": [
+            {"candidate_id": c.id, "what": c.rationale, **_evaluation_view(c.evaluation)}
+            for c in ctx.candidates.values()
+            if c.origin == "playbook"
+        ],
     }
 
 
@@ -374,6 +400,64 @@ def preferences_view(prefs: Preferences) -> dict[str, Any]:
     return view
 
 
+def idle_people(ctx: AgentContext) -> list[dict[str, Any]]:
+    """People with free time while the doors-setting chain runs, and how they could help it.
+
+    Facts from the do-nothing plan only; the model decides whether using them is wise and the
+    verifier decides whether it works.
+    """
+    scenario, problem = ctx.scenario, ctx.problem
+    plan = ctx.do_nothing.by_task()
+    chain = [t for t in ctx.impact.schedule.driving_path if t in plan and not problem.tasks[t].milestone]
+    if not chain:
+        return []
+    window_start = min(plan[t].start for t in chain)
+    window_end = max(plan[t].start + problem.tasks[t].duration for t in chain)
+    out: list[dict[str, Any]] = []
+    for res in scenario.resources:
+        if res.kind != "person" or res.id not in problem.resources:
+            continue
+        eff = problem.resources[res.id]
+        busy = sorted(
+            (e.start, e.start + problem.tasks[e.task_id].duration)
+            for e in ctx.do_nothing.entries
+            if res.id in e.assignments.values() and problem.tasks[e.task_id].duration > 0
+        )
+        busy += [(w.start, w.end) for w in eff.blocked]
+        busy.sort()
+        free: list[tuple[int, int]] = []
+        cursor = max(window_start, eff.available.start)
+        for start, end in busy:
+            if start > cursor:
+                free.append((cursor, min(start, window_end)))
+            cursor = max(cursor, end)
+        if cursor < min(window_end, eff.available.end):
+            free.append((cursor, min(window_end, eff.available.end)))
+        free = [(a, b) for a, b in free if b - a >= IDLE_MIN_MINUTES]
+        if not free:
+            continue
+        could_help = []
+        for tid in chain:
+            task = scenario.task(tid)
+            span = (plan[tid].start, plan[tid].start + problem.tasks[tid].duration)
+            overlaps = any(a < span[1] and span[0] < b for a, b in free)
+            if not overlaps:
+                continue
+            if task.helper is not None and task.helper.skill in res.skills:
+                could_help.append({"task": tid, "as": "helper (add_helper)", "shortens_to": task.helper.duration})
+            elif any(req.skill in res.skills for req in task.requirements):
+                could_help.append({"task": tid, "as": "qualified to do it"})
+        out.append(
+            {
+                "person": res.id,
+                "label": res.label,
+                "free": [f"{fmt_clock(a)}-{fmt_clock(b)}" for a, b in free],
+                "could_help_on_chain": could_help,
+            }
+        )
+    return out
+
+
 def _evaluation_view(ev: Evaluation) -> dict[str, Any]:
     out: dict[str, Any] = {"status": ev.status.value}
     if ev.schedule is not None and ev.schedule.readiness is not None:
@@ -418,6 +502,10 @@ def _evaluate(ctx: AgentContext, args: EvaluatePatchArgs) -> ToolOutcome:
         **_evaluation_view(ev),
         "evaluations_remaining": ctx.max_evaluations - ctx.evaluations_used,
     }
+    no_action = ctx.impact.schedule.readiness
+    best = ev.infeasibility.best_readiness if ev.infeasibility is not None else None
+    if best is not None and no_action is not None:
+        content["minutes_gained_vs_doing_nothing"] = no_action - best
     if ev.status == EvaluationStatus.VERIFIED:
         touched = touched_tasks(ev, ctx.do_nothing)
         report = assess(ev, ctx.preferences, len(touched))

@@ -19,7 +19,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from app.agent.prompts import FINAL_STEP, NUDGE, PROMPT_VERSION, SYSTEM_PROMPT, user_prompt
-from app.agent.tools import NO_CHANGE_ID, TOOL_SUBMIT_OPTIONS, AgentContext, execute_tool, preferences_view, tool_specs
+from app.agent.tools import TOOL_SUBMIT_OPTIONS, AgentContext, execute_tool, preferences_view, tool_specs
 from app.domain.preferences import PreferenceReport
 from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, EvaluationStatus
@@ -54,6 +54,7 @@ class AgentOption(BaseModel):
     model_rank: int | None  # position the model gave it in submit_options, if any
     report: PreferenceReport
     touched: tuple[str, ...]
+    origin: str  # "model" (proposed by the model), "playbook" (deterministic search) or "no_change"
 
 
 @dataclass(frozen=True)
@@ -229,19 +230,21 @@ def _final_options(ctx: AgentContext) -> tuple[list[AgentOption], bool]:
         chosen = {
             c.id: (None, f"Verified candidate {c.id}", c.rationale)
             for c in ctx.candidates.values()
-            if c.evaluation.status == EvaluationStatus.VERIFIED
+            if c.evaluation.status == EvaluationStatus.VERIFIED and c.origin == "model"
         }
-    # The server-verified "keep the current plan" option is always offered when it exists:
-    # it costs nothing and needs no model judgement (measured miss in case c14).
-    if NO_CHANGE_ID in ctx.candidates and NO_CHANGE_ID not in chosen:
-        chosen[NO_CHANGE_ID] = (None, "Keep the current plan", ctx.candidates[NO_CHANGE_ID].rationale)
+    # Server-verified alternatives are always offered: "keep the current plan" (c0, measured miss in c14)
+    # and the playbook options (p1..pn), so the system never ranks below the deterministic playbook.
+    for cid, cand in ctx.candidates.items():
+        if cand.origin != "model" and cid not in chosen:
+            title = "Keep the current plan" if cand.origin == "no_change" else cand.rationale
+            chosen[cid] = (None, title, cand.rationale)
     ranked = rank_options(
         [(cid, ctx.candidates[cid].evaluation) for cid in chosen],
         ctx.preferences,
         ctx.problem,
         ctx.revision.state.plan,
     )
-    limit = None if finalized else 3
+    limit = None if finalized else 5
     return [
         AgentOption(
             candidate_id=r.id,
@@ -252,6 +255,7 @@ def _final_options(ctx: AgentContext) -> tuple[list[AgentOption], bool]:
             model_rank=chosen[r.id][0],
             report=r.report,
             touched=r.touched,
+            origin=ctx.candidates[r.id].origin,
         )
         for r in ranked[:limit]
     ], finalized
