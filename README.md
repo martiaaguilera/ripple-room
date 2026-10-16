@@ -2,97 +2,90 @@
 
 **See the chain reaction. Fix the day.**
 
-Ripple Room is an operations simulator for small live events. A one-day production plan is shown
-as a living stage plot and timeline. Break it with a realistic incident (a late truck, a missing
-technician) and watch the delay travel through the dependencies to the doors-open deadline. Then an
-NVIDIA Nemotron agent running on **Nebius Token Factory** proposes recovery patches, and a
-deterministic **OR-Tools CP-SAT** verifier decides which of them actually work. You compare the
-verified options and choose what to apply. Nothing changes without you, and impossible situations
-are reported as impossible.
+When one thing goes wrong at a live event, Ripple Room shows everything it affects and helps you find a
+recovery plan you can trust: **NVIDIA Nemotron on Nebius Token Factory proposes, an OR-Tools CP-SAT
+verifier proves, and a human approves.**
 
-> Built for the Nebius x NVIDIA Global AI Hackathon 2026 (track: Best Apps and Agents).
-> The scenario, venue, people and costs are fictional test data. "Ripple Room" is a working title,
-> unrelated to Ripple Labs / XRP or to other projects named "Ripple".
+- **Live demo:** https://ripple-room-five.vercel.app (no login)
+- **Video:** _to be added_
+- Built for the Nebius x NVIDIA Global AI Hackathon 2026, track *Best Apps and Agents*.
+- The event (Signal Night at Bay Hall), people and costs are fictional. "Ripple Room" is a working title,
+  unrelated to Ripple Labs / XRP or other projects named "Ripple".
 
-## Status (honest, updated 16 Oct 2026, evening)
-
-| Area | State |
-|---|---|
-| Constraint engine, impact analysis, verifier | Working, 88 backend tests |
-| Stateless API (shock, evaluate, search, apply) | Working |
-| Agent loop, tool boundary, Nebius adapter | Working; unit-tested against a scripted mock and a faked HTTP transport |
-| **Live Nemotron calls on Nebius Token Factory** | **Verified 16 Oct 2026** with `nvidia/nemotron-3-super-120b-a12b`: native tool calling, full recovery runs with verifier rejections and revisions (traces in `docs/evidence/`) |
-| Web control room | Working; 14 unit tests, 10 Playwright E2E runs (desktop + mobile) |
-| Public deployment | Not deployed yet |
-
-When the server runs in mock mode (CI, local dev without a key) the UI labels every run "Simulated agent, no model calls".
+## What you can do in 60 seconds
+1. Watch the day run: an illustrative venue scene driven by the plan's real times, doors at 18:00.
+2. Press **"What if the truck arrives 35 minutes late?"** (or describe an incident in your own words).
+   The delay ripples through the dependency map; the header explains it: *doors would be ready at
+   18:15, 15 minutes late.*
+3. Set what matters (guest experience, spend, crew stability, budget, spare time) and press
+   **Find recovery options**. Watch Nemotron's proposals land on the verifier board — kept or
+   rejected, each with a reason.
+4. Preview an option (the whole day replays with it), approve it, and get the list of who needs to be
+   told what, by when. Undo is one click.
 
 ## How it works
-
 ```text
-Browser (Next.js static export)
-  │  holds immutable, content-hashed revisions (undo/reset are client history)
-  ▼
-FastAPI (stateless)
-  ├─ impact: right-shift propagation + causal waves (what slips, what is merely at risk)
-  ├─ evaluate: patch checks → CP-SAT → independent validator → explanation facts
-  ├─ search: deterministic menu search (labelled fallback, "no AI")
-  ├─ apply: re-verifies the plan from scratch, rejects stale revisions (409)
-  └─ recover (SSE): bounded agent loop
-        perceive → diagnose → plan → verify → revise → present
-        Nemotron on Nebius Token Factory proposes typed patches;
-        only patches the verifier accepts can be shown as options.
+Browser ──▶ FastAPI (stateless; client holds content-hashed revisions)
+             ├─ impact: do-nothing propagation, causal waves, slack, driving path
+             ├─ interpret: free text → typed incidents + priorities (Nemotron, one forced tool call) → human confirms
+             ├─ recover (SSE): bounded agent loop ───▶ Nebius Token Factory ─▶ nvidia/nemotron-3-super-120b-a12b
+             │     tools: get_situation · inspect_task · list_interventions · evaluate_patch · submit_options
+             │     every proposal ─▶ verifier: patch checks → CP-SAT → independent validator → explanation
+             ├─ playbook search (deterministic, labelled "no AI") and verified alternatives in the same pool
+             └─ apply: re-verifies from scratch; stale revision → 409; change notice
 ```
+- **The model never edits the plan.** It calls five allow-listed tools with strictly validated
+  arguments. Only patches the verifier accepts can become options; a timeout is "unknown", never green.
+- **Rejections are explained** from the solver's own results: *"Bringing in the backup AV technician
+  does not touch what sets the doors time…"*, *"…makes things worse than doing nothing (18:15)"*.
+- **Priorities are soft, deadlines are hard.** Options are ranked by preference breaches, then a
+  recomputable penalty breakdown shown on each card.
+- **Hybrid by design.** Verified playbook options are always in the pool, so the system never ranks
+  below the deterministic playbook; options are labelled by origin (Nemotron / playbook / no change).
+- Raw model reasoning never leaves the server.
 
-- **The model never edits state.** It can call five allow-listed tools with strictly validated
-  arguments (`get_situation`, `inspect_task`, `list_interventions`, `evaluate_patch`,
-  `submit_options`). Unknown tools, extra fields and unverified submissions are rejected.
-- **The solver is never trusted blindly either.** Every CP-SAT plan is re-checked by a plain-Python
-  validator. A timeout is reported as *unknown*, never as feasible.
-- **Why AI at all?** In this small scenario an exhaustive search finds the feasible patches in
-  about 40 ms, so the model is not needed for raw search. It is used for what a solver cannot do:
-  reading the coordinator's priorities in plain language, composing patches beyond the menu
-  (resequencing, reassignment), revising after verifier feedback, and explaining trade-offs.
-  See `docs/decisions/ADR-001-product-scope.md`.
-
-**Claude Code is the development tool. At runtime the only AI is NVIDIA Nemotron served by Nebius
+**Claude Code was the development tool. At runtime the only AI is NVIDIA Nemotron served by Nebius
 Token Factory.**
 
+## Measured results (live Nemotron 3 Super, 20 fixed cases, one run per version)
+| | Agent v2 | Agent v4 | Playbook search | Greedy |
+|---|---|---|---|---|
+| Verified recovery found when one exists | 16/17 | 16/17 | 15/17 | 15/17 |
+| Honest "none" when none exists | 3/3 | 3/3 | 3/3 | 3/3 |
+| Options failing independent re-validation | 0 | 0 | 0 | 0 |
+| Best option equals the exhaustive oracle's | 9/17 | 7/17 | 8/17 | 6/17 |
+| Median latency | 19.5 s | 18.4 s | 0.08 s | 0.11 s |
+| Cost of the 20 runs (list price) | $0.24 | $0.22 | 0 | 0 |
+
+What this does and does not show:
+- The agent found a recovery in c19 (setup team away) that both deterministic baselines miss, using
+  a helper plus a line check — see `docs/evaluation/CASES-c19-c09.md`.
+- It does **not** show better overall plan quality than the deterministic playbook; samples are tiny
+  (one run each), and combined three-change fixes (c09) are still missed.
+- Full data: `docs/evaluation/`. The current agent (v5, hybrid) has not yet been re-measured live.
+
 ## Run locally
-
 Prerequisites: Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 24.
-
 ```bash
-# API (mock agent by default)
-cd services/api
-uv sync
-uv run uvicorn app.main:app --port 8000
-
-# Web (second terminal)
-cd apps/web
-npm ci
-NEXT_PUBLIC_API_BASE=http://localhost:8000 npm run dev   # http://localhost:3000
+cd services/api && uv sync && uv run uvicorn app.main:app --port 8000          # mock agent by default
+cd apps/web && npm ci && NEXT_PUBLIC_API_BASE=http://localhost:8000 npm run dev  # http://localhost:3000
 ```
-
 Live mode: copy `.env.example` to `services/api/.env`, set `AI_MODE=live` and `NEBIUS_API_KEY`, then
-verify with `uv run python ../../scripts/smoke_nebius.py --list-models --probe` (writes sanitized
-evidence to `docs/evidence/`). The key stays on the server.
+`uv run python ../../scripts/smoke_nebius.py --probe`. Spend controls and the kill switch are
+documented in `docs/operations.md`.
 
 ## Tests
-
 ```bash
 cd services/api && uv run pytest -q && uv run ruff check . && uv run mypy app
-cd apps/web && npm run typecheck && npm run lint && npm test
-cd apps/web && npm run build && npm run e2e     # FastAPI serves the static export on one origin
+cd apps/web && npm run typecheck && npm run lint && npm test && npm run build && npm run e2e
+uv run python scripts/check_judge_demo.py https://ripple-room-five.vercel.app   # production judge path (makes live calls)
 ```
 
 ## Repository map
-
-- `services/api/app/domain` pure scheduling domain, `app/solver` CP-SAT + verifier + search,
-  `app/agent` tools/prompts/loop, `app/providers` Nebius adapter and labelled mock.
-- `apps/web` Next.js app; `src/lib/api/schema.d.ts` is generated from the API's OpenAPI schema.
-- `docs/` research, decisions (ADRs), project journal.
+`services/api/app/domain` scheduling domain · `app/solver` CP-SAT, verifier, playbook search, greedy ·
+`app/agent` tools, prompts, loop, interpretation · `app/providers` Nebius adapter + labelled mock ·
+`app/evaluation` 20-case harness · `apps/web` Next.js app · `docs/` architecture, decisions,
+evaluation, operations, journal.
 
 ## License
-
-MIT, see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
