@@ -11,7 +11,8 @@ verified options and choose what to apply. Nothing changes without you, and impo
 are reported as impossible.
 
 > Built for the Nebius x NVIDIA Global AI Hackathon 2026 (track: Best Apps and Agents).
-> The scenario, venue, people and costs are fictional test data.
+> The scenario, venue, people and costs are fictional test data. "Ripple Room" is a working title,
+> unrelated to Ripple Labs / XRP or to other projects named "Ripple".
 
 ## Status (honest, updated 16 Oct 2026, evening)
 

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"],
+  "services": {
+    "api": { "root": "services/api/", "framework": "fastapi", "entrypoint": "app.main:app" },
+    "web": { "root": "apps/web/", "framework": "nextjs" }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}
