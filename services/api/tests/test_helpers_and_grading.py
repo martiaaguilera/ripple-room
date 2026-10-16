@@ -109,7 +109,9 @@ def test_rejection_explains_insufficient_help(scenario: Scenario) -> None:
 
 
 def test_rejection_explains_when_a_change_makes_it_worse(scenario: Scenario) -> None:
-    ev = _ev(scenario, "truck-delay-35", Patch(actions=(AddHelper(task_id="stage-rigging", resource_id="transport-crew"),)))
+    ev = _ev(
+        scenario, "truck-delay-35", Patch(actions=(AddHelper(task_id="stage-rigging", resource_id="transport-crew"),))
+    )
     assert ev.infeasibility is not None
     reason = ev.infeasibility.reasons[0]
     assert "makes things worse" in reason and "later than doing nothing (18:15)" in reason
