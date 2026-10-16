@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     nebius_model_fast: str = "nvidia/nemotron-3-super-120b-a12b"
     nebius_timeout_seconds: float = Field(default=45.0, gt=0, le=120)
     nebius_max_retries: int = Field(default=2, ge=0, le=4)
+    nebius_extra_body_json: str = Field(
+        default="", description="Extra JSON merged into chat requests, e.g. chat_template_kwargs."
+    )
 
     agent_max_model_calls: int = Field(default=8, ge=1, le=16)
     agent_max_evaluations: int = Field(default=6, ge=1, le=12)

@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
+from app.api.agent_routes import router as agent_router
 from app.api.routes import router
 from app.core.config import get_settings
 from app.core.errors import ApiError
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(router)
+    app.include_router(agent_router)
 
     static_dir = settings.static_dir
     if static_dir and Path(static_dir).is_dir():
