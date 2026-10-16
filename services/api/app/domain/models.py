@@ -260,5 +260,5 @@ Intervention = Annotated[
 
 
 class Patch(Frozen):
-    actions: tuple[Intervention, ...] = Field(default=(), max_length=12)
+    actions: tuple[Intervention, ...] = Field(default=(), max_length=24)
     rationale: str = Field(default="", max_length=600)

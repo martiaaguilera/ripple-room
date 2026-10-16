@@ -36,7 +36,9 @@ class VerifierInconsistencyError(RuntimeError):
 
 
 def merge_patches(committed: Patch, candidate: Patch) -> Patch:
-    return Patch(actions=committed.actions + candidate.actions, rationale=candidate.rationale)
+    """Committed actions first; candidate actions identical to a committed one are no-ops."""
+    extra = tuple(a for a in candidate.actions if a not in committed.actions)
+    return Patch(actions=committed.actions + extra, rationale=candidate.rationale)
 
 
 def _infeasibility(problem: EffectiveProblem, reference: Plan, config: SolveConfig) -> InfeasibilityFacts:
