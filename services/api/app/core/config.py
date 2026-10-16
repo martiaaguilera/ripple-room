@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import cache
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -37,6 +37,18 @@ class Settings(BaseSettings):
     ai_daily_token_budget: int = Field(default=1_500_000, ge=0, le=50_000_000)
     ai_daily_run_budget: int = Field(default=60, ge=0, le=10_000)
     ai_per_ip_daily_runs: int = Field(default=12, ge=0, le=1_000)
+
+    # Global (cross-instance) quota. When required and unavailable, live AI is refused (fail closed).
+    ai_require_global_quota: bool = False
+    ai_global_daily_token_budget: int = Field(default=1_500_000, ge=0, le=50_000_000)
+    ai_global_lifetime_token_budget: int = Field(default=20_000_000, ge=0, le=500_000_000)
+    ai_interpret_token_reservation: int = Field(default=6_000, ge=500, le=50_000)
+    upstash_redis_rest_url: str = Field(
+        default="", validation_alias=AliasChoices("UPSTASH_REDIS_REST_URL", "KV_REST_API_URL")
+    )
+    upstash_redis_rest_token: SecretStr | None = Field(
+        default=None, validation_alias=AliasChoices("UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_TOKEN")
+    )
 
     cors_origins: str = "http://localhost:3000"
     static_dir: str | None = None

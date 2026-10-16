@@ -16,6 +16,7 @@ from app.agent.tools import AgentContext
 from app.core.budget import BudgetLimits, InferenceBudget
 from app.core.config import get_settings
 from app.core.errors import ApiError
+from app.core.quota import GlobalQuota, QuotaUnavailableError, Reservation, UpstashQuota
 from app.core.ratelimit import ConcurrencyGate, SlidingWindowLimiter
 from app.domain.effective import compile_problem
 from app.domain.preferences import Preferences
@@ -67,6 +68,50 @@ def _client_key(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+_quota: GlobalQuota | None = None
+
+
+def global_quota() -> GlobalQuota | None:
+    """The shared quota if configured; raises QuotaUnavailableError if required but unusable."""
+    global _quota
+    settings = get_settings()
+    if _quota is None and settings.upstash_redis_rest_url and settings.upstash_redis_rest_token:
+        _quota = UpstashQuota(
+            url=settings.upstash_redis_rest_url,
+            token=settings.upstash_redis_rest_token.get_secret_value(),
+            daily_budget=settings.ai_global_daily_token_budget,
+            lifetime_budget=settings.ai_global_lifetime_token_budget,
+        )
+    if _quota is None and settings.ai_require_global_quota:
+        raise QuotaUnavailableError("A global quota is required but not configured.")
+    return _quota
+
+
+def _reserve_global(tokens: int) -> Reservation | None:
+    """Fail closed: any quota problem refuses the request before a model call happens."""
+    try:
+        quota = global_quota()
+        if quota is None:
+            return None
+        reservation = quota.reserve(tokens)
+    except QuotaUnavailableError as exc:
+        raise ApiError(
+            503,
+            "AI_PAUSED",
+            "Live AI is unavailable because its spending quota cannot be checked. The playbook search (no AI) still works.",
+        ) from exc
+    if reservation is None:
+        raise ApiError(
+            503, "AI_BUDGET_EXHAUSTED", "The live AI budget is used up. The playbook search (no AI) still works."
+        )
+    return reservation
+
+
+def _refund_global(reservation: Reservation | None, used: int) -> None:
+    if reservation is not None and _quota is not None:
+        _quota.refund(reservation, used)
+
+
 def _guard(request: Request, scope: str) -> None:
     """Kill switch, daily budget and per-client limits, checked before any model call."""
     settings = get_settings()
@@ -98,9 +143,12 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
         provider = planner_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
+    reservation: Reservation | None = None
     if provider.live:
         _guard(request, "recover")
+        reservation = _reserve_global(settings.agent_max_total_tokens)
     if not _gate.try_acquire():
+        _refund_global(reservation, 0)
         raise ApiError(503, "BUSY", "Recovery engine is busy. Try again shortly.")
 
     ctx = AgentContext.build(scenario, req.revision, problem, settings.agent_max_evaluations, req.preferences)
@@ -113,6 +161,7 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
     mode = "live" if provider.live else "mock"
 
     async def stream() -> AsyncIterator[str]:
+        used_tokens = 0
         try:
             async for ev in run_agent(ctx, provider, budget, req.priorities, mode_label=mode):
                 if ev.type in ("model_call", "error", "done"):
@@ -123,10 +172,13 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
                     )
                 if ev.type == "model_call" and provider.live:
                     # Counted per call, so a client that disconnects mid-run is still charged to the budget.
-                    inference_budget.record_tokens(int(ev.data.get("usage", {}).get("total_tokens", 0)))
+                    call_tokens = int(ev.data.get("usage", {}).get("total_tokens", 0))
+                    used_tokens += call_tokens
+                    inference_budget.record_tokens(call_tokens)
                 yield f"event: {ev.type}\ndata: {ev.model_dump_json()}\n\n"
         finally:
             _gate.release()
+            _refund_global(reservation, used_tokens)
 
     return StreamingResponse(
         stream(),
@@ -144,10 +196,14 @@ async def interpret_incident(req: InterpretRequest, request: Request) -> Interpr
         provider = fast_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
+    reservation: Reservation | None = None
     if provider.live:
         _guard(request, "interpret")
+        reservation = _reserve_global(settings.ai_interpret_token_reservation)
+    used = settings.ai_interpret_token_reservation  # assume the worst until the call reports usage
     try:
         result = await interpret(scenario, req.text, provider)
+        used = result.total_tokens
         if provider.live:
             inference_budget.record_tokens(result.total_tokens)
         return result
@@ -155,3 +211,5 @@ async def interpret_incident(req: InterpretRequest, request: Request) -> Interpr
         status = 429 if exc.code == "RATE_LIMITED" else 503
         code = exc.code if exc.code in ("RATE_LIMITED", "CREDIT_EXHAUSTED") else "MODEL_UNAVAILABLE"
         raise ApiError(status, code, str(exc)) from exc
+    finally:
+        _refund_global(reservation, used)

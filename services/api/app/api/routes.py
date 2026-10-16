@@ -80,7 +80,8 @@ class ApplyRequest(In):
 def ai_status() -> AiStatus:
     s = get_settings()
     live = s.live_ready
-    if s.ai_mode == "live" and s.ai_kill_switch:
+    quota_missing = s.ai_require_global_quota and not (s.upstash_redis_rest_url and s.upstash_redis_rest_token)
+    if s.ai_mode == "live" and (s.ai_kill_switch or quota_missing):
         status = "paused"
     elif s.ai_mode == "live" and not live:
         status = "unconfigured"
