@@ -4,9 +4,14 @@ import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { shortId } from "@/lib/format";
 import { useRoom } from "@/state/useRoom";
-import { Hero } from "./Hero";
+import { impactStory } from "@/lib/story";
 import { IncidentDesk } from "./IncidentDesk";
-import { DoorsBoard, Inspector } from "./LeftRail";
+import { Inspector } from "./LeftRail";
+import { SceneHeader } from "./SceneHeader";
+import { StartCard } from "./StartCard";
+import { StepGuide } from "./StepGuide";
+import { VenueScene } from "./VenueScene";
+import { WhyItMatters } from "./WhyItMatters";
 import { OperationsCanvas } from "./OperationsCanvas";
 import { AiBadge, RecoveryPanel } from "./RecoveryPanel";
 import { Timeline } from "./Timeline";
@@ -54,6 +59,21 @@ export function ControlRoom() {
       }
     : null;
   const busy = state.pending !== null || state.run.status === "running";
+  const story = impactStory(scenario, view, room);
+  const incidentDesk = (heading: string | null) => (
+    <IncidentDesk
+      key={state.history.length}
+      heading={heading}
+      presets={state.demo!.presets}
+      disabled={busy}
+      intake={state.intake}
+      live={state.health?.ai.mode === "live"}
+      onInterpret={(text) => void actions.interpret(text)}
+      onConfirm={(result) => void actions.confirmIntake(result, { ...result.preferences })}
+      onDiscard={actions.clearIntake}
+      onPreset={(id) => void actions.shock(id)}
+    />
+  );
   const date = new Date(`${scenario.date}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long" });
 
   return (
@@ -112,65 +132,85 @@ export function ControlRoom() {
         </div>
       )}
 
-      {phase === "ready" && state.history.length === 1 && (
-        <Hero
-          onTruck={() => void actions.shock("truck-delay-35")}
-          onDescribe={() => document.getElementById("incident")?.focus()}
-          live={state.health?.ai.mode === "live"}
-        />
-      )}
+      <StepGuide phase={phase} shocked={state.history.length > 1} />
 
-      <div className="grid flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[272px_minmax(0,1fr)_340px] lg:px-6">
-        <aside className="order-1 space-y-4 lg:order-1">
-          <DoorsBoard room={room} />
-          <IncidentDesk
-            key={state.history.length}
-            presets={state.demo!.presets}
-            disabled={busy}
-            intake={state.intake}
-            live={state.health?.ai.mode === "live"}
-            onInterpret={(text) => void actions.interpret(text)}
-            onConfirm={(result) => void actions.confirmIntake(result, { ...result.preferences })}
-            onDiscard={actions.clearIntake}
-            onPreset={(id) => void actions.shock(id)}
-          />
-          <div className="hidden lg:block">
-            <Inspector room={room} taskId={state.focusTaskId} resourceLabel={resourceLabel} />
-          </div>
-        </aside>
-
-        <main className="order-3 min-w-0 space-y-4 lg:order-2">
-          <section aria-label="Operations graph" className="overflow-x-auto rounded-xl border border-line bg-[#0c1219]">
-            <OperationsCanvas scenario={scenario} room={room} rippleKey={state.rippleKey} focusTaskId={state.focusTaskId} onFocus={actions.focus} resourceLabel={resourceLabel} />
+      <div className="grid flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-6">
+        <main className="min-w-0 space-y-4">
+          <section aria-labelledby="scene-h" className="overflow-hidden rounded-2xl border border-line bg-panel">
+            <SceneHeader room={room} story={story} title={`${scenario.name} at ${scenario.venue}`} />
+            <div className="overflow-x-auto">
+              <VenueScene scenario={scenario} room={room} rippleKey={state.rippleKey} previewKey={state.previewId ?? ""} />
+            </div>
           </section>
-          <div className="lg:hidden">
-            <Inspector room={room} taskId={state.focusTaskId} resourceLabel={resourceLabel} />
-          </div>
-          <section aria-label="Timeline" className="overflow-x-auto rounded-xl border border-line bg-panel p-2">
+
+          <section aria-labelledby="ripple-h" className="rounded-2xl border border-line bg-[#0c1219]">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 px-4 pt-3">
+              <h2 id="ripple-h" className="font-display text-xl font-bold">
+                How it spreads
+              </h2>
+              <p className="text-xs text-faint">Each line is a dependency. Point at a job to see what holds it in place.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <OperationsCanvas
+                scenario={scenario}
+                room={room}
+                rippleKey={state.rippleKey}
+                focusTaskId={state.focusTaskId}
+                onFocus={actions.focus}
+                resourceLabel={resourceLabel}
+              />
+            </div>
+            <div className="px-3 pb-3">
+              <Inspector room={room} taskId={state.focusTaskId} resourceLabel={resourceLabel} />
+            </div>
+          </section>
+
+          <section aria-label="Timeline" className="overflow-x-auto rounded-2xl border border-line bg-panel p-2">
             <div className="flex items-center justify-between px-2 pb-1 text-xs text-faint">
-              <span>{room.mode === "impact" ? "Dashed outlines: the plan before the incident" : room.mode === "preview" ? `Previewing ${preview?.title ?? "option"}. Dashed outlines: if nobody acts` : "Today's plan"}</span>
+              <span>
+                {room.mode === "impact"
+                  ? "Dashed outlines: the plan before the incident"
+                  : room.mode === "preview"
+                    ? `Previewing ${preview?.title ?? "option"}. Dashed outlines: if nobody acts`
+                    : "Today's plan"}
+              </span>
               <span>Bold rows set the doors time</span>
             </div>
             <Timeline scenario={scenario} room={room} focusTaskId={state.focusTaskId} onFocus={actions.focus} />
           </section>
+
+          <WhyItMatters />
         </main>
 
-        <aside className="order-2 lg:order-3">
-          <RecoveryPanel
-            scenario={scenario}
-            doNothingReadiness={view.impact?.schedule.readiness ?? null}
-            onPreferences={actions.setPreferences}
-            phase={phase}
-            state={state}
-            room={room}
-            impactCounts={impactCounts}
-            onRecover={(p) => void actions.recover(p)}
-            onCancel={actions.cancelRun}
-            onSearch={() => void actions.search()}
-            onPreview={actions.preview}
-            onApply={(o) => void actions.apply(o)}
-            onUndo={actions.undo}
-          />
+        <aside className="space-y-4" aria-label="Next action">
+          {phase === "ready" && state.history.length === 1 ? (
+            <>
+              <StartCard onTruck={() => void actions.shock("truck-delay-35")} disabled={busy} />
+              {incidentDesk("Or try another incident")}
+            </>
+          ) : (
+            <>
+              <RecoveryPanel
+                scenario={scenario}
+                doNothingReadiness={view.impact?.schedule.readiness ?? null}
+                onPreferences={actions.setPreferences}
+                phase={phase}
+                state={state}
+                room={room}
+                impactCounts={impactCounts}
+                onRecover={(p) => void actions.recover(p)}
+                onCancel={actions.cancelRun}
+                onSearch={() => void actions.search()}
+                onPreview={actions.preview}
+                onApply={(o) => void actions.apply(o)}
+                onUndo={actions.undo}
+              />
+              <details className="rounded-xl border border-line p-3">
+                <summary className="cursor-pointer text-sm font-semibold">Add another incident</summary>
+                <div className="mt-3">{incidentDesk(null)}</div>
+              </details>
+            </>
+          )}
         </aside>
       </div>
       <footer className="px-4 pb-4 text-[11px] text-faint lg:px-6">{scenario.disclaimer}</footer>

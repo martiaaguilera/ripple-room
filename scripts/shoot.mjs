@@ -9,7 +9,8 @@ async function journey(name, viewport) {
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("pageerror", (e) => errors.push(String(e)));
   await page.goto(base + "/");
-  await page.getByRole("heading", { name: "Break the plan" }).waitFor();
+  await page.getByRole("button", { name: /What if the truck arrives/ }).waitFor();
+  await page.waitForTimeout(2500);
   await page.screenshot({ path: `${out}/${name}-1-ready.png`, fullPage: true });
   await page.getByLabel("Describe the incident").fill("Driver called: stuck on the ring road, 35 more minutes. No extra spend today.");
   await page.getByRole("button", { name: "Read the incident" }).click();

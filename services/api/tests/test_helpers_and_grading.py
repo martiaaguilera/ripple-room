@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from app.domain.effective import HELPER_REQUIREMENT, compile_problem
-from app.domain.models import AddHelper, CompressTask, Patch, Scenario
+from app.domain.models import ActivateResource, AddHelper, CompressTask, Patch, Scenario
 from app.domain.reports import EvaluationStatus
 from app.domain.revision import merge_committed
 from app.fixtures import preset
@@ -92,3 +92,24 @@ def test_extended_oracle_finds_free_no_compromise_fix(scenario: Scenario) -> Non
     assert any(ev.cost_cents == 0 and not ev.service_impacts for ev in result.evaluations)
     playbook = search_recoveries(scenario, [preset("truck-delay-35").shock], Patch(), scenario.baseline)
     assert not any(ev.cost_cents == 0 and not ev.service_impacts for ev in playbook.evaluations)
+
+
+def test_rejection_explains_untouched_chain(scenario: Scenario) -> None:
+    ev = _ev(scenario, "truck-delay-35", Patch(actions=(ActivateResource(resource_id="backup-av"),)))
+    assert ev.infeasibility is not None
+    reason = ev.infeasibility.reasons[0]
+    assert reason.startswith("Bringing in the backup AV technician does not touch what sets the doors time")
+    assert "stage rigging" in reason and "18:15" in reason
+
+
+def test_rejection_explains_insufficient_help(scenario: Scenario) -> None:
+    ev = _ev(scenario, "truck-delay-35", Patch(actions=(CompressTask(task_id="crew-briefing", duration=10),)))
+    assert ev.infeasibility is not None
+    assert ev.infeasibility.reasons[0].startswith("This helps the chain that sets the doors time")
+
+
+def test_rejection_explains_when_a_change_makes_it_worse(scenario: Scenario) -> None:
+    ev = _ev(scenario, "truck-delay-35", Patch(actions=(AddHelper(task_id="stage-rigging", resource_id="transport-crew"),)))
+    assert ev.infeasibility is not None
+    reason = ev.infeasibility.reasons[0]
+    assert "makes things worse" in reason and "later than doing nothing (18:15)" in reason

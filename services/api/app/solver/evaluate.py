@@ -19,7 +19,20 @@ from app.domain.analysis import (
     service_impacts,
 )
 from app.domain.effective import EffectiveProblem, compile_problem
-from app.domain.models import Patch, Plan, Scenario, Shock
+from app.domain.models import (
+    ActivateResource,
+    AddHelper,
+    AssignResource,
+    CompressTask,
+    DeferTask,
+    Intervention,
+    Patch,
+    PinStart,
+    Plan,
+    Scenario,
+    Shock,
+)
+from app.domain.propagate import right_shift
 from app.domain.reports import (
     Evaluation,
     EvaluationStatus,
@@ -41,7 +54,81 @@ def merge_patches(committed: Patch, candidate: Patch) -> Patch:
     return Patch(actions=committed.actions + extra, rationale=candidate.rationale)
 
 
-def _infeasibility(problem: EffectiveProblem, reference: Plan, config: SolveConfig) -> InfeasibilityFacts:
+def _soft(label: str) -> str:
+    """Lower-case a label for mid-sentence use, keeping acronyms such as 'AV'."""
+    return " ".join(w if w.isupper() and len(w) > 1 else w.lower() for w in label.split())
+
+
+def describe_action(problem: EffectiveProblem, action: Intervention) -> str:
+    """Plain-language label for one intervention (used in explanations)."""
+    scenario = problem.scenario
+    match action:
+        case ActivateResource(resource_id=rid):
+            return f"Bringing in the {_soft(scenario.resource(rid).label)}"
+        case CompressTask(task_id=tid, duration=d):
+            return f"Shortening {_soft(scenario.task(tid).label)} to {d} min"
+        case DeferTask(task_id=tid):
+            return f"Moving {_soft(scenario.task(tid).label)} after doors"
+        case AddHelper(task_id=tid, resource_id=rid):
+            return f"Adding the {_soft(scenario.resource(rid).label)} to {_soft(scenario.task(tid).label)}"
+        case AssignResource(task_id=tid, resource_id=rid):
+            return f"Giving {_soft(scenario.task(tid).label)} to the {_soft(scenario.resource(rid).label)}"
+        case PinStart(task_id=tid, start=start):
+            return f"Starting {_soft(scenario.task(tid).label)} at {fmt_clock(start)}"
+    return "This change"
+
+
+def _touches(action: Intervention, path: set[str], path_resources: set[str]) -> bool:
+    match action:
+        case ActivateResource(resource_id=rid):
+            return rid in path_resources
+        case (
+            CompressTask(task_id=tid)
+            | DeferTask(task_id=tid)
+            | AddHelper(task_id=tid)
+            | AssignResource(task_id=tid)
+            | PinStart(task_id=tid)
+        ):
+            return tid in path
+    return False
+
+
+def _why_not(
+    problem: EffectiveProblem, patch: Patch, relaxed_plan: Plan, best: int, deadline: int, no_action: int | None
+) -> str | None:
+    """Explain a near miss: does the patch touch the chain that actually sets doors time?"""
+    if not patch.actions:
+        return None
+    _, schedule = schedule_timings(problem, relaxed_plan)
+    path = [t for t in schedule.driving_path if not problem.tasks[t].milestone]
+    by_task = relaxed_plan.by_task()
+    path_resources = {rid for t in path for rid in by_task[t].assignments.values()}
+    chain = " → ".join(_soft(problem.tasks[t].label) for t in path)
+    late = best - deadline
+    what_all = describe_action(problem, patch.actions[0]) if len(patch.actions) == 1 else "These changes together"
+    if no_action is not None and best > no_action:
+        return (
+            f"{what_all} makes things worse: the people or kit it uses are needed on {chain}. "
+            f"Doors would be ready at {fmt_clock(best)}, later than doing nothing ({fmt_clock(no_action)})."
+        )
+    untouched = [a for a in patch.actions if not _touches(a, set(path), path_resources)]
+    if len(untouched) == len(patch.actions):
+        what = describe_action(problem, patch.actions[0]) if len(patch.actions) == 1 else "None of these changes"
+        verb = "does not touch" if len(patch.actions) == 1 else "touch"
+        return (
+            f"{what} {verb} what sets the doors time: {chain}. "
+            f"Doors would still be ready at {fmt_clock(best)}, {late} min late."
+        )
+    return f"This helps the chain that sets the doors time ({chain}), but not enough: doors would be ready at {fmt_clock(best)}, {late} min late."
+
+
+def _infeasibility(
+    problem: EffectiveProblem,
+    reference: Plan,
+    config: SolveConfig,
+    patch: Patch | None = None,
+    no_action: int | None = None,
+) -> InfeasibilityFacts:
     bound, chain = precedence_bound(problem)
     deadline_task = problem.scenario.task(problem.scenario.deadline_task_id)
     deadline = deadline_task.deadline
@@ -59,6 +146,10 @@ def _infeasibility(problem: EffectiveProblem, reference: Plan, config: SolveConf
             f"{fmt_clock(bound)} ({bound - deadline} min after the {fmt_clock(deadline)} deadline)."
         )
     elif best is not None and deadline is not None:
+        if patch is not None and relaxed.plan is not None:
+            why = _why_not(problem, patch, relaxed.plan, best, deadline, no_action)
+            if why:
+                reasons.append(why)
         reasons.append(
             f"Dependencies alone would allow readiness at {fmt_clock(bound)}, but crew, equipment and "
             f"space limits push the best achievable readiness to {fmt_clock(best)} "
@@ -118,7 +209,13 @@ def evaluate_patch(
         ev = _empty(EvaluationStatus.INFEASIBLE, candidate, [], solver_info)
         if not explain_infeasible:
             return ev
-        return ev.model_copy(update={"infeasibility": _infeasibility(problem, reference, config)})
+        base, _ = compile_problem(scenario, shocks, committed)
+        no_action = None
+        if base is not None:
+            base_entries = right_shift(base, reference).plan.by_task()
+            doors = base_entries.get(scenario.deadline_task_id)
+            no_action = doors.start if doors else None
+        return ev.model_copy(update={"infeasibility": _infeasibility(problem, reference, config, candidate, no_action)})
 
     violations = validate_plan(problem, result.plan)
     if violations:

@@ -89,6 +89,7 @@ function ConfirmCard({
 }
 
 export function IncidentDesk({
+  heading,
   presets,
   disabled,
   intake,
@@ -98,6 +99,7 @@ export function IncidentDesk({
   onPreset,
   live,
 }: {
+  heading: string | null;
   presets: ShockPreset[];
   disabled: boolean;
   intake: { status: string; result: Interpretation | null; error: string | null };
@@ -110,13 +112,9 @@ export function IncidentDesk({
   const [text, setText] = useState("");
   const interpreting = intake.status === "interpreting";
   return (
-    <section aria-labelledby="break-h" className="space-y-3">
-      <div>
-        <h2 id="break-h" className="font-display text-2xl font-bold">
-          Break the plan
-        </h2>
-        <p className="mt-0.5 text-sm text-muted">Say what happened in your own words, or pick a rehearsed incident.</p>
-      </div>
+    <section aria-label="Incidents" className="space-y-3">
+      {heading && <h2 className="text-sm font-semibold">{heading}</h2>}
+      <p className="text-xs text-muted">Describe what happened in your own words, or pick a rehearsed incident.</p>
 
       {intake.status === "ready" && intake.result ? (
         <ConfirmCard result={intake.result} busy={disabled} onConfirm={() => onConfirm(intake.result!)} onDiscard={onDiscard} />

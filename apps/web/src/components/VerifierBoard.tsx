@@ -60,7 +60,7 @@ export function VerifierBoard({ events, deadline, doNothing }: { events: AgentEv
         {doNothing != null && doNothing > deadline && (
           <g>
             <line x1={x(doNothing)} x2={x(doNothing)} y1={TOP - 6} y2={height - 2} stroke="var(--coral)" strokeDasharray="3 3" />
-            <text x={Math.min(x(doNothing) + 3, W - 2)} y={height - 4} textAnchor={x(doNothing) > W - 60 ? "end" : "start"} fontSize={9.5} fill="var(--coral)">
+            <text x={x(doNothing) > W - 80 ? x(doNothing) - 3 : x(doNothing) + 3} y={height - 4} textAnchor={x(doNothing) > W - 80 ? "end" : "start"} fontSize={9.5} fill="var(--coral)">
               no action {clock(doNothing)}
             </text>
           </g>
@@ -105,6 +105,28 @@ export function VerifierBoard({ events, deadline, doNothing }: { events: AgentEv
         })}
       </svg>
       <p className="mt-1 text-[11px] text-faint">Filled: fits before doors. Hollow: the best that proposal could ever do. ▲ marks a guest-facing trade-off.</p>
+      <ol className="mt-2 space-y-1.5 text-xs" aria-label="Verifier verdicts">
+        {points.map((p) => {
+          const st = p.ev.status;
+          const reason =
+            st === "rejected"
+              ? (p.ev.violations[0]?.message ?? "Not a permitted change.")
+              : st === "infeasible"
+                ? (p.ev.infeasibility?.reasons[0] ?? "No schedule meets every hard rule.")
+                : st === "unknown"
+                  ? "The solver ran out of time; treated as not verified."
+                  : `Fits: ready ${p.minute != null ? clock(p.minute) : "?"}, ${eur(p.ev.cost_cents)} extra${p.ev.service_impacts.length ? ", with a guest-facing trade-off" : ""}.`;
+          return (
+            <li key={p.id} className="verifier-point">
+              <span className={`mr-1.5 rounded border px-1 py-px font-semibold ${st === "verified" ? "border-signal/40 text-signal" : st === "unknown" ? "border-amber/40 text-amber" : "border-coral/40 text-coral"}`}>
+                {p.id} {st === "verified" ? "holds" : st === "unknown" ? "unproven" : "rejected"}
+              </span>
+              {p.rationale && <span className="text-muted">{p.rationale} </span>}
+              <span className={st === "verified" ? "text-porcelain" : "text-coral/90"}>{reason}</span>
+            </li>
+          );
+        })}
+      </ol>
     </figure>
   );
 }
