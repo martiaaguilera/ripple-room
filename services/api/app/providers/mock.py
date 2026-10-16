@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from app.agent.interpret_mock import TOOL_REPORT_SITUATION, mock_interpretation
 from app.agent.tools import (
     TOOL_EVALUATE_PATCH,
     TOOL_GET_SITUATION,
@@ -42,8 +43,11 @@ class MockProvider:
         tools: list[ToolSpec] | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.6,
+        tool_choice: str | dict[str, Any] = "auto",
     ) -> ChatResult:
-        del tools, max_tokens, temperature
+        del max_tokens, temperature, tool_choice
+        if tools and any(t["function"]["name"] == TOOL_REPORT_SITUATION for t in tools):
+            return self._call(0, TOOL_REPORT_SITUATION, mock_interpretation(messages[-1]["content"]))
         names: dict[str, str] = {}
         for m in messages:
             for c in m.get("tool_calls") or []:

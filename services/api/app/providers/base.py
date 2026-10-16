@@ -68,4 +68,5 @@ class ChatProvider(Protocol):
         tools: list[ToolSpec] | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.6,
+        tool_choice: str | dict[str, Any] = "auto",
     ) -> ChatResult: ...

@@ -637,6 +637,146 @@
     "title": "InfeasibilityFacts",
     "type": "object"
    },
+   "InterpretRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     },
+     "text": {
+      "maxLength": 600,
+      "minLength": 3,
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "revision",
+     "text"
+    ],
+    "title": "InterpretRequest",
+    "type": "object"
+   },
+   "Interpretation": {
+    "properties": {
+     "incidents": {
+      "items": {
+       "$ref": "#/components/schemas/InterpretedIncident"
+      },
+      "title": "Incidents",
+      "type": "array"
+     },
+     "latency_ms": {
+      "title": "Latency Ms",
+      "type": "integer"
+     },
+     "live": {
+      "title": "Live",
+      "type": "boolean"
+     },
+     "model": {
+      "title": "Model",
+      "type": "string"
+     },
+     "preferences": {
+      "$ref": "#/components/schemas/Preferences"
+     },
+     "prompt_version": {
+      "default": "rr-interpret-v1",
+      "title": "Prompt Version",
+      "type": "string"
+     },
+     "provider": {
+      "title": "Provider",
+      "type": "string"
+     },
+     "rejected": {
+      "items": {
+       "$ref": "#/components/schemas/RejectedItem"
+      },
+      "title": "Rejected",
+      "type": "array"
+     },
+     "request_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Request Id"
+     },
+     "summary": {
+      "title": "Summary",
+      "type": "string"
+     },
+     "total_tokens": {
+      "title": "Total Tokens",
+      "type": "integer"
+     },
+     "unclear": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Unclear",
+      "type": "array"
+     }
+    },
+    "required": [
+     "incidents",
+     "rejected",
+     "preferences",
+     "unclear",
+     "summary",
+     "provider",
+     "model",
+     "live",
+     "request_id",
+     "latency_ms",
+     "total_tokens"
+    ],
+    "title": "Interpretation",
+    "type": "object"
+   },
+   "InterpretedIncident": {
+    "properties": {
+     "evidence": {
+      "title": "Evidence",
+      "type": "string"
+     },
+     "restatement": {
+      "title": "Restatement",
+      "type": "string"
+     },
+     "shock": {
+      "discriminator": {
+       "mapping": {
+        "resource_unavailable": "#/components/schemas/ResourceUnavailableShock",
+        "task_delay": "#/components/schemas/TaskDelayShock"
+       },
+       "propertyName": "kind"
+      },
+      "oneOf": [
+       {
+        "$ref": "#/components/schemas/TaskDelayShock"
+       },
+       {
+        "$ref": "#/components/schemas/ResourceUnavailableShock"
+       }
+      ],
+      "title": "Shock"
+     }
+    },
+    "required": [
+     "shock",
+     "restatement",
+     "evidence"
+    ],
+    "title": "InterpretedIncident",
+    "type": "object"
+   },
    "MenuItem": {
     "additionalProperties": false,
     "properties": {
@@ -753,6 +893,46 @@
     "title": "Patch",
     "type": "object"
    },
+   "PenaltyLine": {
+    "additionalProperties": false,
+    "properties": {
+     "dimension": {
+      "enum": [
+       "guest",
+       "spend",
+       "crew",
+       "margin"
+      ],
+      "title": "Dimension",
+      "type": "string"
+     },
+     "points": {
+      "title": "Points",
+      "type": "number"
+     },
+     "raw": {
+      "title": "Raw",
+      "type": "number"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     },
+     "weight": {
+      "title": "Weight",
+      "type": "number"
+     }
+    },
+    "required": [
+     "dimension",
+     "raw",
+     "weight",
+     "points",
+     "text"
+    ],
+    "title": "PenaltyLine",
+    "type": "object"
+   },
    "PinStart": {
     "additionalProperties": false,
     "properties": {
@@ -850,9 +1030,157 @@
     "title": "PlanView",
     "type": "object"
    },
+   "PreferenceBreach": {
+    "additionalProperties": false,
+    "properties": {
+     "kind": {
+      "enum": [
+       "budget",
+       "margin",
+       "protected_task"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "kind",
+     "text"
+    ],
+    "title": "PreferenceBreach",
+    "type": "object"
+   },
+   "PreferenceReport": {
+    "additionalProperties": false,
+    "properties": {
+     "breaches": {
+      "items": {
+       "$ref": "#/components/schemas/PreferenceBreach"
+      },
+      "title": "Breaches",
+      "type": "array"
+     },
+     "penalties": {
+      "items": {
+       "$ref": "#/components/schemas/PenaltyLine"
+      },
+      "title": "Penalties",
+      "type": "array"
+     },
+     "total_points": {
+      "title": "Total Points",
+      "type": "number"
+     }
+    },
+    "required": [
+     "breaches",
+     "penalties",
+     "total_points"
+    ],
+    "title": "PreferenceReport",
+    "type": "object"
+   },
+   "Preferences": {
+    "additionalProperties": false,
+    "properties": {
+     "budget_cap_cents": {
+      "anyOf": [
+       {
+        "maximum": 1000000.0,
+        "minimum": 0.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Budget Cap Cents"
+     },
+     "crew_stability": {
+      "default": "balanced",
+      "enum": [
+       "protect",
+       "balanced",
+       "flexible"
+      ],
+      "title": "Crew Stability",
+      "type": "string"
+     },
+     "guest_experience": {
+      "default": "balanced",
+      "enum": [
+       "protect",
+       "balanced",
+       "flexible"
+      ],
+      "title": "Guest Experience",
+      "type": "string"
+     },
+     "min_margin_minutes": {
+      "default": 0,
+      "maximum": 60.0,
+      "minimum": 0.0,
+      "title": "Min Margin Minutes",
+      "type": "integer"
+     },
+     "protected_tasks": {
+      "default": [],
+      "items": {
+       "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+       "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Protected Tasks",
+      "type": "array"
+     },
+     "source": {
+      "default": "default",
+      "enum": [
+       "default",
+       "structured",
+       "model",
+       "mock"
+      ],
+      "title": "Source",
+      "type": "string"
+     },
+     "spend": {
+      "default": "balanced",
+      "enum": [
+       "protect",
+       "balanced",
+       "flexible"
+      ],
+      "title": "Spend",
+      "type": "string"
+     },
+     "summary": {
+      "default": "",
+      "maxLength": 300,
+      "title": "Summary",
+      "type": "string"
+     }
+    },
+    "title": "Preferences",
+    "type": "object"
+   },
    "RecoverRequest": {
     "additionalProperties": false,
     "properties": {
+     "preferences": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Preferences"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "priorities": {
       "default": "",
       "maxLength": 500,
@@ -867,6 +1195,25 @@
      "revision"
     ],
     "title": "RecoverRequest",
+    "type": "object"
+   },
+   "RejectedItem": {
+    "properties": {
+     "raw": {
+      "additionalProperties": true,
+      "title": "Raw",
+      "type": "object"
+     },
+     "reason": {
+      "title": "Reason",
+      "type": "string"
+     }
+    },
+    "required": [
+     "raw",
+     "reason"
+    ],
+    "title": "RejectedItem",
     "type": "object"
    },
    "Requirement": {
@@ -1285,14 +1632,54 @@
       },
       "title": "Menu Items",
       "type": "array"
+     },
+     "rank": {
+      "title": "Rank",
+      "type": "integer"
+     },
+     "report": {
+      "$ref": "#/components/schemas/PreferenceReport"
+     },
+     "touched": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Touched",
+      "type": "array"
      }
     },
     "required": [
      "id",
+     "rank",
      "menu_items",
-     "evaluation"
+     "evaluation",
+     "report",
+     "touched"
     ],
     "title": "SearchOption",
+    "type": "object"
+   },
+   "SearchRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "preferences": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Preferences"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     }
+    },
+    "required": [
+     "revision"
+    ],
+    "title": "SearchRequest",
     "type": "object"
    },
    "SearchResponse": {
@@ -2081,6 +2468,45 @@
     "summary": "Health"
    }
   },
+  "/api/interpret": {
+   "post": {
+    "description": "Turn free text into typed incidents + preferences for the human to confirm. Applies nothing.",
+    "operationId": "interpret_incident_api_interpret_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InterpretRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Interpretation"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Interpret Incident"
+   }
+  },
   "/api/recover": {
    "post": {
     "operationId": "recover_api_recover_post",
@@ -2124,7 +2550,7 @@
      "content": {
       "application/json": {
        "schema": {
-        "$ref": "#/components/schemas/RevisionRequest"
+        "$ref": "#/components/schemas/SearchRequest"
        }
       }
      },

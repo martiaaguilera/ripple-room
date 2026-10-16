@@ -64,6 +64,7 @@ class NebiusProvider:
         tools: list[ToolSpec] | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.6,
+        tool_choice: str | dict[str, Any] = "auto",
     ) -> ChatResult:
         body: dict[str, Any] = {
             "model": self._model,
@@ -75,7 +76,7 @@ class NebiusProvider:
         }
         if tools:
             body["tools"] = tools
-            body["tool_choice"] = "auto"
+            body["tool_choice"] = tool_choice
         headers = {"Authorization": f"Bearer {self._api_key}", "Content-Type": "application/json"}
 
         attempt = 0

@@ -16,7 +16,9 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.domain.analysis import fmt_clock, impact_report
 from app.domain.effective import EffectiveProblem
-from app.domain.models import Intervention, Patch, Scenario, Shock, TaskDelayShock
+from app.domain.models import Intervention, Patch, Plan, Scenario, Shock, TaskDelayShock
+from app.domain.preferences import Preferences, assess
+from app.domain.ranking import do_nothing_plan, touched_tasks
 from app.domain.reports import Evaluation, EvaluationStatus, ImpactReport
 from app.domain.revision import Revision
 from app.solver.evaluate import evaluate_patch
@@ -75,6 +77,8 @@ class AgentContext:
     impact: ImpactReport
     menu: list[MenuItem]
     max_evaluations: int
+    preferences: Preferences
+    do_nothing: Plan
     candidates: dict[str, Candidate] = field(default_factory=dict)
     evaluations_used: int = 0
     rejected_or_infeasible: int = 0
@@ -82,7 +86,12 @@ class AgentContext:
 
     @classmethod
     def build(
-        cls, scenario: Scenario, revision: Revision, problem: EffectiveProblem, max_evaluations: int
+        cls,
+        scenario: Scenario,
+        revision: Revision,
+        problem: EffectiveProblem,
+        max_evaluations: int,
+        preferences: Preferences | None = None,
     ) -> AgentContext:
         return cls(
             scenario=scenario,
@@ -91,6 +100,8 @@ class AgentContext:
             impact=impact_report(problem, revision.state.plan),
             menu=intervention_menu(scenario),
             max_evaluations=max_evaluations,
+            preferences=preferences or Preferences(),
+            do_nothing=do_nothing_plan(problem, revision.state.plan),
         )
 
 
@@ -252,6 +263,7 @@ def _situation(ctx: AgentContext) -> dict[str, Any]:
             if tid in timings
         ],
         "already_applied": [a.model_dump() for a in ctx.revision.state.committed.actions],
+        "coordinator_preferences": preferences_view(ctx.preferences),
         "tasks": tasks,
         "resources": resources,
         "dependencies": [f"{d.from_id} -> {d.to_id}" for d in ctx.problem.dependencies],
@@ -315,6 +327,22 @@ def _menu(ctx: AgentContext) -> ToolOutcome:
     return ToolOutcome(content, "plan", f"{len(ctx.menu)} permitted interventions", ok=True)
 
 
+def preferences_view(prefs: Preferences) -> dict[str, Any]:
+    view: dict[str, Any] = {
+        "note": "Soft preferences: they rank verified options, they never override hard constraints.",
+        "guest_experience": prefs.guest_experience,
+        "spend": prefs.spend,
+        "crew_stability": prefs.crew_stability,
+    }
+    if prefs.budget_cap_cents is not None:
+        view["budget_cap_eur"] = prefs.budget_cap_cents / 100
+    if prefs.min_margin_minutes:
+        view["min_spare_minutes"] = prefs.min_margin_minutes
+    if prefs.protected_tasks:
+        view["protected_tasks"] = list(prefs.protected_tasks)
+    return view
+
+
 def _evaluation_view(ev: Evaluation) -> dict[str, Any]:
     out: dict[str, Any] = {"status": ev.status.value}
     if ev.schedule is not None and ev.schedule.readiness is not None:
@@ -359,6 +387,14 @@ def _evaluate(ctx: AgentContext, args: EvaluatePatchArgs) -> ToolOutcome:
         **_evaluation_view(ev),
         "evaluations_remaining": ctx.max_evaluations - ctx.evaluations_used,
     }
+    if ev.status == EvaluationStatus.VERIFIED:
+        touched = touched_tasks(ev, ctx.do_nothing)
+        report = assess(ev, ctx.preferences, len(touched))
+        content["preference_check"] = {
+            "breaches": [b.text for b in report.breaches],
+            "penalty_points": report.total_points,
+            "tasks_changed_vs_doing_nothing": len(touched),
+        }
     summary = f"{cid}: {ev.status.value}"
     if "doors_ready" in content:
         summary += f", doors ready {content['doors_ready']}"

@@ -19,10 +19,11 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from app.agent.prompts import NUDGE, PROMPT_VERSION, SYSTEM_PROMPT, user_prompt
-from app.agent.tools import AgentContext, execute_tool, tool_specs
+from app.agent.tools import AgentContext, execute_tool, preferences_view, tool_specs
+from app.domain.preferences import PreferenceReport
+from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, EvaluationStatus
 from app.providers.base import ChatProvider, Message, ProviderError
-from app.solver.search import rank_key
 
 EventType = Literal[
     "run_started", "phase", "model_call", "tool_call", "tool_result", "candidate", "options", "error", "done"
@@ -47,6 +48,10 @@ class AgentOption(BaseModel):
     title: str
     why: str
     evaluation: Evaluation
+    rank: int  # deterministic rank under the confirmed preferences (1 = best)
+    model_rank: int | None  # position the model gave it in submit_options, if any
+    report: PreferenceReport
+    touched: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -100,7 +105,7 @@ async def run_agent(
 
     messages: list[Message] = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_prompt(priorities)},
+        {"role": "user", "content": user_prompt(priorities, preferences_view(ctx.preferences))},
     ]
     tools = tool_specs()
     tokens_used = 0
@@ -202,20 +207,38 @@ async def run_agent(
 
 
 def _final_options(ctx: AgentContext) -> tuple[list[AgentOption], bool]:
+    """Rank the model's verified options deterministically; keep the model's own order for audit.
+
+    If the model did not finish, its verified candidates are surfaced (top 3 by rank) and the
+    event says so via ``finalized_by_model=False``.
+    """
+    finalized = ctx.submitted is not None
+    chosen: dict[str, tuple[int | None, str, str]]
     if ctx.submitted is not None:
-        return [
-            AgentOption(
-                candidate_id=o.candidate_id,
-                title=o.title,
-                why=o.why,
-                evaluation=ctx.candidates[o.candidate_id].evaluation,
-            )
-            for o in ctx.submitted.options
-        ], True
-    # The model did not finish: surface its verified candidates, clearly marked as not finalized.
-    verified = [c for c in ctx.candidates.values() if c.evaluation.status == EvaluationStatus.VERIFIED]
-    verified.sort(key=lambda c: rank_key(c.evaluation))
+        chosen = {o.candidate_id: (i + 1, o.title, o.why) for i, o in enumerate(ctx.submitted.options)}
+    else:
+        chosen = {
+            c.id: (None, f"Verified candidate {c.id}", c.rationale)
+            for c in ctx.candidates.values()
+            if c.evaluation.status == EvaluationStatus.VERIFIED
+        }
+    ranked = rank_options(
+        [(cid, ctx.candidates[cid].evaluation) for cid in chosen],
+        ctx.preferences,
+        ctx.problem,
+        ctx.revision.state.plan,
+    )
+    limit = None if finalized else 3
     return [
-        AgentOption(candidate_id=c.id, title=f"Verified candidate {c.id}", why=c.rationale, evaluation=c.evaluation)
-        for c in verified[:3]
-    ], False
+        AgentOption(
+            candidate_id=r.id,
+            title=chosen[r.id][1],
+            why=chosen[r.id][2],
+            evaluation=r.evaluation,
+            rank=r.rank,
+            model_rank=chosen[r.id][0],
+            report=r.report,
+            touched=r.touched,
+        )
+        for r in ranked[:limit]
+    ], finalized

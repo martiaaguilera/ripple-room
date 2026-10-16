@@ -11,6 +11,7 @@ from app import __version__
 from app.core.config import get_settings
 from app.core.errors import ApiError
 from app.domain.models import Patch, Plan, Scenario, Shock
+from app.domain.preferences import Preferences
 from app.domain.reports import Evaluation
 from app.domain.revision import Revision, baseline_revision
 from app.fixtures import DEMO_SCENARIO_ID, SHOCK_PRESETS, ShockPreset, load_scenario, preset
@@ -54,6 +55,11 @@ class ShockRequest(In):
 
 class RevisionRequest(In):
     revision: Revision
+
+
+class SearchRequest(In):
+    revision: Revision
+    preferences: Preferences | None = None
 
 
 class EvaluateRequest(In):
@@ -122,8 +128,8 @@ def evaluate(req: EvaluateRequest) -> Evaluation:
 
 
 @router.post("/search")
-def search(req: RevisionRequest) -> workflow.SearchResponse:
-    return workflow.search(req.revision)
+def search(req: SearchRequest) -> workflow.SearchResponse:
+    return workflow.search(req.revision, req.preferences)
 
 
 @router.post("/apply")

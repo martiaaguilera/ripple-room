@@ -8,6 +8,8 @@ from app.core.errors import ApiError
 from app.domain.analysis import impact_report, schedule_timings
 from app.domain.effective import EffectiveProblem, InvalidShockError, compile_problem
 from app.domain.models import Patch, Plan, Scenario, Shock
+from app.domain.preferences import PreferenceReport, Preferences
+from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, ImpactReport, ScheduleMetrics, TaskTiming
 from app.domain.revision import Revision, RevisionState, make_revision, merge_committed, revision_id
 from app.domain.validate import validate_plan
@@ -34,8 +36,11 @@ class RevisionView(Out):
 
 class SearchOption(Out):
     id: str
+    rank: int
     menu_items: list[MenuItem]
     evaluation: Evaluation
+    report: PreferenceReport
+    touched: tuple[str, ...]
 
 
 class SearchResponse(Out):
@@ -108,14 +113,28 @@ def evaluate(revision: Revision, patch: Patch) -> Evaluation:
     return evaluate_patch(scenario, state.shocks, state.committed, patch, state.plan)
 
 
-def search(revision: Revision) -> SearchResponse:
+def search(revision: Revision, preferences: Preferences | None = None) -> SearchResponse:
     scenario = verify_revision(revision)
     state = revision.state
-    _problem(scenario, state.shocks, state.committed)
+    problem = _problem(scenario, state.shocks, state.committed)
     result = search_recoveries(scenario, state.shocks, state.committed, state.plan)
+    combos = {f"search-{i + 1}": combo for i, combo in enumerate(result.verified)}
+    ranked = rank_options(
+        [(f"search-{i + 1}", ev) for i, ev in enumerate(result.evaluations)],
+        preferences or Preferences(),
+        problem,
+        state.plan,
+    )
     options = [
-        SearchOption(id=f"search-{i + 1}", menu_items=list(combo), evaluation=ev)
-        for i, (combo, ev) in enumerate(zip(result.verified, result.evaluations, strict=True))
+        SearchOption(
+            id=r.id,
+            rank=r.rank,
+            menu_items=list(combos[r.id]),
+            evaluation=r.evaluation,
+            report=r.report,
+            touched=r.touched,
+        )
+        for r in ranked
     ]
     return SearchResponse(
         base_revision_id=revision.id,

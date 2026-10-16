@@ -11,7 +11,7 @@ from app.providers.mock import MockProvider
 from app.providers.nebius import NebiusProvider
 
 
-def planner_provider(settings: Settings) -> ChatProvider:
+def planner_provider(settings: Settings, *, model: str | None = None) -> ChatProvider:
     if settings.ai_mode == "mock":
         return MockProvider(max_evaluations=settings.agent_max_evaluations)
     if not settings.live_ready or settings.nebius_api_key is None:
@@ -20,8 +20,13 @@ def planner_provider(settings: Settings) -> ChatProvider:
     return NebiusProvider(
         api_key=settings.nebius_api_key.get_secret_value(),
         base_url=settings.nebius_base_url,
-        model=settings.nebius_model_planner,
+        model=model or settings.nebius_model_planner,
         timeout_seconds=settings.nebius_timeout_seconds,
         max_retries=settings.nebius_max_retries,
         extra_body=extra,
     )
+
+
+def fast_provider(settings: Settings) -> ChatProvider:
+    """Provider for short structured calls (incident interpretation)."""
+    return planner_provider(settings, model=settings.nebius_model_fast)
