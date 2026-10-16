@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { shortId } from "@/lib/format";
 import { useRoom } from "@/state/useRoom";
-import { DoorsBoard, Inspector, ShockDeck } from "./LeftRail";
+import { Hero } from "./Hero";
+import { IncidentDesk } from "./IncidentDesk";
+import { DoorsBoard, Inspector } from "./LeftRail";
 import { OperationsCanvas } from "./OperationsCanvas";
 import { AiBadge, RecoveryPanel } from "./RecoveryPanel";
 import { Timeline } from "./Timeline";
@@ -110,10 +112,28 @@ export function ControlRoom() {
         </div>
       )}
 
-      <div className="grid flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[260px_minmax(0,1fr)_340px] lg:px-6">
+      {phase === "ready" && state.history.length === 1 && (
+        <Hero
+          onTruck={() => void actions.shock("truck-delay-35")}
+          onDescribe={() => document.getElementById("incident")?.focus()}
+          live={state.health?.ai.mode === "live"}
+        />
+      )}
+
+      <div className="grid flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[272px_minmax(0,1fr)_340px] lg:px-6">
         <aside className="order-1 space-y-4 lg:order-1">
           <DoorsBoard room={room} />
-          <ShockDeck presets={state.demo!.presets} disabled={busy} pendingId={null} onShock={(id) => void actions.shock(id)} />
+          <IncidentDesk
+            key={state.history.length}
+            presets={state.demo!.presets}
+            disabled={busy}
+            intake={state.intake}
+            live={state.health?.ai.mode === "live"}
+            onInterpret={(text) => void actions.interpret(text)}
+            onConfirm={(result) => void actions.confirmIntake(result, { ...result.preferences })}
+            onDiscard={actions.clearIntake}
+            onPreset={(id) => void actions.shock(id)}
+          />
           <div className="hidden lg:block">
             <Inspector room={room} taskId={state.focusTaskId} resourceLabel={resourceLabel} />
           </div>
@@ -137,7 +157,9 @@ export function ControlRoom() {
 
         <aside className="order-2 lg:order-3">
           <RecoveryPanel
-            current={view}
+            scenario={scenario}
+            doNothingReadiness={view.impact?.schedule.readiness ?? null}
+            onPreferences={actions.setPreferences}
             phase={phase}
             state={state}
             room={room}

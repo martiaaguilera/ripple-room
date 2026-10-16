@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { API_BASE, ApiError, toApiError } from "./client";
-import type { Revision } from "./types";
+import type { Preferences, Revision } from "./types";
 
 export const agentEventSchema = z.object({
   seq: z.number().int(),
@@ -26,6 +26,7 @@ export function parseFrame(frame: string): AgentEvent | null {
 export async function streamRecover(
   revision: Revision,
   priorities: string,
+  preferences: Preferences,
   onEvent: (event: AgentEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {
@@ -34,7 +35,7 @@ export async function streamRecover(
     res = await fetch(`${API_BASE}/api/recover`, {
       method: "POST",
       headers: { "content-type": "application/json", accept: "text/event-stream" },
-      body: JSON.stringify({ revision, priorities }),
+      body: JSON.stringify({ revision, priorities, preferences }),
       signal,
     });
   } catch (err) {

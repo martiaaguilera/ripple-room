@@ -73,7 +73,17 @@ function TimelineImpl({ scenario, room, focusTaskId, onFocus }: Props) {
               <rect x={x(task.ghost.start)} y={y + 2} width={Math.max(2, x(task.ghost.end) - x(task.ghost.start))} height={ROW - 8} rx={3} fill="none" stroke="var(--faint)" strokeDasharray="3 3" />
             )}
             {task.start != null && task.end != null && task.end > task.start && (
-              <rect x={x(task.start)} y={y + 2} width={Math.max(2, x(task.end) - x(task.start))} height={ROW - 8} rx={3} fill={color} fillOpacity={task.critical ? 0.95 : 0.6} />
+              <rect
+                x={0}
+                y={y + 2}
+                width={Math.max(2, x(task.end) - x(task.start))}
+                height={ROW - 8}
+                rx={3}
+                fill={color}
+                fillOpacity={task.critical ? 0.95 : 0.6}
+                className="timeline-bar"
+                style={{ transform: `translateX(${x(task.start)}px)` }}
+              />
             )}
             {task.start != null && task.end === task.start && (
               <path d={`M ${x(task.start)} ${y + 1} l 6 6 l -6 6 l -6 -6 z`} fill={task.id === scenario.deadline_task_id ? (late ? "var(--coral)" : "var(--amber)") : "var(--muted)"} />

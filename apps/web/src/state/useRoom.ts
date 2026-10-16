@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { api, ApiError } from "@/lib/api/client";
 import { streamRecover } from "@/lib/api/sse";
+import type { Interpretation, Preferences } from "@/lib/api/types";
 import { buildRoomView } from "@/lib/viewmodel";
 import { current, initialRoom, phaseOf, roomReducer, type RecoveryOption } from "./room";
 
@@ -59,9 +60,50 @@ export function useRoom() {
       abortRef.current = controller;
       dispatch({ type: "runStarted", source: "nemotron" });
       try {
-        await streamRecover(view.revision, priorities, (event) => dispatch({ type: "runEvent", event }), controller.signal);
+        await streamRecover(
+          view.revision,
+          priorities,
+          state.preferences,
+          (event) => dispatch({ type: "runEvent", event }),
+          controller.signal,
+        );
       } catch (err) {
         if (!controller.signal.aborted) dispatch({ type: "runFailed", error: asError(err) });
+      }
+    },
+    [view, state.preferences],
+  );
+
+  const interpret = useCallback(
+    async (text: string) => {
+      if (!view) return;
+      dispatch({ type: "intakeStarted", text });
+      try {
+        dispatch({ type: "intakeDone", result: await api.interpret(view.revision, text) });
+      } catch (err) {
+        dispatch({ type: "intakeFailed", error: asError(err).message });
+      }
+    },
+    [view],
+  );
+
+  /** Apply the confirmed incidents one by one (each becomes its own verified revision). */
+  const confirmIntake = useCallback(
+    async (result: Interpretation, preferences: Preferences) => {
+      if (!view) return;
+      dispatch({ type: "setPreferences", preferences });
+      dispatch({ type: "pending", pending: "shock" });
+      let revision = view.revision;
+      try {
+        for (const incident of result.incidents) {
+          const next = await api.shockTyped(revision, incident.shock);
+          dispatch({ type: "shocked", view: next });
+          revision = next.revision;
+        }
+        dispatch({ type: "pending", pending: null });
+        dispatch({ type: "intakeCleared" });
+      } catch (err) {
+        dispatch({ type: "failed", error: asError(err) });
       }
     },
     [view],
@@ -76,7 +118,7 @@ export function useRoom() {
     if (!view) return;
     dispatch({ type: "pending", pending: "search" });
     try {
-      const res = await api.search(view.revision);
+      const res = await api.search(view.revision, state.preferences);
       const options: RecoveryOption[] = res.options.map((o) => ({
         id: o.id,
         title: o.menu_items.length ? o.menu_items.map((m) => m.label).join(" + ") : "No change needed",
@@ -84,12 +126,16 @@ export function useRoom() {
         source: "search",
         baseRevisionId: res.base_revision_id,
         evaluation: o.evaluation,
+        rank: o.rank,
+        modelRank: null,
+        report: o.report,
+        touched: [...o.touched],
       }));
       dispatch({ type: "searchDone", options: options.slice(0, 4) });
     } catch (err) {
       dispatch({ type: "failed", error: asError(err) });
     }
-  }, [view]);
+  }, [view, state.preferences]);
 
   const apply = useCallback(
     async (option: RecoveryOption) => {
@@ -114,6 +160,10 @@ export function useRoom() {
     actions: {
       shock,
       recover,
+      interpret,
+      confirmIntake,
+      clearIntake: () => dispatch({ type: "intakeCleared" }),
+      setPreferences: (preferences: Preferences) => dispatch({ type: "setPreferences", preferences }),
       cancelRun,
       search,
       apply,

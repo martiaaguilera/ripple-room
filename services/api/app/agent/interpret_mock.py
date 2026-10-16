@@ -12,7 +12,7 @@ from typing import Any
 TOOL_REPORT_SITUATION = "report_situation"
 
 _FENCE = re.compile(r"<<<\n(.*)\n>>>", re.S)
-_MINUTES = re.compile(r"(\d{1,3})\s*(?:min|minutes|mins)\b", re.I)
+_MINUTES = re.compile(r"(\d{1,3})\s*(?:more\s+|extra\s+)?(?:min|minutes|mins)\b", re.I)
 _WINDOW = re.compile(r"(\d{1,2}[:.]\d{2})\s*(?:-|–|to|until)\s*(\d{1,2}[:.]\d{2})", re.I)
 _EURO = re.compile(r"(?:€|eur\s*)(\d{1,5})|(\d{1,5})\s*(?:€|eur|euros)\b", re.I)
 
@@ -27,7 +27,7 @@ def mock_interpretation(message: str) -> dict[str, Any]:
     low = text.lower()
     incidents: list[dict[str, Any]] = []
     minutes = _MINUTES.search(text)
-    if "truck" in low and minutes:
+    if any(w in low for w in ("truck", "driver", "van", "delivery")) and minutes:
         incidents.append(
             {
                 "kind": "task_delay",

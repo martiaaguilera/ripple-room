@@ -2,9 +2,11 @@
 
 import type { ShockPreset } from "@/lib/api/types";
 import { clock, delta } from "@/lib/format";
+import { useTween } from "@/lib/useTween";
 import { STATUS_TEXT, type RoomView } from "@/lib/viewmodel";
 
 export function DoorsBoard({ room }: { room: RoomView }) {
+  const shown = useTween(room.readiness);
   const late = room.deadlineDelta != null && room.deadlineDelta > 0;
   const margin = room.deadlineDelta == null ? null : -room.deadlineDelta;
   const label =
@@ -25,7 +27,7 @@ export function DoorsBoard({ room }: { room: RoomView }) {
         <div>
           <div className="text-xs text-faint">Ready for doors</div>
           <div className={`font-display text-5xl leading-none font-bold ${late ? "text-coral" : "text-porcelain"}`}>
-            {room.readiness != null ? clock(room.readiness) : "—"}
+            {shown != null ? clock(shown) : "—"}
           </div>
         </div>
         <div>

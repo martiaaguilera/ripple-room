@@ -136,7 +136,34 @@ body {
   animation: heartbeat 2.4s ease-in-out infinite;
 }
 
+@keyframes point-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.verifier-point {
+  animation: point-in 360ms ease-out both;
+}
+
+.timeline-bar {
+  transition:
+    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    width 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    fill 300ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .verifier-point,
+  .timeline-bar {
+    animation: none !important;
+    transition: none !important;
+  }
   .ripple-ring,
   .edge-pulse,
   .node-hit,

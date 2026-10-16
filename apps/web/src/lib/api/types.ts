@@ -24,3 +24,7 @@ export type DemoPayload = S["DemoPayload"];
 export type Health = S["Health"];
 export type Violation = S["Violation"];
 export type TaskStatus = TaskImpact["status"];
+export type Preferences = S["Preferences"];
+export type PreferenceReport = S["PreferenceReport"];
+export type Interpretation = S["Interpretation"];
+export type Shock = S["TaskDelayShock"] | S["ResourceUnavailableShock"];

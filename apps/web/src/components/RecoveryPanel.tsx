@@ -2,22 +2,18 @@
 
 import { useState } from "react";
 import type { AgentEvent } from "@/lib/api/sse";
-import type { Evaluation, Health, RevisionView } from "@/lib/api/types";
+import type { Health, Preferences, Scenario } from "@/lib/api/types";
 import { clock, delta, eur } from "@/lib/format";
-import { touchedTasks, type RoomView } from "@/lib/viewmodel";
+import type { RoomView } from "@/lib/viewmodel";
 import type { Phase, RecoveryOption, RoomState } from "@/state/room";
-
-const PRIORITY_CHIPS = [
-  "Keep extra spend at zero.",
-  "Protect the guest experience; spending is fine.",
-  "Change as little of the crew plan as possible.",
-];
+import { PreferencesPanel } from "./PreferencesPanel";
+import { VerifierBoard } from "./VerifierBoard";
 
 const PHASE_TEXT: Record<string, string> = {
   perceive: "Reading the situation",
   diagnose: "Diagnosing the delay",
   plan: "Weighing permitted fixes",
-  verify: "Verifying a candidate",
+  verify: "Verifying a proposal",
   revise: "Revising after verifier feedback",
   present: "Presenting options",
 };
@@ -25,15 +21,22 @@ const PHASE_TEXT: Record<string, string> = {
 const SOURCE_TEXT: Record<RecoveryOption["source"], string> = {
   nemotron: "Proposed by Nemotron",
   mock: "Simulated agent",
-  search: "Solver search, no AI",
+  search: "Playbook search, no AI",
 };
 
-function modelName(id: string): string {
+const DIMENSION_SHADE: Record<string, string> = {
+  guest: "var(--coral)",
+  spend: "var(--amber)",
+  crew: "var(--focus)",
+  margin: "var(--muted)",
+};
+
+export function modelName(id: string): string {
   const m = id.split("/").pop() ?? id;
   if (/super/i.test(m)) return "Nemotron 3 Super";
   if (/ultra/i.test(m)) return "Nemotron 3 Ultra";
   if (/lightning/i.test(m)) return "Nemotron 3.5 Lightning";
-  if (/nano/i.test(m)) return "Nemotron Nano";
+  if (/nano/i.test(m)) return "Nemotron 3 Nano";
   return m;
 }
 
@@ -48,47 +51,22 @@ export function AiBadge({ health }: { health: Health | null }) {
   );
 }
 
-function verdict(ev: Evaluation): { text: string; tone: string } {
-  switch (ev.status) {
-    case "verified":
-      return { text: "Verified", tone: "text-signal border-signal/40" };
-    case "infeasible":
-      return { text: "Does not fit", tone: "text-coral border-coral/40" };
-    case "rejected":
-      return { text: "Rejected", tone: "text-coral border-coral/40" };
-    default:
-      return { text: "Unproven (timeout)", tone: "text-amber border-amber/40" };
-  }
-}
-
-function reasonOf(ev: Evaluation): string | null {
-  if (ev.violations.length) return ev.violations[0]?.message ?? null;
-  if (ev.infeasibility) {
-    const best = ev.infeasibility.best_readiness;
-    return best != null ? `Best possible with this patch: ready ${clock(best)} (${delta(ev.infeasibility.best_delta)}).` : (ev.infeasibility.reasons[0] ?? null);
-  }
-  return null;
-}
-
 function TraceRow({ event }: { event: AgentEvent }) {
   const d = event.data as Record<string, unknown>;
   const t = `${(event.at_ms / 1000).toFixed(1)}s`;
   switch (event.type) {
     case "phase":
-      return (
-        <li className="pt-2 text-xs font-semibold text-porcelain">
-          {PHASE_TEXT[String(d.name)] ?? String(d.name)}
-        </li>
-      );
+      return <li className="pt-2 text-xs font-semibold text-porcelain">{PHASE_TEXT[String(d.name)] ?? String(d.name)}</li>;
     case "model_call": {
       const usage = d.usage as { total_tokens?: number } | undefined;
       const rid = d.request_id ? String(d.request_id).slice(0, 10) : null;
+      const real = Boolean(rid) || Number(d.latency_ms) > 0;
       return (
         <li className="text-xs text-focus">
           <span className="text-faint">{t} </span>
-          {d.request_id || Number(d.latency_ms) > 0 ? `Model call ${String(d.n)}: ${((Number(d.latency_ms) || 0) / 1000).toFixed(1)}s` : `Scripted step ${String(d.n)}`}
-          {usage?.total_tokens ? `, ${usage.total_tokens.toLocaleString("en")} tokens` : ""}
-          {rid ? `, request ${rid}` : ""}
+          {real
+            ? `Model call ${String(d.n)}: ${((Number(d.latency_ms) || 0) / 1000).toFixed(1)}s${usage?.total_tokens ? `, ${usage.total_tokens.toLocaleString("en")} tokens` : ""}${rid ? `, request ${rid}` : ""}`
+            : `Scripted step ${String(d.n)}`}
         </li>
       );
     }
@@ -99,20 +77,6 @@ function TraceRow({ event }: { event: AgentEvent }) {
           <code className="text-porcelain">{String(d.name)}</code> {String(d.summary)}
         </li>
       );
-    case "candidate": {
-      const ev = d.evaluation as Evaluation;
-      const v = verdict(ev);
-      const reason = reasonOf(ev);
-      return (
-        <li className="text-xs">
-          <span className={`mr-1.5 rounded border px-1.5 py-px font-semibold ${v.tone}`}>
-            {String(d.candidate_id)} {v.text}
-          </span>
-          <span className="text-muted">{String(d.rationale ?? "")}</span>
-          {reason && <span className="block pl-1 text-coral/90">{reason}</span>}
-        </li>
-      );
-    }
     case "error":
       return <li className="text-xs font-semibold text-coral">{String(d.message)}</li>;
     case "done":
@@ -126,15 +90,31 @@ function TraceRow({ event }: { event: AgentEvent }) {
   }
 }
 
+function PenaltyBar({ option }: { option: RecoveryOption }) {
+  const lines = option.report.penalties.filter((p) => p.points > 0);
+  const total = option.report.total_points;
+  if (total <= 0) return <p className="text-[11px] text-faint">0 penalty points under your priorities.</p>;
+  return (
+    <div>
+      <div className="flex h-1.5 overflow-hidden rounded-full bg-raised" aria-hidden>
+        {lines.map((p) => (
+          <span key={p.dimension} style={{ width: `${(p.points / total) * 100}%`, background: DIMENSION_SHADE[p.dimension] }} />
+        ))}
+      </div>
+      <p className="mt-1 text-[11px] text-faint">
+        {Math.round(total)} penalty points: {lines.map((p) => `${p.dimension} ${Math.round(p.points)}`).join(", ")}
+      </p>
+    </div>
+  );
+}
+
 function OptionCard({
   option,
   selected,
   onPreview,
   onApply,
   applying,
-  current,
 }: {
-  current: RevisionView;
   option: RecoveryOption;
   selected: boolean;
   onPreview: () => void;
@@ -145,12 +125,24 @@ function OptionCard({
   const ready = ev.schedule?.readiness;
   const spare = ev.schedule?.deadline_delta != null ? -ev.schedule.deadline_delta : null;
   const impacts = ev.service_impacts.map((s) => s.text);
+  const breaches = option.report.breaches;
   return (
     <li>
       <article className={`rounded-xl border p-3 transition-colors ${selected ? "border-focus bg-[#121b2a]" : "border-line bg-panel"}`}>
         <button type="button" onClick={onPreview} aria-pressed={selected} className="w-full text-left">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[15px] leading-snug font-bold">{option.title}</h3>
+          <div className="flex items-start gap-2">
+            <span
+              className={`mt-0.5 grid h-6 min-w-6 place-items-center rounded-md px-1 text-xs font-bold ${option.rank === 1 ? "bg-signal text-[var(--signal-ink)]" : "bg-raised text-muted"}`}
+              title="Rank under your priorities"
+            >
+              {option.rank}
+            </span>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[15px] leading-snug font-bold">{option.title}</h3>
+              <p className="text-[11px] text-faint">
+                {option.modelRank === 1 ? "Nemotron's own first choice" : option.modelRank ? `Nemotron listed it #${option.modelRank}` : SOURCE_TEXT[option.source]}
+              </p>
+            </div>
             <span className="shrink-0 rounded border border-signal/40 px-1.5 py-px text-[11px] font-semibold text-signal">Verified</span>
           </div>
           <dl className="mt-2 grid grid-cols-3 gap-2 text-xs">
@@ -165,12 +157,24 @@ function OptionCard({
             </div>
             <div>
               <dt className="text-faint">Tasks touched</dt>
-              <dd className="font-display text-xl font-bold">{touchedTasks(ev, current).length}</dd>
+              <dd className="font-display text-xl font-bold">{option.touched.length}</dd>
             </div>
           </dl>
           <p className={`mt-2 text-xs ${impacts.length ? "text-amber" : "text-muted"}`}>
             {impacts.length ? `Guest-facing trade-off: ${impacts.join("; ")}` : "No guest-facing trade-off."}
           </p>
+          {breaches.length > 0 ? (
+            <ul className="mt-1 space-y-0.5 text-xs text-amber">
+              {breaches.map((b) => (
+                <li key={b.text}>▲ {b.text}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1 text-xs text-signal">Fits every priority you set.</p>
+          )}
+          <div className="mt-2">
+            <PenaltyBar option={option} />
+          </div>
           {option.why && (
             <p className="mt-2 border-l-2 border-focus/50 pl-2 text-xs text-muted">
               <span className="text-focus">{option.source === "nemotron" ? "Nemotron: " : "Agent note: "}</span>
@@ -178,7 +182,8 @@ function OptionCard({
             </p>
           )}
           <p className="mt-2 text-[11px] text-faint">
-            {SOURCE_TEXT[option.source]}. Checked by CP-SAT ({ev.solver.status === "OPTIMAL" ? "least disruptive timing for this fix, proven" : "feasible, not proven least disruptive"}, {ev.solver.wall_ms} ms).
+            Checked by CP-SAT ({ev.solver.status === "OPTIMAL" ? "least disruptive timing for this fix, proven" : "feasible, not proven least disruptive"},{" "}
+            {ev.solver.wall_ms} ms).
           </p>
         </button>
         {selected && (
@@ -197,10 +202,11 @@ function OptionCard({
 }
 
 interface PanelProps {
-  current: RevisionView;
+  scenario: Scenario;
   phase: Phase;
   state: RoomState;
   room: RoomView;
+  doNothingReadiness: number | null;
   impactCounts: { delayed: number; atRisk: number; breach: number; blocked: number } | null;
   onRecover: (priorities: string) => void;
   onCancel: () => void;
@@ -208,15 +214,18 @@ interface PanelProps {
   onPreview: (id: string | null) => void;
   onApply: (option: RecoveryOption) => void;
   onUndo: () => void;
+  onPreferences: (p: Preferences) => void;
 }
 
-export function RecoveryPanel({ current, phase, state, room, impactCounts, onRecover, onCancel, onSearch, onPreview, onApply, onUndo }: PanelProps) {
-  const [priorities, setPriorities] = useState("");
+export function RecoveryPanel(props: PanelProps) {
+  const { scenario, phase, state, room, doNothingReadiness, impactCounts, onRecover, onCancel, onSearch, onPreview, onApply, onUndo, onPreferences } = props;
+  const [words, setWords] = useState("");
+  const [showForm, setShowForm] = useState(false);
   const run = state.run;
   const live = state.health?.ai.mode === "live";
-  const runnable = phase === "impact" || (phase === "options" && run.status !== "running" && run.options.length === 0);
-  const [showForm, setShowForm] = useState(false);
-  const late = room.mode !== "preview" && room.deadlineDelta != null && room.deadlineDelta > 0;
+  const late = doNothingReadiness != null && doNothingReadiness > room.deadline;
+  const hasOptions = run.options.length > 0;
+  const showComposer = (phase === "impact" || phase === "options") && run.status !== "running" && (!hasOptions || showForm);
 
   if (phase === "ready" || phase === "applied") {
     return (
@@ -246,7 +255,7 @@ export function RecoveryPanel({ current, phase, state, room, impactCounts, onRec
                 </li>
               ))}
           </ol>
-          <p className="mt-2 text-xs text-faint">Any delay on this chain moves the doors. Try an incident on the left.</p>
+          <p className="mt-2 text-xs text-faint">Any delay on this chain moves the doors.</p>
         </div>
       </section>
     );
@@ -255,46 +264,43 @@ export function RecoveryPanel({ current, phase, state, room, impactCounts, onRec
   return (
     <section aria-labelledby="rec-h" className="space-y-3">
       <h2 id="rec-h" className="font-display text-2xl font-bold">
-        {late ? `Doors ${room.deadlineDelta} min late` : room.mode === "preview" ? "Recovery options" : "Delay absorbed"}
+        {late ? `Doors ${delta(doNothingReadiness! - room.deadline).replace("+", "")} late` : "Delay absorbed"}
       </h2>
-      {impactCounts && phase === "impact" && (
+      {impactCounts && (
         <p className="text-sm text-muted">
-          {impactCounts.breach + impactCounts.blocked > 0 ? "The deadline breaks. " : "The deadline still holds, but slack is shrinking. "}
+          {impactCounts.breach + impactCounts.blocked > 0 ? "If nobody acts, the deadline breaks. " : "The deadline still holds, but slack is shrinking. "}
           {impactCounts.delayed} tasks slip{impactCounts.atRisk ? `, ${impactCounts.atRisk} more sit downstream at risk` : ""}.
         </p>
       )}
 
-      {!runnable && run.options.length > 0 && run.status !== "running" && !showForm && (
+      {hasOptions && run.status !== "running" && !showForm && (
         <button type="button" onClick={() => setShowForm(true)} className="text-xs text-muted underline underline-offset-2 hover:text-porcelain">
           Change priorities and run again
         </button>
       )}
 
-      {(runnable || (showForm && run.status !== "running")) && (
-        <div className="space-y-2 rounded-xl border border-line bg-panel p-3">
-          <label htmlFor="priorities" className="block text-sm font-semibold">
-            What matters most today?
-          </label>
-          <textarea
-            id="priorities"
-            value={priorities}
-            onChange={(e) => setPriorities(e.target.value.slice(0, 500))}
-            rows={2}
-            placeholder="e.g. Sponsors need the vendor tables. Keep spend under €100."
-            className="w-full resize-none rounded-md border border-line bg-raised px-2.5 py-2 text-sm placeholder:text-faint"
-          />
-          <div className="flex flex-wrap gap-1.5">
-            {PRIORITY_CHIPS.map((chip) => (
-              <button key={chip} type="button" onClick={() => setPriorities(chip)} className="rounded-full border border-line px-2.5 py-1 text-xs text-muted hover:border-focus hover:text-porcelain">
-                {chip}
-              </button>
-            ))}
+      {showComposer && (
+        <div className="space-y-3 rounded-xl border border-line bg-panel p-3">
+          <h3 className="text-sm font-semibold">What matters most today?</h3>
+          <PreferencesPanel scenario={scenario} value={state.preferences} onChange={onPreferences} />
+          <div>
+            <label htmlFor="words" className="text-xs text-muted">
+              Anything else the planner should know? (optional)
+            </label>
+            <textarea
+              id="words"
+              value={words}
+              onChange={(e) => setWords(e.target.value.slice(0, 500))}
+              rows={2}
+              placeholder="e.g. The lead is happy to lend a hand on stage."
+              className="mt-1 w-full resize-none rounded-md border border-line bg-raised px-2.5 py-2 text-sm placeholder:text-faint"
+            />
           </div>
           <button
             type="button"
             onClick={() => {
               setShowForm(false);
-              onRecover(priorities);
+              onRecover(words);
             }}
             className="w-full rounded-lg bg-focus px-3 py-2.5 text-sm font-bold text-graphite hover:brightness-110"
           >
@@ -302,34 +308,37 @@ export function RecoveryPanel({ current, phase, state, room, impactCounts, onRec
           </button>
           <p className="text-[11px] leading-snug text-faint">
             {live
-              ? "Runs NVIDIA Nemotron on Nebius Token Factory. The model proposes fixes; a constraint solver decides which ones actually work."
+              ? "NVIDIA Nemotron on Nebius Token Factory proposes fixes; a constraint solver decides which ones actually work; your priorities rank them."
               : "This deployment runs a simulated agent: no model is called. Every option is still checked by the constraint solver."}
           </p>
           <button type="button" onClick={onSearch} disabled={state.pending === "search"} className="text-xs text-muted underline underline-offset-2 hover:text-porcelain disabled:opacity-50">
-            {state.pending === "search" ? "Searching…" : "Or run the solver search without AI"}
+            {state.pending === "search" ? "Searching…" : "Or run the playbook search without AI"}
           </button>
         </div>
       )}
 
+      {run.source !== "search" && run.status !== "idle" && <VerifierBoard events={run.events} deadline={room.deadline} doNothing={doNothingReadiness} />}
+
       {run.status !== "idle" && run.source !== "search" && (
-        <div className="rounded-xl border border-line bg-panel p-3" aria-live="polite">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold">
-              {run.provider ? (run.provider.live ? `${modelName(run.provider.model)} on Nebius` : "Simulated agent") : "Starting…"}
-            </h3>
-            {run.status === "running" && (
-              <button type="button" onClick={onCancel} className="text-xs text-muted underline underline-offset-2 hover:text-porcelain">
-                Stop
-              </button>
-            )}
-          </div>
-          <ol className="mt-1 max-h-64 space-y-1 overflow-y-auto pr-1">
+        <details open={run.status === "running"} className="rounded-xl border border-line bg-panel p-3" aria-live="polite">
+          <summary className="cursor-pointer text-sm font-semibold">
+            {run.provider ? (run.provider.live ? `${modelName(run.provider.model)} on Nebius` : "Simulated agent") : "Starting…"}
+            <span className="ml-2 text-xs font-normal text-muted">
+              {run.status === "running" ? "working" : `${run.events.filter((e) => e.type === "tool_result").length} tool calls`}
+            </span>
+          </summary>
+          {run.status === "running" && (
+            <button type="button" onClick={onCancel} className="mt-1 text-xs text-muted underline underline-offset-2 hover:text-porcelain">
+              Stop
+            </button>
+          )}
+          <ol className="mt-1 max-h-56 space-y-1 overflow-y-auto pr-1">
             {run.events.map((e) => (
               <TraceRow key={e.seq} event={e} />
             ))}
             {run.status === "running" && <li className="heartbeat text-xs text-focus">Waiting for the next step…</li>}
           </ol>
-        </div>
+        </details>
       )}
 
       {run.status === "failed" && run.error && (
@@ -337,12 +346,12 @@ export function RecoveryPanel({ current, phase, state, room, impactCounts, onRec
           <p className="font-semibold text-coral">{run.error.code === "CANCELLED" ? "Run stopped." : "The recovery agent could not finish."}</p>
           <p className="mt-1 text-muted">{run.error.message}</p>
           <button type="button" onClick={onSearch} className="mt-2 rounded-md border border-line px-3 py-1.5 text-xs hover:border-porcelain">
-            Run the solver search without AI
+            Run the playbook search without AI
           </button>
         </div>
       )}
 
-      {run.status === "done" && run.options.length === 0 && (
+      {run.status === "done" && !hasOptions && (
         <div role="status" className="rounded-xl border border-coral/50 bg-panel p-3 text-sm">
           <p className="font-semibold text-coral">No verified recovery found.</p>
           <p className="mt-1 text-muted">
@@ -351,12 +360,13 @@ export function RecoveryPanel({ current, phase, state, room, impactCounts, onRec
         </div>
       )}
 
-      {run.options.length > 0 && (
+      {hasOptions && (
         <div>
           {run.source !== "search" && run.finalizedByModel === false && (
             <p className="mb-2 text-xs text-amber">The agent ran out of budget before choosing; showing its verified candidates.</p>
           )}
           {run.summary && <p className="mb-2 text-xs text-muted">{run.summary}</p>}
+          <p className="mb-2 text-[11px] text-faint">Ranked by your priorities: fewest breaches first, then fewest penalty points.</p>
           <ul className="space-y-2">
             {run.options.map((o) => (
               <OptionCard
@@ -366,7 +376,6 @@ export function RecoveryPanel({ current, phase, state, room, impactCounts, onRec
                 onPreview={() => onPreview(state.previewId === o.id ? null : o.id)}
                 onApply={() => onApply(o)}
                 applying={state.pending === "apply"}
-                current={current}
               />
             ))}
           </ul>

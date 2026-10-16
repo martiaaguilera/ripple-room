@@ -22,6 +22,34 @@
     "title": "ActivateResource",
     "type": "object"
    },
+   "AddHelper": {
+    "additionalProperties": false,
+    "description": "Put a second qualified person on a task that allows a helper, shortening it.",
+    "properties": {
+     "resource_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Resource Id",
+      "type": "string"
+     },
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     },
+     "type": {
+      "const": "add_helper",
+      "default": "add_helper",
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "resource_id"
+    ],
+    "title": "AddHelper",
+    "type": "object"
+   },
    "AiStatus": {
     "properties": {
      "configured": {
@@ -487,6 +515,33 @@
     "title": "Health",
     "type": "object"
    },
+   "HelperSpec": {
+    "additionalProperties": false,
+    "description": "A second person with ``skill`` can join the task, shortening it to ``duration``.",
+    "properties": {
+     "duration": {
+      "maximum": 1440.0,
+      "minimum": 0.0,
+      "title": "Duration",
+      "type": "integer"
+     },
+     "note": {
+      "default": "",
+      "title": "Note",
+      "type": "string"
+     },
+     "skill": {
+      "title": "Skill",
+      "type": "string"
+     }
+    },
+    "required": [
+     "skill",
+     "duration"
+    ],
+    "title": "HelperSpec",
+    "type": "object"
+   },
    "ImpactMetrics": {
     "additionalProperties": false,
     "properties": {
@@ -785,6 +840,7 @@
        "discriminator": {
         "mapping": {
          "activate_resource": "#/components/schemas/ActivateResource",
+         "add_helper": "#/components/schemas/AddHelper",
          "assign_resource": "#/components/schemas/AssignResource",
          "compress_task": "#/components/schemas/CompressTask",
          "defer_task": "#/components/schemas/DeferTask",
@@ -807,6 +863,9 @@
         },
         {
          "$ref": "#/components/schemas/PinStart"
+        },
+        {
+         "$ref": "#/components/schemas/AddHelper"
         }
        ]
       },
@@ -854,6 +913,7 @@
        "discriminator": {
         "mapping": {
          "activate_resource": "#/components/schemas/ActivateResource",
+         "add_helper": "#/components/schemas/AddHelper",
          "assign_resource": "#/components/schemas/AssignResource",
          "compress_task": "#/components/schemas/CompressTask",
          "defer_task": "#/components/schemas/DeferTask",
@@ -876,6 +936,9 @@
         },
         {
          "$ref": "#/components/schemas/PinStart"
+        },
+        {
+         "$ref": "#/components/schemas/AddHelper"
         }
        ]
       },
@@ -1732,7 +1795,7 @@
      },
      "severity": {
       "title": "Severity",
-      "type": "integer"
+      "type": "number"
      },
      "task_id": {
       "title": "Task Id",
@@ -1914,6 +1977,16 @@
       "minimum": 0.0,
       "title": "Duration",
       "type": "integer"
+     },
+     "helper": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/HelperSpec"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "id": {
       "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",

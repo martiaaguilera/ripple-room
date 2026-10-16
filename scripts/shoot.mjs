@@ -1,4 +1,4 @@
-// Screenshot journey driver for visual QA: node scripts/shoot.mjs <outdir> [baseUrl]
+// Visual QA journey: node scripts/shoot.mjs <outdir> [baseUrl]  (run from apps/web so @playwright/test resolves)
 import { chromium } from "@playwright/test";
 const out = process.argv[2] ?? "shots";
 const base = process.argv[3] ?? "http://localhost:3000";
@@ -11,16 +11,22 @@ async function journey(name, viewport) {
   await page.goto(base + "/");
   await page.getByRole("heading", { name: "Break the plan" }).waitFor();
   await page.screenshot({ path: `${out}/${name}-1-ready.png`, fullPage: true });
-  await page.getByRole("button", { name: /Truck delayed \+35/ }).click();
-  await page.getByText(/min late/).first().waitFor();
-  await page.waitForTimeout(1600);
-  await page.screenshot({ path: `${out}/${name}-2-impact.png`, fullPage: true });
+  await page.getByLabel("Describe the incident").fill("Driver called: stuck on the ring road, 35 more minutes. No extra spend today.");
+  await page.getByRole("button", { name: "Read the incident" }).click();
+  await page.getByRole("button", { name: /Apply to the plan/ }).waitFor();
+  await page.screenshot({ path: `${out}/${name}-2-intake.png`, fullPage: true });
+  await page.getByRole("button", { name: /Apply to the plan/ }).click();
+  await page.getByRole("heading", { name: /Doors \d+ min late/ }).waitFor();
+  await page.waitForTimeout(1800);
+  await page.screenshot({ path: `${out}/${name}-3-impact.png`, fullPage: true });
   await page.getByRole("button", { name: "Find recovery options" }).click();
-  await page.getByRole("button", { name: "Apply this plan" }).waitFor({ timeout: 60000 });
-  await page.screenshot({ path: `${out}/${name}-3-options.png`, fullPage: true });
+  await page.getByRole("button", { name: "Apply this plan" }).waitFor({ timeout: 90000 });
+  await page.waitForTimeout(900);
+  await page.screenshot({ path: `${out}/${name}-4-options.png`, fullPage: true });
   await page.getByRole("button", { name: "Apply this plan" }).click();
   await page.getByRole("heading", { name: "Recovery applied" }).waitFor();
-  await page.screenshot({ path: `${out}/${name}-4-applied.png`, fullPage: true });
+  await page.waitForTimeout(900);
+  await page.screenshot({ path: `${out}/${name}-5-applied.png`, fullPage: true });
   console.log(name, "console errors:", errors.length ? errors : "none");
   await page.close();
 }

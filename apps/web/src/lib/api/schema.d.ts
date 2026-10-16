@@ -72,6 +72,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/interpret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Interpret Incident
+         * @description Turn free text into typed incidents + preferences for the human to confirm. Applies nothing.
+         */
+        post: operations["interpret_incident_api_interpret_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recover": {
         parameters: {
             query?: never;
@@ -153,6 +173,21 @@ export interface components {
              * @enum {string}
              */
             type: "activate_resource";
+        };
+        /**
+         * AddHelper
+         * @description Put a second qualified person on a task that allows a helper, shortening it.
+         */
+        AddHelper: {
+            /** Resource Id */
+            resource_id: string;
+            /** Task Id */
+            task_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "add_helper";
         };
         /** AiStatus */
         AiStatus: {
@@ -325,6 +360,21 @@ export interface components {
             /** Status */
             status: string;
         };
+        /**
+         * HelperSpec
+         * @description A second person with ``skill`` can join the task, shortening it to ``duration``.
+         */
+        HelperSpec: {
+            /** Duration */
+            duration: number;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Skill */
+            skill: string;
+        };
         /** ImpactMetrics */
         ImpactMetrics: {
             /** At Risk Count */
@@ -368,10 +418,54 @@ export interface components {
             /** Reasons */
             reasons: string[];
         };
+        /** InterpretRequest */
+        InterpretRequest: {
+            revision: components["schemas"]["Revision"];
+            /** Text */
+            text: string;
+        };
+        /** Interpretation */
+        Interpretation: {
+            /** Incidents */
+            incidents: components["schemas"]["InterpretedIncident"][];
+            /** Latency Ms */
+            latency_ms: number;
+            /** Live */
+            live: boolean;
+            /** Model */
+            model: string;
+            preferences: components["schemas"]["Preferences"];
+            /**
+             * Prompt Version
+             * @default rr-interpret-v1
+             */
+            prompt_version: string;
+            /** Provider */
+            provider: string;
+            /** Rejected */
+            rejected: components["schemas"]["RejectedItem"][];
+            /** Request Id */
+            request_id: string | null;
+            /** Summary */
+            summary: string;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Unclear */
+            unclear: string[];
+        };
+        /** InterpretedIncident */
+        InterpretedIncident: {
+            /** Evidence */
+            evidence: string;
+            /** Restatement */
+            restatement: string;
+            /** Shock */
+            shock: components["schemas"]["TaskDelayShock"] | components["schemas"]["ResourceUnavailableShock"];
+        };
         /** MenuItem */
         MenuItem: {
             /** Actions */
-            actions: (components["schemas"]["ActivateResource"] | components["schemas"]["CompressTask"] | components["schemas"]["DeferTask"] | components["schemas"]["AssignResource"] | components["schemas"]["PinStart"])[];
+            actions: (components["schemas"]["ActivateResource"] | components["schemas"]["CompressTask"] | components["schemas"]["DeferTask"] | components["schemas"]["AssignResource"] | components["schemas"]["PinStart"] | components["schemas"]["AddHelper"])[];
             /** Cost Hint */
             cost_hint: string;
             /** Id */
@@ -389,12 +483,28 @@ export interface components {
              * Actions
              * @default []
              */
-            actions: (components["schemas"]["ActivateResource"] | components["schemas"]["CompressTask"] | components["schemas"]["DeferTask"] | components["schemas"]["AssignResource"] | components["schemas"]["PinStart"])[];
+            actions: (components["schemas"]["ActivateResource"] | components["schemas"]["CompressTask"] | components["schemas"]["DeferTask"] | components["schemas"]["AssignResource"] | components["schemas"]["PinStart"] | components["schemas"]["AddHelper"])[];
             /**
              * Rationale
              * @default
              */
             rationale: string;
+        };
+        /** PenaltyLine */
+        PenaltyLine: {
+            /**
+             * Dimension
+             * @enum {string}
+             */
+            dimension: "guest" | "spend" | "crew" | "margin";
+            /** Points */
+            points: number;
+            /** Raw */
+            raw: number;
+            /** Text */
+            text: string;
+            /** Weight */
+            weight: number;
         };
         /** PinStart */
         PinStart: {
@@ -433,14 +543,87 @@ export interface components {
             /** Timings */
             timings: components["schemas"]["TaskTiming"][];
         };
+        /** PreferenceBreach */
+        PreferenceBreach: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "budget" | "margin" | "protected_task";
+            /** Text */
+            text: string;
+        };
+        /** PreferenceReport */
+        PreferenceReport: {
+            /** Breaches */
+            breaches: components["schemas"]["PreferenceBreach"][];
+            /** Penalties */
+            penalties: components["schemas"]["PenaltyLine"][];
+            /** Total Points */
+            total_points: number;
+        };
+        /** Preferences */
+        Preferences: {
+            /** Budget Cap Cents */
+            budget_cap_cents?: number | null;
+            /**
+             * Crew Stability
+             * @default balanced
+             * @enum {string}
+             */
+            crew_stability: "protect" | "balanced" | "flexible";
+            /**
+             * Guest Experience
+             * @default balanced
+             * @enum {string}
+             */
+            guest_experience: "protect" | "balanced" | "flexible";
+            /**
+             * Min Margin Minutes
+             * @default 0
+             */
+            min_margin_minutes: number;
+            /**
+             * Protected Tasks
+             * @default []
+             */
+            protected_tasks: string[];
+            /**
+             * Source
+             * @default default
+             * @enum {string}
+             */
+            source: "default" | "structured" | "model" | "mock";
+            /**
+             * Spend
+             * @default balanced
+             * @enum {string}
+             */
+            spend: "protect" | "balanced" | "flexible";
+            /**
+             * Summary
+             * @default
+             */
+            summary: string;
+        };
         /** RecoverRequest */
         RecoverRequest: {
+            preferences?: components["schemas"]["Preferences"] | null;
             /**
              * Priorities
              * @default
              */
             priorities: string;
             revision: components["schemas"]["Revision"];
+        };
+        /** RejectedItem */
+        RejectedItem: {
+            /** Raw */
+            raw: {
+                [key: string]: unknown;
+            };
+            /** Reason */
+            reason: string;
         };
         /**
          * Requirement
@@ -603,6 +786,16 @@ export interface components {
             id: string;
             /** Menu Items */
             menu_items: components["schemas"]["MenuItem"][];
+            /** Rank */
+            rank: number;
+            report: components["schemas"]["PreferenceReport"];
+            /** Touched */
+            touched: string[];
+        };
+        /** SearchRequest */
+        SearchRequest: {
+            preferences?: components["schemas"]["Preferences"] | null;
+            revision: components["schemas"]["Revision"];
         };
         /** SearchResponse */
         SearchResponse: {
@@ -681,6 +874,7 @@ export interface components {
             defer_note: string;
             /** Duration */
             duration: number;
+            helper?: components["schemas"]["HelperSpec"] | null;
             /** Id */
             id: string;
             /** Label */
@@ -947,6 +1141,39 @@ export interface operations {
             };
         };
     };
+    interpret_incident_api_interpret_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InterpretRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Interpretation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     recover_api_recover_post: {
         parameters: {
             query?: never;
@@ -989,7 +1216,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RevisionRequest"];
+                "application/json": components["schemas"]["SearchRequest"];
             };
         };
         responses: {

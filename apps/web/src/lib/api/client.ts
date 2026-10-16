@@ -1,4 +1,16 @@
-import type { DemoPayload, Evaluation, Health, Patch, Plan, Revision, RevisionView, SearchResponse } from "./types";
+import type {
+  DemoPayload,
+  Evaluation,
+  Health,
+  Interpretation,
+  Patch,
+  Plan,
+  Preferences,
+  Revision,
+  RevisionView,
+  SearchResponse,
+  Shock,
+} from "./types";
 
 /** Empty in production (same origin as FastAPI). Set NEXT_PUBLIC_API_BASE for local dev. */
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? "").replace(/\/$/, "");
@@ -46,8 +58,10 @@ export const api = {
   health: () => request<Health>("/api/health"),
   demo: () => request<DemoPayload>("/api/demo"),
   shock: (revision: Revision, presetId: string) => post<RevisionView>("/api/shock", { revision, preset_id: presetId }),
+  shockTyped: (revision: Revision, shock: Shock) => post<RevisionView>("/api/shock", { revision, shock }),
+  interpret: (revision: Revision, text: string) => post<Interpretation>("/api/interpret", { revision, text }),
   evaluate: (revision: Revision, patch: Patch) => post<Evaluation>("/api/evaluate", { revision, patch }),
-  search: (revision: Revision) => post<SearchResponse>("/api/search", { revision }),
+  search: (revision: Revision, preferences: Preferences) => post<SearchResponse>("/api/search", { revision, preferences }),
   apply: (revision: Revision, baseRevisionId: string, patch: Patch, plan: Plan) =>
     post<RevisionView>("/api/apply", { revision, base_revision_id: baseRevisionId, patch, plan }),
 };
