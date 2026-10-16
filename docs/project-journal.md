@@ -32,7 +32,19 @@ Status legend: **PROVEN** (run and observed) · **NOT VERIFIED** · **BLOCKED** 
 | Competitor overlap (LLM+CP-SAT exists) | H | Med | Differentiate on cascade UX, visible rejection, change notice; no novelty claims | 25 Oct |
 | Name collision "Ripple" | M | Low | Owner decision | before README final |
 
+### Later on day 1 (same session)
+- Stateless API (`/api/demo|shock|view|evaluate|search|apply`), typed errors, stale/tampered revision rejection.
+- Agent: Nebius adapter (httpx, bounded jittered retries, error mapping, request-id capture), labelled scripted mock,
+  strict tool boundary, budgeted loop, SSE `/api/recover`. `scripts/smoke_nebius.py` ready (exits 2 without key).
+- Web: Next 16.4 static export; stage-plot canvas with causal ripple from server BFS waves, synced timeline, doors
+  board, incident deck, inspector, recovery panel with real trace, option preview vs do-nothing plan, apply/undo/reset,
+  JSON report export. OpenAPI-generated TS types.
+- **PROVEN:** backend 88 tests + ruff + mypy strict; web 14 Vitest + tsc + eslint; Playwright 10/10 (desktop 1440x900 +
+  mobile 390x844) against FastAPI serving the static build on one origin, mock agent. Screenshots inspected.
+- CI workflow written (`.github/workflows/ci.yml`) — **NOT VERIFIED** (repo not pushed).
+- Claude-in-Chrome extension not connected; visual QA done with Playwright screenshots instead.
+
 ### Next three actions
-1. Stateless FastAPI layer (`/api/demo`, `/impact`, `/evaluate`, `/search`, `/apply`) + API tests.
-2. Nebius provider adapter + mock provider + bounded agent loop with SSE; `scripts/smoke_nebius.py`.
-3. Next.js app: operations canvas + timeline vertical slice wired to the API.
+1. Owner: Nebius key → run `smoke_nebius.py --list-models --probe`, pin model IDs, run first live recovery, record evidence.
+2. Landing section (P0-A) + "How it works" panel; evaluation harness (20 seeded cases, agent vs search vs greedy).
+3. Owner: Vercel account → smoke-deploy OR-Tools on Vercel Python; fallback Render Docker.

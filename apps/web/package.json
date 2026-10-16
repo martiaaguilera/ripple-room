@@ -8,7 +8,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "gen:api": "openapi-typescript ../../packages/contracts/openapi.json -o src/lib/api/schema.d.ts"
+    "gen:api": "openapi-typescript ../../packages/contracts/openapi.json -o src/lib/api/schema.d.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "motion": "^14.3.0",
