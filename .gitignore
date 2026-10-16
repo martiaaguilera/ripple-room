@@ -1,0 +1,42 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Vercel
+.vercel/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Private owner brief (kept local unless the owner decides to publish it)
+RIPPLE_ROOM_MASTER_PROMPT_*.txt
+
+# Local agent runs / traces that may contain raw provider payloads
+services/api/.traces/

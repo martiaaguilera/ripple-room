@@ -1,0 +1,137 @@
+{
+  "id": "signal-night",
+  "version": "v1",
+  "name": "Signal Night",
+  "venue": "Bay Hall",
+  "date": "2026-06-12",
+  "timezone": "Europe/Madrid",
+  "currency": "EUR",
+  "deadline_task_id": "doors-open",
+  "disclaimer": "Signal Night and Bay Hall are fictional. All people, costs and times are synthetic test data for a simulated scenario.",
+  "zones": [
+    { "id": "dock", "label": "Loading dock", "order": 0 },
+    { "id": "stage", "label": "Stage", "order": 1 },
+    { "id": "foh", "label": "Front of house", "order": 2 },
+    { "id": "foyer", "label": "Foyer", "order": 3 },
+    { "id": "entrance", "label": "Entrance", "order": 4 }
+  ],
+  "resources": [
+    { "id": "event-lead", "label": "Event lead", "kind": "person", "skills": ["ops", "safety", "lead"], "available": { "start": "12:00", "end": "23:00" } },
+    { "id": "transport-crew", "label": "Transport crew", "kind": "person", "skills": ["unload"], "available": { "start": "12:00", "end": "18:00" }, "note": "Two drivers; leave after load-in." },
+    { "id": "setup-team", "label": "Setup team", "kind": "person", "skills": ["unload", "rigging", "setup"], "available": { "start": "12:00", "end": "23:00" } },
+    { "id": "av-tech", "label": "AV technician", "kind": "person", "skills": ["audio"], "available": { "start": "13:00", "end": "23:00" } },
+    { "id": "light-tech", "label": "Lighting technician", "kind": "person", "skills": ["lighting"], "available": { "start": "13:00", "end": "23:00" } },
+    { "id": "trolley-1", "label": "Trolley", "kind": "equipment", "skills": ["trolley"], "available": { "start": "12:00", "end": "23:00" } },
+    { "id": "stage", "label": "Stage space", "kind": "space", "skills": ["stage"], "available": { "start": "12:00", "end": "23:00" } },
+    {
+      "id": "backup-av", "label": "Backup AV technician", "kind": "person", "skills": ["audio"],
+      "available": { "start": "14:30", "end": "23:00" }, "standby": true,
+      "activation_cost_cents": 9000, "hourly_cost_cents": 4500,
+      "note": "On-call freelancer. Call-out fee plus hourly rate."
+    },
+    {
+      "id": "trolley-2", "label": "Rental trolley", "kind": "equipment", "skills": ["trolley"],
+      "available": { "start": "14:30", "end": "23:00" }, "standby": true,
+      "activation_cost_cents": 3500, "hourly_cost_cents": 0,
+      "note": "Same-day rental, delivered from 14:30."
+    }
+  ],
+  "tasks": [
+    { "id": "dock-open", "label": "Dock access opens", "zone_id": "dock", "duration": 0, "release": "13:55", "milestone": true },
+    { "id": "truck-arrival", "label": "Truck arrives", "zone_id": "dock", "duration": 0, "release": "14:00", "milestone": true },
+    {
+      "id": "unload-truss", "label": "Unload truss", "zone_id": "dock", "duration": 20, "release": "12:00",
+      "requirements": [{ "id": "crew", "skill": "unload" }, { "id": "cart", "skill": "trolley" }]
+    },
+    {
+      "id": "unload-deck", "label": "Unload stage deck", "zone_id": "dock", "duration": 20, "release": "12:00",
+      "requirements": [{ "id": "crew", "skill": "unload" }, { "id": "cart", "skill": "trolley" }]
+    },
+    {
+      "id": "unload-av", "label": "Unload AV gear", "zone_id": "dock", "duration": 25, "release": "12:00",
+      "requirements": [{ "id": "crew", "skill": "unload" }, { "id": "cart", "skill": "trolley" }]
+    },
+    {
+      "id": "unload-vendor", "label": "Unload vendor stock", "zone_id": "dock", "duration": 20, "release": "12:00",
+      "optional": true, "defer_note": "Vendor stock unloaded after doors open",
+      "requirements": [{ "id": "crew", "skill": "unload" }, { "id": "cart", "skill": "trolley" }]
+    },
+    {
+      "id": "stage-rigging", "label": "Stage rigging", "zone_id": "stage", "duration": 60, "release": "12:00",
+      "requirements": [{ "id": "crew", "skill": "rigging" }, { "id": "space", "skill": "stage" }]
+    },
+    {
+      "id": "lighting-focus", "label": "Lighting focus", "zone_id": "stage", "duration": 50, "release": "12:00",
+      "requirements": [{ "id": "tech", "skill": "lighting" }, { "id": "space", "skill": "stage" }]
+    },
+    {
+      "id": "audio-setup", "label": "Audio setup", "zone_id": "foh", "duration": 50, "release": "12:00",
+      "requirements": [{ "id": "tech", "skill": "audio" }]
+    },
+    {
+      "id": "soundcheck", "label": "Soundcheck", "zone_id": "stage", "duration": 30, "release": "12:00",
+      "min_duration": 15, "compress_note": "Line check instead of full soundcheck",
+      "requirements": [{ "id": "tech", "skill": "audio" }, { "id": "space", "skill": "stage" }]
+    },
+    {
+      "id": "vendor-tables", "label": "Vendor tables", "zone_id": "foyer", "duration": 40, "release": "12:00",
+      "optional": true, "defer_note": "Vendor tables set up after doors open",
+      "requirements": [{ "id": "crew", "skill": "setup" }]
+    },
+    {
+      "id": "scanner-setup", "label": "Ticket scanners", "zone_id": "entrance", "duration": 25, "release": "15:00",
+      "requirements": [{ "id": "lead", "skill": "ops" }]
+    },
+    {
+      "id": "safety-walkthrough", "label": "Safety walkthrough", "zone_id": "stage", "duration": 25, "release": "12:00",
+      "requirements": [{ "id": "lead", "skill": "safety" }]
+    },
+    {
+      "id": "crew-briefing", "label": "Crew briefing", "zone_id": "foh", "duration": 15, "release": "16:30",
+      "min_duration": 10, "compress_note": "Short-form crew briefing",
+      "requirements": [{ "id": "lead", "skill": "lead" }]
+    },
+    { "id": "doors-open", "label": "Doors open", "zone_id": "entrance", "duration": 0, "release": "12:00", "deadline": "18:00", "milestone": true }
+  ],
+  "dependencies": [
+    { "from_id": "dock-open", "to_id": "unload-truss" },
+    { "from_id": "dock-open", "to_id": "unload-deck" },
+    { "from_id": "dock-open", "to_id": "unload-av" },
+    { "from_id": "dock-open", "to_id": "unload-vendor" },
+    { "from_id": "truck-arrival", "to_id": "unload-truss" },
+    { "from_id": "truck-arrival", "to_id": "unload-deck" },
+    { "from_id": "truck-arrival", "to_id": "unload-av" },
+    { "from_id": "truck-arrival", "to_id": "unload-vendor" },
+    { "from_id": "unload-truss", "to_id": "stage-rigging" },
+    { "from_id": "unload-deck", "to_id": "stage-rigging" },
+    { "from_id": "stage-rigging", "to_id": "lighting-focus" },
+    { "from_id": "unload-av", "to_id": "audio-setup" },
+    { "from_id": "lighting-focus", "to_id": "soundcheck" },
+    { "from_id": "audio-setup", "to_id": "soundcheck" },
+    { "from_id": "unload-vendor", "to_id": "vendor-tables" },
+    { "from_id": "soundcheck", "to_id": "safety-walkthrough" },
+    { "from_id": "vendor-tables", "to_id": "safety-walkthrough", "waived_if_deferred": true },
+    { "from_id": "safety-walkthrough", "to_id": "crew-briefing" },
+    { "from_id": "crew-briefing", "to_id": "doors-open" },
+    { "from_id": "scanner-setup", "to_id": "doors-open" }
+  ],
+  "baseline": {
+    "entries": [
+      { "task_id": "dock-open", "start": "13:55" },
+      { "task_id": "truck-arrival", "start": "14:00" },
+      { "task_id": "unload-truss", "start": "14:00", "assignments": { "crew": "transport-crew", "cart": "trolley-1" } },
+      { "task_id": "unload-deck", "start": "14:20", "assignments": { "crew": "transport-crew", "cart": "trolley-1" } },
+      { "task_id": "stage-rigging", "start": "14:40", "assignments": { "crew": "setup-team", "space": "stage" } },
+      { "task_id": "unload-av", "start": "14:40", "assignments": { "crew": "transport-crew", "cart": "trolley-1" } },
+      { "task_id": "scanner-setup", "start": "15:00", "assignments": { "lead": "event-lead" } },
+      { "task_id": "unload-vendor", "start": "15:05", "assignments": { "crew": "transport-crew", "cart": "trolley-1" } },
+      { "task_id": "audio-setup", "start": "15:05", "assignments": { "tech": "av-tech" } },
+      { "task_id": "lighting-focus", "start": "15:40", "assignments": { "tech": "light-tech", "space": "stage" } },
+      { "task_id": "vendor-tables", "start": "15:40", "assignments": { "crew": "setup-team" } },
+      { "task_id": "soundcheck", "start": "16:30", "assignments": { "tech": "av-tech", "space": "stage" } },
+      { "task_id": "safety-walkthrough", "start": "17:00", "assignments": { "lead": "event-lead" } },
+      { "task_id": "crew-briefing", "start": "17:25", "assignments": { "lead": "event-lead" } },
+      { "task_id": "doors-open", "start": "17:40" }
+    ]
+  }
+}
