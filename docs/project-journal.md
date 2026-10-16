@@ -58,3 +58,39 @@ Status legend: **PROVEN** (run and observed) · **NOT VERIFIED** · **BLOCKED** 
 1. ~~Owner: Nebius key~~ DONE. Next: evaluation harness → run `smoke_nebius.py --list-models --probe`, pin model IDs, run first live recovery, record evidence.
 2. Landing section (P0-A) + "How it works" panel; evaluation harness (20 seeded cases, agent vs search vs greedy).
 3. Owner: Vercel account → smoke-deploy OR-Tools on Vercel Python; fallback Render Docker.
+
+## 2026-10-17 — Priorities, intake, evaluation harness, Visual 2.0 (milestone A), production
+
+### Done (all PROVEN unless marked)
+- Repo public at github.com/martiaaguilera/ripple-room (MIT). History rewritten before first push: commit emails → GitHub
+  noreply; raw model reasoning stripped from evidence; gitleaks over full history in CI: no leaks. CI green (api, web+E2E, secrets).
+- Raw model reasoning never leaves the server (events carry `reasoning_returned: bool`).
+- Preferences: typed soft priorities + deterministic, recomputable ranking (breaches first, then penalty points);
+  agent options ranked deterministically with the model's own rank kept for audit.
+- `/api/interpret`: free text → typed incidents + preferences via one forced tool call, fully validated; confirm before apply.
+- New levers: `add_helper` (event lead helping rig fixes truck +35 at €0, no guest impact) and graded compression;
+  extended exhaustive oracle over the same action space.
+- Verifier explains near misses deterministically ("does not touch what sets the doors time", "helps but not enough",
+  "makes things worse than doing nothing").
+- Evaluation harness: 20 fixed cases × {agent, playbook search, greedy, oracle}; mock run validated the harness only.
+  Deterministic finding: the oracle finds recoveries in c09 (truck +65) and c19 (setup team out) that playbook search
+  and greedy miss (needs the helper lever).
+- Web: venue scene (illustrative, driven by plan times), scene narration from impact data, step guide, action column,
+  incident intake with confirm card, priority controls, verifier board + verdict list, ranked option cards with penalty
+  breakdown, tweened doors clock, sliding timeline bars, reduced-motion support. Playwright 16/16 (desktop + mobile).
+- Production https://ripple-room-five.vercel.app (Vercel Services): `scripts/check_judge_demo.py` 11/11 PASS
+  (page, health, shock, search, apply re-verification, stale 409, SSE agent stream, interpret); browser journey on prod:
+  no console errors. **AI mode in production: mock** (no key configured there yet).
+
+### Blockers (owner)
+| # | Item | Status |
+|---|---|---|
+| 1 | Rotate exposed Nebius key (local `.env` still holds it), revoke old key | **BLOCKED** (owner) |
+| 2 | Put the NEW key + `AI_MODE=live` in Vercel env vars, redeploy | **BLOCKED** (after 1) |
+| 3 | Nebius trial "stop usage when it expires": confirm expiry date, promo credits applied, model access through 15 Dec | **BLOCKED** (owner) |
+| 4 | Live 20-case evaluation (needs 1) | waiting |
+
+### Next actions
+1. After rotation: smoke test, live 20-case evaluation, live production check, revoke-verify old key.
+2. Visual 2.0 B/C: ripple synced into the scene, side-by-side before/after card, mobile pass, a11y audit.
+3. Crew change notice; README/architecture/Devpost drafts; demo storyboard.
