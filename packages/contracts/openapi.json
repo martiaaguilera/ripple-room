@@ -1,0 +1,2235 @@
+{
+ "components": {
+  "schemas": {
+   "ActivateResource": {
+    "additionalProperties": false,
+    "properties": {
+     "resource_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Resource Id",
+      "type": "string"
+     },
+     "type": {
+      "const": "activate_resource",
+      "default": "activate_resource",
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "resource_id"
+    ],
+    "title": "ActivateResource",
+    "type": "object"
+   },
+   "AiStatus": {
+    "properties": {
+     "configured": {
+      "title": "Configured",
+      "type": "boolean"
+     },
+     "fast_model": {
+      "title": "Fast Model",
+      "type": "string"
+     },
+     "mode": {
+      "title": "Mode",
+      "type": "string"
+     },
+     "planner_model": {
+      "title": "Planner Model",
+      "type": "string"
+     },
+     "provider": {
+      "title": "Provider",
+      "type": "string"
+     }
+    },
+    "required": [
+     "mode",
+     "provider",
+     "planner_model",
+     "fast_model",
+     "configured"
+    ],
+    "title": "AiStatus",
+    "type": "object"
+   },
+   "ApplyRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "base_revision_id": {
+      "maxLength": 40,
+      "title": "Base Revision Id",
+      "type": "string"
+     },
+     "patch": {
+      "$ref": "#/components/schemas/Patch"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/Plan"
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     }
+    },
+    "required": [
+     "revision",
+     "base_revision_id",
+     "patch",
+     "plan"
+    ],
+    "title": "ApplyRequest",
+    "type": "object"
+   },
+   "AssignResource": {
+    "additionalProperties": false,
+    "properties": {
+     "requirement_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Requirement Id",
+      "type": "string"
+     },
+     "resource_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Resource Id",
+      "type": "string"
+     },
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     },
+     "type": {
+      "const": "assign_resource",
+      "default": "assign_resource",
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "requirement_id",
+     "resource_id"
+    ],
+    "title": "AssignResource",
+    "type": "object"
+   },
+   "Binding": {
+    "additionalProperties": false,
+    "description": "The constraint that pins a task's start time (why it cannot start earlier).",
+    "properties": {
+     "constraint_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Constraint Id"
+     },
+     "kind": {
+      "enum": [
+       "release",
+       "precedence",
+       "resource",
+       "availability",
+       "pinned",
+       "free"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     },
+     "via": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Via"
+     }
+    },
+    "required": [
+     "kind",
+     "constraint_id",
+     "text"
+    ],
+    "title": "Binding",
+    "type": "object"
+   },
+   "CausalEdge": {
+    "additionalProperties": false,
+    "properties": {
+     "from_id": {
+      "title": "From Id",
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "precedence",
+       "resource"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "to_id": {
+      "title": "To Id",
+      "type": "string"
+     },
+     "wave": {
+      "title": "Wave",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "from_id",
+     "to_id",
+     "kind",
+     "wave"
+    ],
+    "title": "CausalEdge",
+    "type": "object"
+   },
+   "CompressTask": {
+    "additionalProperties": false,
+    "properties": {
+     "duration": {
+      "maximum": 1440.0,
+      "minimum": 0.0,
+      "title": "Duration",
+      "type": "integer"
+     },
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     },
+     "type": {
+      "const": "compress_task",
+      "default": "compress_task",
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "duration"
+    ],
+    "title": "CompressTask",
+    "type": "object"
+   },
+   "DeferTask": {
+    "additionalProperties": false,
+    "description": "Move an optional task out of the pre-doors plan.",
+    "properties": {
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     },
+     "type": {
+      "const": "defer_task",
+      "default": "defer_task",
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id"
+    ],
+    "title": "DeferTask",
+    "type": "object"
+   },
+   "DemoPayload": {
+    "properties": {
+     "initial": {
+      "$ref": "#/components/schemas/RevisionView"
+     },
+     "menu": {
+      "items": {
+       "$ref": "#/components/schemas/MenuItem"
+      },
+      "title": "Menu",
+      "type": "array"
+     },
+     "presets": {
+      "items": {
+       "$ref": "#/components/schemas/ShockPreset"
+      },
+      "title": "Presets",
+      "type": "array"
+     },
+     "scenario": {
+      "$ref": "#/components/schemas/Scenario"
+     }
+    },
+    "required": [
+     "scenario",
+     "presets",
+     "menu",
+     "initial"
+    ],
+    "title": "DemoPayload",
+    "type": "object"
+   },
+   "Dependency": {
+    "additionalProperties": false,
+    "properties": {
+     "from_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "From Id",
+      "type": "string"
+     },
+     "lag": {
+      "default": 0,
+      "maximum": 1440.0,
+      "minimum": 0.0,
+      "title": "Lag",
+      "type": "integer"
+     },
+     "to_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "To Id",
+      "type": "string"
+     },
+     "waived_if_deferred": {
+      "default": false,
+      "description": "If the predecessor is deferred, the successor no longer waits for it.",
+      "title": "Waived If Deferred",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "from_id",
+     "to_id"
+    ],
+    "title": "Dependency",
+    "type": "object"
+   },
+   "EvaluateRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "patch": {
+      "$ref": "#/components/schemas/Patch"
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     }
+    },
+    "required": [
+     "revision",
+     "patch"
+    ],
+    "title": "EvaluateRequest",
+    "type": "object"
+   },
+   "Evaluation": {
+    "additionalProperties": false,
+    "properties": {
+     "changes": {
+      "items": {
+       "$ref": "#/components/schemas/TaskChange"
+      },
+      "title": "Changes",
+      "type": "array"
+     },
+     "cost_cents": {
+      "title": "Cost Cents",
+      "type": "integer"
+     },
+     "disruption_minutes": {
+      "title": "Disruption Minutes",
+      "type": "integer"
+     },
+     "infeasibility": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/InfeasibilityFacts"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "patch": {
+      "$ref": "#/components/schemas/Patch"
+     },
+     "plan": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Plan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "proven_optimal": {
+      "default": false,
+      "title": "Proven Optimal",
+      "type": "boolean"
+     },
+     "reassignments": {
+      "title": "Reassignments",
+      "type": "integer"
+     },
+     "schedule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ScheduleMetrics"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "service_impacts": {
+      "items": {
+       "$ref": "#/components/schemas/ServiceImpact"
+      },
+      "title": "Service Impacts",
+      "type": "array"
+     },
+     "solver": {
+      "$ref": "#/components/schemas/SolverInfo"
+     },
+     "status": {
+      "$ref": "#/components/schemas/EvaluationStatus"
+     },
+     "timings": {
+      "items": {
+       "$ref": "#/components/schemas/TaskTiming"
+      },
+      "title": "Timings",
+      "type": "array"
+     },
+     "violations": {
+      "items": {
+       "$ref": "#/components/schemas/Violation"
+      },
+      "title": "Violations",
+      "type": "array"
+     }
+    },
+    "required": [
+     "status",
+     "patch",
+     "violations",
+     "plan",
+     "timings",
+     "schedule",
+     "changes",
+     "cost_cents",
+     "service_impacts",
+     "disruption_minutes",
+     "reassignments",
+     "solver"
+    ],
+    "title": "Evaluation",
+    "type": "object"
+   },
+   "EvaluationStatus": {
+    "enum": [
+     "verified",
+     "infeasible",
+     "rejected",
+     "unknown"
+    ],
+    "title": "EvaluationStatus",
+    "type": "string"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "Health": {
+    "properties": {
+     "ai": {
+      "$ref": "#/components/schemas/AiStatus"
+     },
+     "api_version": {
+      "title": "Api Version",
+      "type": "string"
+     },
+     "ortools": {
+      "title": "Ortools",
+      "type": "string"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status",
+     "api_version",
+     "ortools",
+     "ai"
+    ],
+    "title": "Health",
+    "type": "object"
+   },
+   "ImpactMetrics": {
+    "additionalProperties": false,
+    "properties": {
+     "at_risk_count": {
+      "title": "At Risk Count",
+      "type": "integer"
+     },
+     "blocked_count": {
+      "title": "Blocked Count",
+      "type": "integer"
+     },
+     "breach_count": {
+      "title": "Breach Count",
+      "type": "integer"
+     },
+     "conflicts_if_unchanged": {
+      "title": "Conflicts If Unchanged",
+      "type": "integer"
+     },
+     "delayed_count": {
+      "title": "Delayed Count",
+      "type": "integer"
+     },
+     "total_delay_minutes": {
+      "title": "Total Delay Minutes",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "at_risk_count",
+     "delayed_count",
+     "breach_count",
+     "blocked_count",
+     "total_delay_minutes",
+     "conflicts_if_unchanged"
+    ],
+    "title": "ImpactMetrics",
+    "type": "object"
+   },
+   "ImpactReport": {
+    "additionalProperties": false,
+    "properties": {
+     "causal_edges": {
+      "items": {
+       "$ref": "#/components/schemas/CausalEdge"
+      },
+      "title": "Causal Edges",
+      "type": "array"
+     },
+     "conflicts_if_unchanged": {
+      "items": {
+       "$ref": "#/components/schemas/Violation"
+      },
+      "title": "Conflicts If Unchanged",
+      "type": "array"
+     },
+     "metrics": {
+      "$ref": "#/components/schemas/ImpactMetrics"
+     },
+     "schedule": {
+      "$ref": "#/components/schemas/ScheduleMetrics"
+     },
+     "sources": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Sources",
+      "type": "array"
+     },
+     "tasks": {
+      "items": {
+       "$ref": "#/components/schemas/TaskImpact"
+      },
+      "title": "Tasks",
+      "type": "array"
+     },
+     "timings": {
+      "items": {
+       "$ref": "#/components/schemas/TaskTiming"
+      },
+      "title": "Timings",
+      "type": "array"
+     }
+    },
+    "required": [
+     "sources",
+     "tasks",
+     "causal_edges",
+     "timings",
+     "schedule",
+     "metrics",
+     "conflicts_if_unchanged"
+    ],
+    "title": "ImpactReport",
+    "type": "object"
+   },
+   "InfeasibilityFacts": {
+    "additionalProperties": false,
+    "properties": {
+     "best_delta": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Best Delta"
+     },
+     "best_readiness": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Best Readiness"
+     },
+     "bound_chain": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Bound Chain",
+      "type": "array"
+     },
+     "precedence_bound": {
+      "title": "Precedence Bound",
+      "type": "integer"
+     },
+     "reasons": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+     }
+    },
+    "required": [
+     "best_readiness",
+     "best_delta",
+     "precedence_bound",
+     "bound_chain",
+     "reasons"
+    ],
+    "title": "InfeasibilityFacts",
+    "type": "object"
+   },
+   "MenuItem": {
+    "additionalProperties": false,
+    "properties": {
+     "actions": {
+      "items": {
+       "discriminator": {
+        "mapping": {
+         "activate_resource": "#/components/schemas/ActivateResource",
+         "assign_resource": "#/components/schemas/AssignResource",
+         "compress_task": "#/components/schemas/CompressTask",
+         "defer_task": "#/components/schemas/DeferTask",
+         "pin_start": "#/components/schemas/PinStart"
+        },
+        "propertyName": "type"
+       },
+       "oneOf": [
+        {
+         "$ref": "#/components/schemas/ActivateResource"
+        },
+        {
+         "$ref": "#/components/schemas/CompressTask"
+        },
+        {
+         "$ref": "#/components/schemas/DeferTask"
+        },
+        {
+         "$ref": "#/components/schemas/AssignResource"
+        },
+        {
+         "$ref": "#/components/schemas/PinStart"
+        }
+       ]
+      },
+      "title": "Actions",
+      "type": "array"
+     },
+     "cost_hint": {
+      "title": "Cost Hint",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "tradeoff": {
+      "title": "Tradeoff",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "kind",
+     "actions",
+     "cost_hint",
+     "tradeoff"
+    ],
+    "title": "MenuItem",
+    "type": "object"
+   },
+   "Patch": {
+    "additionalProperties": false,
+    "properties": {
+     "actions": {
+      "default": [],
+      "items": {
+       "discriminator": {
+        "mapping": {
+         "activate_resource": "#/components/schemas/ActivateResource",
+         "assign_resource": "#/components/schemas/AssignResource",
+         "compress_task": "#/components/schemas/CompressTask",
+         "defer_task": "#/components/schemas/DeferTask",
+         "pin_start": "#/components/schemas/PinStart"
+        },
+        "propertyName": "type"
+       },
+       "oneOf": [
+        {
+         "$ref": "#/components/schemas/ActivateResource"
+        },
+        {
+         "$ref": "#/components/schemas/CompressTask"
+        },
+        {
+         "$ref": "#/components/schemas/DeferTask"
+        },
+        {
+         "$ref": "#/components/schemas/AssignResource"
+        },
+        {
+         "$ref": "#/components/schemas/PinStart"
+        }
+       ]
+      },
+      "maxItems": 24,
+      "title": "Actions",
+      "type": "array"
+     },
+     "rationale": {
+      "default": "",
+      "maxLength": 600,
+      "title": "Rationale",
+      "type": "string"
+     }
+    },
+    "title": "Patch",
+    "type": "object"
+   },
+   "PinStart": {
+    "additionalProperties": false,
+    "properties": {
+     "start": {
+      "ge": 0,
+      "le": 1440,
+      "title": "Start",
+      "type": "integer"
+     },
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     },
+     "type": {
+      "const": "pin_start",
+      "default": "pin_start",
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "start"
+    ],
+    "title": "PinStart",
+    "type": "object"
+   },
+   "Plan": {
+    "additionalProperties": false,
+    "properties": {
+     "entries": {
+      "items": {
+       "$ref": "#/components/schemas/PlanEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+     }
+    },
+    "required": [
+     "entries"
+    ],
+    "title": "Plan",
+    "type": "object"
+   },
+   "PlanEntry": {
+    "additionalProperties": false,
+    "properties": {
+     "assignments": {
+      "additionalProperties": {
+       "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+       "type": "string"
+      },
+      "description": "requirement id -> resource id",
+      "title": "Assignments",
+      "type": "object"
+     },
+     "start": {
+      "ge": 0,
+      "le": 1440,
+      "title": "Start",
+      "type": "integer"
+     },
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "start"
+    ],
+    "title": "PlanEntry",
+    "type": "object"
+   },
+   "PlanView": {
+    "additionalProperties": false,
+    "properties": {
+     "schedule": {
+      "$ref": "#/components/schemas/ScheduleMetrics"
+     },
+     "timings": {
+      "items": {
+       "$ref": "#/components/schemas/TaskTiming"
+      },
+      "title": "Timings",
+      "type": "array"
+     }
+    },
+    "required": [
+     "timings",
+     "schedule"
+    ],
+    "title": "PlanView",
+    "type": "object"
+   },
+   "RecoverRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "priorities": {
+      "default": "",
+      "maxLength": 500,
+      "title": "Priorities",
+      "type": "string"
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     }
+    },
+    "required": [
+     "revision"
+    ],
+    "title": "RecoverRequest",
+    "type": "object"
+   },
+   "Requirement": {
+    "additionalProperties": false,
+    "description": "One resource slot a task needs for its whole duration (capacity 1).",
+    "properties": {
+     "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Id",
+      "type": "string"
+     },
+     "skill": {
+      "title": "Skill",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "skill"
+    ],
+    "title": "Requirement",
+    "type": "object"
+   },
+   "Resource": {
+    "additionalProperties": false,
+    "properties": {
+     "activation_cost_cents": {
+      "default": 0,
+      "minimum": 0.0,
+      "title": "Activation Cost Cents",
+      "type": "integer"
+     },
+     "available": {
+      "$ref": "#/components/schemas/Window"
+     },
+     "hourly_cost_cents": {
+      "default": 0,
+      "minimum": 0.0,
+      "title": "Hourly Cost Cents",
+      "type": "integer"
+     },
+     "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Id",
+      "type": "string"
+     },
+     "kind": {
+      "$ref": "#/components/schemas/ResourceKind"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "note": {
+      "default": "",
+      "title": "Note",
+      "type": "string"
+     },
+     "skills": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Skills",
+      "type": "array"
+     },
+     "standby": {
+      "default": false,
+      "description": "Standby resources only exist in a plan after an activate_resource intervention.",
+      "title": "Standby",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "kind",
+     "skills",
+     "available"
+    ],
+    "title": "Resource",
+    "type": "object"
+   },
+   "ResourceKind": {
+    "enum": [
+     "person",
+     "equipment",
+     "space"
+    ],
+    "title": "ResourceKind",
+    "type": "string"
+   },
+   "ResourceUnavailableShock": {
+    "additionalProperties": false,
+    "description": "A resource cannot work during a window.",
+    "properties": {
+     "kind": {
+      "const": "resource_unavailable",
+      "default": "resource_unavailable",
+      "title": "Kind",
+      "type": "string"
+     },
+     "resource_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Resource Id",
+      "type": "string"
+     },
+     "window": {
+      "$ref": "#/components/schemas/Window"
+     }
+    },
+    "required": [
+     "resource_id",
+     "window"
+    ],
+    "title": "ResourceUnavailableShock",
+    "type": "object"
+   },
+   "Revision": {
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "state": {
+      "$ref": "#/components/schemas/RevisionState"
+     }
+    },
+    "required": [
+     "id",
+     "state"
+    ],
+    "title": "Revision",
+    "type": "object"
+   },
+   "RevisionRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     }
+    },
+    "required": [
+     "revision"
+    ],
+    "title": "RevisionRequest",
+    "type": "object"
+   },
+   "RevisionState": {
+    "additionalProperties": false,
+    "properties": {
+     "committed": {
+      "$ref": "#/components/schemas/Patch",
+      "default": {
+       "actions": [],
+       "rationale": ""
+      }
+     },
+     "parent_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Parent Id"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/Plan"
+     },
+     "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+     },
+     "scenario_version": {
+      "title": "Scenario Version",
+      "type": "string"
+     },
+     "shocks": {
+      "default": [],
+      "items": {
+       "discriminator": {
+        "mapping": {
+         "resource_unavailable": "#/components/schemas/ResourceUnavailableShock",
+         "task_delay": "#/components/schemas/TaskDelayShock"
+        },
+        "propertyName": "kind"
+       },
+       "oneOf": [
+        {
+         "$ref": "#/components/schemas/TaskDelayShock"
+        },
+        {
+         "$ref": "#/components/schemas/ResourceUnavailableShock"
+        }
+       ]
+      },
+      "maxItems": 4,
+      "title": "Shocks",
+      "type": "array"
+     },
+     "source": {
+      "enum": [
+       "baseline",
+       "shock",
+       "apply"
+      ],
+      "title": "Source",
+      "type": "string"
+     }
+    },
+    "required": [
+     "scenario_id",
+     "scenario_version",
+     "plan",
+     "source"
+    ],
+    "title": "RevisionState",
+    "type": "object"
+   },
+   "RevisionView": {
+    "additionalProperties": false,
+    "properties": {
+     "impact": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ImpactReport"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "plan_view": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PlanView"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     },
+     "verified": {
+      "title": "Verified",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "revision",
+     "verified",
+     "impact",
+     "plan_view"
+    ],
+    "title": "RevisionView",
+    "type": "object"
+   },
+   "Scenario": {
+    "additionalProperties": false,
+    "properties": {
+     "baseline": {
+      "$ref": "#/components/schemas/Plan"
+     },
+     "currency": {
+      "const": "EUR",
+      "default": "EUR",
+      "title": "Currency",
+      "type": "string"
+     },
+     "date": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "title": "Date",
+      "type": "string"
+     },
+     "deadline_task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Deadline Task Id",
+      "type": "string"
+     },
+     "dependencies": {
+      "items": {
+       "$ref": "#/components/schemas/Dependency"
+      },
+      "title": "Dependencies",
+      "type": "array"
+     },
+     "disclaimer": {
+      "default": "Fictional, simulated scenario.",
+      "title": "Disclaimer",
+      "type": "string"
+     },
+     "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Id",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "resources": {
+      "items": {
+       "$ref": "#/components/schemas/Resource"
+      },
+      "title": "Resources",
+      "type": "array"
+     },
+     "tasks": {
+      "items": {
+       "$ref": "#/components/schemas/Task"
+      },
+      "title": "Tasks",
+      "type": "array"
+     },
+     "timezone": {
+      "title": "Timezone",
+      "type": "string"
+     },
+     "venue": {
+      "title": "Venue",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     },
+     "zones": {
+      "items": {
+       "$ref": "#/components/schemas/Zone"
+      },
+      "title": "Zones",
+      "type": "array"
+     }
+    },
+    "required": [
+     "id",
+     "version",
+     "name",
+     "venue",
+     "date",
+     "timezone",
+     "deadline_task_id",
+     "zones",
+     "resources",
+     "tasks",
+     "dependencies",
+     "baseline"
+    ],
+    "title": "Scenario",
+    "type": "object"
+   },
+   "ScheduleMetrics": {
+    "additionalProperties": false,
+    "properties": {
+     "deadline": {
+      "title": "Deadline",
+      "type": "integer"
+     },
+     "deadline_delta": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Deadline Delta"
+     },
+     "driving_path": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Driving Path",
+      "type": "array"
+     },
+     "readiness": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Readiness"
+     }
+    },
+    "required": [
+     "readiness",
+     "deadline",
+     "deadline_delta",
+     "driving_path"
+    ],
+    "title": "ScheduleMetrics",
+    "type": "object"
+   },
+   "SearchOption": {
+    "additionalProperties": false,
+    "properties": {
+     "evaluation": {
+      "$ref": "#/components/schemas/Evaluation"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "menu_items": {
+      "items": {
+       "$ref": "#/components/schemas/MenuItem"
+      },
+      "title": "Menu Items",
+      "type": "array"
+     }
+    },
+    "required": [
+     "id",
+     "menu_items",
+     "evaluation"
+    ],
+    "title": "SearchOption",
+    "type": "object"
+   },
+   "SearchResponse": {
+    "additionalProperties": false,
+    "properties": {
+     "base_revision_id": {
+      "title": "Base Revision Id",
+      "type": "string"
+     },
+     "combinations_tried": {
+      "title": "Combinations Tried",
+      "type": "integer"
+     },
+     "options": {
+      "items": {
+       "$ref": "#/components/schemas/SearchOption"
+      },
+      "title": "Options",
+      "type": "array"
+     },
+     "solver_ms": {
+      "title": "Solver Ms",
+      "type": "integer"
+     },
+     "source": {
+      "title": "Source",
+      "type": "string"
+     }
+    },
+    "required": [
+     "base_revision_id",
+     "source",
+     "options",
+     "combinations_tried",
+     "solver_ms"
+    ],
+    "title": "SearchResponse",
+    "type": "object"
+   },
+   "ServiceImpact": {
+    "additionalProperties": false,
+    "properties": {
+     "kind": {
+      "enum": [
+       "compress",
+       "defer"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "severity": {
+      "title": "Severity",
+      "type": "integer"
+     },
+     "task_id": {
+      "title": "Task Id",
+      "type": "string"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "kind",
+     "task_id",
+     "text",
+     "severity"
+    ],
+    "title": "ServiceImpact",
+    "type": "object"
+   },
+   "ShockPreset": {
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "shock": {
+      "discriminator": {
+       "mapping": {
+        "resource_unavailable": "#/components/schemas/ResourceUnavailableShock",
+        "task_delay": "#/components/schemas/TaskDelayShock"
+       },
+       "propertyName": "kind"
+      },
+      "oneOf": [
+       {
+        "$ref": "#/components/schemas/TaskDelayShock"
+       },
+       {
+        "$ref": "#/components/schemas/ResourceUnavailableShock"
+       }
+      ],
+      "title": "Shock"
+     },
+     "subtitle": {
+      "title": "Subtitle",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "title",
+     "subtitle",
+     "shock"
+    ],
+    "title": "ShockPreset",
+    "type": "object"
+   },
+   "ShockRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "preset_id": {
+      "anyOf": [
+       {
+        "maxLength": 48,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Preset Id"
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     },
+     "shock": {
+      "anyOf": [
+       {
+        "discriminator": {
+         "mapping": {
+          "resource_unavailable": "#/components/schemas/ResourceUnavailableShock",
+          "task_delay": "#/components/schemas/TaskDelayShock"
+         },
+         "propertyName": "kind"
+        },
+        "oneOf": [
+         {
+          "$ref": "#/components/schemas/TaskDelayShock"
+         },
+         {
+          "$ref": "#/components/schemas/ResourceUnavailableShock"
+         }
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Shock"
+     }
+    },
+    "required": [
+     "revision"
+    ],
+    "title": "ShockRequest",
+    "type": "object"
+   },
+   "SolverInfo": {
+    "additionalProperties": false,
+    "properties": {
+     "objective": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Objective"
+     },
+     "status": {
+      "enum": [
+       "OPTIMAL",
+       "FEASIBLE",
+       "INFEASIBLE",
+       "UNKNOWN",
+       "NOT_RUN"
+      ],
+      "title": "Status",
+      "type": "string"
+     },
+     "wall_ms": {
+      "title": "Wall Ms",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "status",
+     "wall_ms"
+    ],
+    "title": "SolverInfo",
+    "type": "object"
+   },
+   "Task": {
+    "additionalProperties": false,
+    "properties": {
+     "compress_note": {
+      "default": "",
+      "title": "Compress Note",
+      "type": "string"
+     },
+     "deadline": {
+      "anyOf": [
+       {
+        "ge": 0,
+        "le": 1440,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Hard latest finish.",
+      "title": "Deadline"
+     },
+     "defer_note": {
+      "default": "",
+      "title": "Defer Note",
+      "type": "string"
+     },
+     "duration": {
+      "maximum": 1440.0,
+      "minimum": 0.0,
+      "title": "Duration",
+      "type": "integer"
+     },
+     "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Id",
+      "type": "string"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "milestone": {
+      "default": false,
+      "title": "Milestone",
+      "type": "boolean"
+     },
+     "min_duration": {
+      "anyOf": [
+       {
+        "maximum": 1440.0,
+        "minimum": 0.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "If set, the task may be compressed down to this duration.",
+      "title": "Min Duration"
+     },
+     "optional": {
+      "default": false,
+      "title": "Optional",
+      "type": "boolean"
+     },
+     "release": {
+      "description": "Earliest allowed start.",
+      "ge": 0,
+      "le": 1440,
+      "title": "Release",
+      "type": "integer"
+     },
+     "requirements": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/Requirement"
+      },
+      "title": "Requirements",
+      "type": "array"
+     },
+     "zone_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Zone Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "zone_id",
+     "duration",
+     "release"
+    ],
+    "title": "Task",
+    "type": "object"
+   },
+   "TaskChange": {
+    "additionalProperties": false,
+    "properties": {
+     "deferred": {
+      "default": false,
+      "title": "Deferred",
+      "type": "boolean"
+     },
+     "duration_from": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration From"
+     },
+     "duration_to": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration To"
+     },
+     "moved_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Moved Minutes"
+     },
+     "reassigned": {
+      "items": {
+       "maxItems": 3,
+       "minItems": 3,
+       "prefixItems": [
+        {
+         "type": "string"
+        },
+        {
+         "anyOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "null"
+          }
+         ]
+        },
+        {
+         "type": "string"
+        }
+       ],
+       "type": "array"
+      },
+      "title": "Reassigned",
+      "type": "array"
+     },
+     "task_id": {
+      "title": "Task Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "moved_minutes",
+     "reassigned"
+    ],
+    "title": "TaskChange",
+    "type": "object"
+   },
+   "TaskDelayShock": {
+    "additionalProperties": false,
+    "description": "The earliest start of a task (typically an arrival milestone) moves later.",
+    "properties": {
+     "delay_minutes": {
+      "maximum": 240.0,
+      "minimum": 1.0,
+      "title": "Delay Minutes",
+      "type": "integer"
+     },
+     "kind": {
+      "const": "task_delay",
+      "default": "task_delay",
+      "title": "Kind",
+      "type": "string"
+     },
+     "task_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Task Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "delay_minutes"
+    ],
+    "title": "TaskDelayShock",
+    "type": "object"
+   },
+   "TaskImpact": {
+    "additionalProperties": false,
+    "properties": {
+     "delay": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Delay"
+     },
+     "reference_start": {
+      "title": "Reference Start",
+      "type": "integer"
+     },
+     "start": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start"
+     },
+     "status": {
+      "$ref": "#/components/schemas/TaskStatus"
+     },
+     "task_id": {
+      "title": "Task Id",
+      "type": "string"
+     },
+     "wave": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Wave"
+     }
+    },
+    "required": [
+     "task_id",
+     "status",
+     "wave",
+     "reference_start",
+     "start",
+     "delay"
+    ],
+    "title": "TaskImpact",
+    "type": "object"
+   },
+   "TaskStatus": {
+    "enum": [
+     "on_track",
+     "at_risk",
+     "delayed",
+     "breach",
+     "blocked"
+    ],
+    "title": "TaskStatus",
+    "type": "string"
+   },
+   "TaskTiming": {
+    "additionalProperties": false,
+    "properties": {
+     "assignments": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "title": "Assignments",
+      "type": "object"
+     },
+     "binding": {
+      "$ref": "#/components/schemas/Binding"
+     },
+     "duration": {
+      "title": "Duration",
+      "type": "integer"
+     },
+     "end": {
+      "title": "End",
+      "type": "integer"
+     },
+     "slack": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Slack"
+     },
+     "start": {
+      "title": "Start",
+      "type": "integer"
+     },
+     "task_id": {
+      "title": "Task Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "start",
+     "end",
+     "duration",
+     "assignments",
+     "slack",
+     "binding"
+    ],
+    "title": "TaskTiming",
+    "type": "object"
+   },
+   "ValidationError": {
+    "properties": {
+     "ctx": {
+      "title": "Context",
+      "type": "object"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   },
+   "Violation": {
+    "additionalProperties": false,
+    "properties": {
+     "code": {
+      "title": "Code",
+      "type": "string"
+     },
+     "constraint_id": {
+      "title": "Constraint Id",
+      "type": "string"
+     },
+     "message": {
+      "title": "Message",
+      "type": "string"
+     },
+     "resource_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Resource Id"
+     },
+     "task_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Task Id"
+     }
+    },
+    "required": [
+     "code",
+     "constraint_id",
+     "message"
+    ],
+    "title": "Violation",
+    "type": "object"
+   },
+   "Window": {
+    "additionalProperties": false,
+    "properties": {
+     "end": {
+      "ge": 0,
+      "le": 1440,
+      "title": "End",
+      "type": "integer"
+     },
+     "start": {
+      "ge": 0,
+      "le": 1440,
+      "title": "Start",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "start",
+     "end"
+    ],
+    "title": "Window",
+    "type": "object"
+   },
+   "Zone": {
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,47}$",
+      "title": "Id",
+      "type": "string"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "order": {
+      "description": "Left-to-right layout order on the canvas",
+      "minimum": 0.0,
+      "title": "Order",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "id",
+     "label",
+     "order"
+    ],
+    "title": "Zone",
+    "type": "object"
+   }
+  }
+ },
+ "info": {
+  "title": "Ripple Room API",
+  "version": "0.1.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/api/apply": {
+   "post": {
+    "operationId": "apply_api_apply_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ApplyRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RevisionView"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Apply"
+   }
+  },
+  "/api/demo": {
+   "get": {
+    "operationId": "demo_api_demo_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DemoPayload"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Demo"
+   }
+  },
+  "/api/evaluate": {
+   "post": {
+    "operationId": "evaluate_api_evaluate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EvaluateRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Evaluation"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Evaluate"
+   }
+  },
+  "/api/health": {
+   "get": {
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Health"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Health"
+   }
+  },
+  "/api/recover": {
+   "post": {
+    "operationId": "recover_api_recover_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecoverRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Recover"
+   }
+  },
+  "/api/search": {
+   "post": {
+    "operationId": "search_api_search_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RevisionRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SearchResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Search"
+   }
+  },
+  "/api/shock": {
+   "post": {
+    "operationId": "shock_api_shock_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ShockRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RevisionView"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Shock"
+   }
+  },
+  "/api/view": {
+   "post": {
+    "operationId": "view_api_view_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RevisionRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RevisionView"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "View"
+   }
+  }
+ }
+}

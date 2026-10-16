@@ -37,7 +37,7 @@
     }
   ],
   "tasks": [
-    { "id": "dock-open", "label": "Dock access opens", "zone_id": "dock", "duration": 0, "release": "13:55", "milestone": true },
+    { "id": "dock-open", "label": "Dock opens", "zone_id": "dock", "duration": 0, "release": "13:55", "milestone": true },
     { "id": "truck-arrival", "label": "Truck arrives", "zone_id": "dock", "duration": 0, "release": "14:00", "milestone": true },
     {
       "id": "unload-truss", "label": "Unload truss", "zone_id": "dock", "duration": 20, "release": "12:00",

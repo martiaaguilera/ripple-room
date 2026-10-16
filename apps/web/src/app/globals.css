@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/*
+ * Ripple Room tokens. Colour is semantic only: cyan = holds, amber = slipping / the
+ * doors deadline, coral = breach, periwinkle = model + selection. Status is never
+ * conveyed by colour alone (stroke patterns + text badges carry it too).
+ */
+:root {
+  --graphite: #090d13;
+  --panel: #111923;
+  --raised: #17212c;
+  --line: #233140;
+  --line-strong: #344657;
+  --porcelain: #ece7df;
+  --muted: #9caab5;
+  --faint: #66788a;
+  --signal: #5bd2c1;
+  --amber: #f0b85d;
+  --coral: #f06f72;
+  --focus: #81a9ff;
+  --signal-ink: #062a25;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-graphite: var(--graphite);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-porcelain: var(--porcelain);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-signal: var(--signal);
+  --color-amber: var(--amber);
+  --color-coral: var(--coral);
+  --color-focus: var(--focus);
+  --font-display: var(--font-big-shoulders);
+  --font-sans: var(--font-atkinson);
+}
+
+html,
+body {
+  background: var(--graphite);
+  color: var(--porcelain);
+}
+
+body {
+  font-family: var(--font-atkinson), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-big-shoulders), system-ui, sans-serif;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: 0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---- Ripple choreography (driven by real BFS waves via --wave-delay) ---- */
+
+@keyframes ripple-ring {
+  from {
+    r: 10;
+    opacity: 0.85;
+    stroke-width: 3;
+  }
+  to {
+    r: 140;
+    opacity: 0;
+    stroke-width: 0.5;
+  }
+}
+
+@keyframes edge-pulse {
+  from {
+    stroke-dashoffset: var(--edge-len);
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes node-hit {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.045);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.ripple-ring {
+  animation: ripple-ring 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) var(--wave-delay, 0ms) 2 both;
+}
+
+.edge-pulse {
+  stroke-dasharray: var(--edge-len);
+  animation: edge-pulse 420ms ease-out var(--wave-delay, 0ms) both;
+}
+
+.node-hit {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-hit 420ms ease-out var(--wave-delay, 0ms) both;
+}
+
+.node-status {
+  transition:
+    stroke 260ms ease var(--wave-delay, 0ms),
+    fill 260ms ease var(--wave-delay, 0ms);
+}
+
+.heartbeat {
+  animation: heartbeat 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple-ring,
+  .edge-pulse,
+  .node-hit,
+  .heartbeat {
+    animation: none !important;
+  }
+  .ripple-ring {
+    display: none;
+  }
+  .node-status {
+    transition: none !important;
+  }
+}

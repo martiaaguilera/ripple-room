@@ -1,0 +1,26 @@
+import type { components } from "./schema";
+
+type S = components["schemas"];
+
+export type Scenario = S["Scenario"];
+export type Task = S["Task"];
+export type Resource = S["Resource"];
+export type Zone = S["Zone"];
+export type Dependency = S["Dependency"];
+export type ShockPreset = S["ShockPreset"];
+export type MenuItem = S["MenuItem"];
+export type Revision = S["Revision"];
+export type RevisionView = S["RevisionView"];
+export type ImpactReport = S["ImpactReport"];
+export type TaskImpact = S["TaskImpact"];
+export type TaskTiming = S["TaskTiming"];
+export type CausalEdge = S["CausalEdge"];
+export type Evaluation = S["Evaluation"];
+export type TaskChange = S["TaskChange"];
+export type Patch = S["Patch"];
+export type Plan = S["Plan"];
+export type SearchResponse = S["SearchResponse"];
+export type DemoPayload = S["DemoPayload"];
+export type Health = S["Health"];
+export type Violation = S["Violation"];
+export type TaskStatus = TaskImpact["status"];

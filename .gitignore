@@ -40,3 +40,6 @@ RIPPLE_ROOM_MASTER_PROMPT_*.txt
 
 # Local agent runs / traces that may contain raw provider payloads
 services/api/.traces/
+
+# local dev server logs
+.dev-*.log
