@@ -1,0 +1,2548 @@
+{
+ "meta": {
+  "generated_utc": "20261016T223713Z",
+  "agent_mode": "live",
+  "agent_model": "nvidia/nemotron-3-super-120b-a12b",
+  "agent_prompt_version": "rr-agent-v2",
+  "budget": "8 model calls, 6 verifier checks, 80000 tokens, 90.0s",
+  "pricing_usd_per_token": "{\"nvidia/nemotron-3-super-120b-a12b\": [3e-07, 9e-07]}",
+  "scenario": "signal-night v1 (fictional)"
+ },
+ "results": [
+  {
+   "case_id": "c01",
+   "title": "Truck +35",
+   "profile": "guest",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 115.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 153,
+     "solver_evaluations": 51,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 158.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 42,
+     "solver_evaluations": 14,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 158.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 57,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 115.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 13472,
+     "solver_evaluations": 3,
+     "model_calls": 6,
+     "prompt_tokens": 22522,
+     "completion_tokens": 2127,
+     "cost_usd": 0.008671,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 1,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c02",
+   "title": "Truck +35",
+   "profile": "money",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 85.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 319,
+     "solver_evaluations": 51,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 85.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 92,
+     "solver_evaluations": 14,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 255.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 121,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 85.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 16921,
+     "solver_evaluations": 6,
+     "model_calls": 8,
+     "prompt_tokens": 33021,
+     "completion_tokens": 1887,
+     "cost_usd": 0.011605,
+     "rejected_candidates": 4,
+     "beyond_playbook_actions": 1,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c03",
+   "title": "Truck +35",
+   "profile": "balanced",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 115.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 335,
+     "solver_evaluations": 51,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 160.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 96,
+     "solver_evaluations": 14,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 185.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 121,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 115.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 15871,
+     "solver_evaluations": 4,
+     "model_calls": 7,
+     "prompt_tokens": 27395,
+     "completion_tokens": 2495,
+     "cost_usd": 0.010464,
+     "rejected_candidates": 1,
+     "beyond_playbook_actions": 1,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c04",
+   "title": "Truck +25",
+   "profile": "money",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 6,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 65.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 81,
+     "solver_evaluations": 18,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 65.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 40,
+     "solver_evaluations": 9,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 85.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 66,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 65.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 16080,
+     "solver_evaluations": 4,
+     "model_calls": 7,
+     "prompt_tokens": 27564,
+     "completion_tokens": 2236,
+     "cost_usd": 0.010282,
+     "rejected_candidates": 1,
+     "beyond_playbook_actions": 1,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c05",
+   "title": "Truck +25",
+   "profile": "guest",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 6,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 115.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 142,
+     "solver_evaluations": 18,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 158.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 75,
+     "solver_evaluations": 9,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 360.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 120,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 360.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 17573,
+     "solver_evaluations": 4,
+     "model_calls": 7,
+     "prompt_tokens": 27748,
+     "completion_tokens": 2368,
+     "cost_usd": 0.010456,
+     "rejected_candidates": 1,
+     "beyond_playbook_actions": 1,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c06",
+   "title": "Truck +45",
+   "profile": "guest",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 8,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 183.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 299,
+     "solver_evaluations": 99,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 458.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 81,
+     "solver_evaluations": 32,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 458.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 112,
+     "solver_evaluations": 12,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 405.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 31571,
+     "solver_evaluations": 5,
+     "model_calls": 8,
+     "prompt_tokens": 30858,
+     "completion_tokens": 5276,
+     "cost_usd": 0.014006,
+     "rejected_candidates": 3,
+     "beyond_playbook_actions": 7,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c07",
+   "title": "Truck +45",
+   "profile": "money",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 8,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 20
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 121.75
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 266,
+     "solver_evaluations": 99,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 280.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 72,
+     "solver_evaluations": 32,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 280.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 98,
+     "solver_evaluations": 12,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 130.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 19422,
+     "solver_evaluations": 6,
+     "model_calls": 8,
+     "prompt_tokens": 32013,
+     "completion_tokens": 2907,
+     "cost_usd": 0.01222,
+     "rejected_candidates": 4,
+     "beyond_playbook_actions": 4,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c08",
+   "title": "Truck +55",
+   "profile": "balanced",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 210.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 628,
+     "solver_evaluations": 121,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 285.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 121,
+     "solver_evaluations": 37,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 285.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 287,
+     "solver_evaluations": 12,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       },
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       },
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 305.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 29110,
+     "solver_evaluations": 5,
+     "model_calls": 8,
+     "prompt_tokens": 33918,
+     "completion_tokens": 4376,
+     "cost_usd": 0.014114,
+     "rejected_candidates": 3,
+     "beyond_playbook_actions": 4,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c09",
+   "title": "Truck +65",
+   "profile": "balanced",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       },
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 20
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 267.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 559,
+     "solver_evaluations": 133,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 175,
+     "solver_evaluations": 46,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 376,
+     "solver_evaluations": 19,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 49341,
+     "solver_evaluations": 6,
+     "model_calls": 8,
+     "prompt_tokens": 31322,
+     "completion_tokens": 8717,
+     "cost_usd": 0.017242,
+     "rejected_candidates": 6,
+     "beyond_playbook_actions": 13,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c10",
+   "title": "Truck breakdown +90",
+   "profile": "guest",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 502,
+     "solver_evaluations": 133,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 170,
+     "solver_evaluations": 46,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 298,
+     "solver_evaluations": 19,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 58161,
+     "solver_evaluations": 5,
+     "model_calls": 8,
+     "prompt_tokens": 33567,
+     "completion_tokens": 11396,
+     "cost_usd": 0.020326,
+     "rejected_candidates": 5,
+     "beyond_playbook_actions": 11,
+     "finalized_by_model": true,
+     "top_pick_agrees": null,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c11",
+   "title": "AV tech out 15:30-16:30",
+   "profile": "money",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 8,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 25
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 118.25
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 58,
+     "solver_evaluations": 11,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 135.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 33,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 447.5
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 59,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       },
+       {
+        "type": "assign_resource",
+        "task_id": "audio-setup",
+        "requirement_id": "tech",
+        "resource_id": "backup-av"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 472.5
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 19631,
+     "solver_evaluations": 3,
+     "model_calls": 7,
+     "prompt_tokens": 25140,
+     "completion_tokens": 3477,
+     "cost_usd": 0.010671,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 4,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c12",
+   "title": "AV tech out 15:30-16:30",
+   "profile": "guest",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 8,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 96.875
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 61,
+     "solver_evaluations": 11,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 96.875
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 38,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 96.875
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 65,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       },
+       {
+        "type": "assign_resource",
+        "task_id": "audio-setup",
+        "requirement_id": "tech",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 96.875
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 16291,
+     "solver_evaluations": 3,
+     "model_calls": 6,
+     "prompt_tokens": 21892,
+     "completion_tokens": 2583,
+     "cost_usd": 0.008892,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 2,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c13",
+   "title": "AV tech out 15:00-16:30",
+   "profile": "crew",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 322.5
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 361,
+     "solver_evaluations": 93,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 322.5
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 94,
+     "solver_evaluations": 25,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 322.5
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 79,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "backup-av"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 12750,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 422.5
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 21667,
+     "solver_evaluations": 3,
+     "model_calls": 7,
+     "prompt_tokens": 27202,
+     "completion_tokens": 3626,
+     "cost_usd": 0.011424,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 1,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c14",
+   "title": "Dock +20",
+   "profile": "balanced",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [],
+      "cost_cents": 0,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 0.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 6,
+     "solver_evaluations": 1,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [],
+      "cost_cents": 0,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 0.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 6,
+     "solver_evaluations": 1,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [],
+      "cost_cents": 0,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [],
+      "penalty": 0.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 6,
+     "solver_evaluations": 1,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "crew-briefing",
+        "duration": 10
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1070,
+      "margin": 10,
+      "breaches": [],
+      "penalty": 120.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 11954,
+     "solver_evaluations": 3,
+     "model_calls": 6,
+     "prompt_tokens": 22294,
+     "completion_tokens": 1466,
+     "cost_usd": 0.008008,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c15",
+   "title": "Dock +40",
+   "profile": "budget",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [
+       "Leaves 5 min spare; you asked for at least 10."
+      ],
+      "penalty": 285.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 148,
+     "solver_evaluations": 51,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [
+       "Leaves 5 min spare; you asked for at least 10."
+      ],
+      "penalty": 285.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 43,
+     "solver_evaluations": 14,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "activate_resource",
+        "resource_id": "trolley-2"
+       }
+      ],
+      "cost_cents": 3500,
+      "readiness": 1075,
+      "margin": 5,
+      "breaches": [
+       "Leaves 5 min spare; you asked for at least 10."
+      ],
+      "penalty": 285.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 57,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1065,
+      "margin": 15,
+      "breaches": [],
+      "penalty": 215.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 23378,
+     "solver_evaluations": 4,
+     "model_calls": 8,
+     "prompt_tokens": 33470,
+     "completion_tokens": 3664,
+     "cost_usd": 0.013339,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 2,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c16",
+   "title": "Truck +25 and AV out 15:30-16:15",
+   "profile": "crew",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 7,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 340.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 246,
+     "solver_evaluations": 79,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 340.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 60,
+     "solver_evaluations": 18,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 340.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 68,
+     "solver_evaluations": 7,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 2,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 340.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 12809,
+     "solver_evaluations": 6,
+     "model_calls": 8,
+     "prompt_tokens": 31853,
+     "completion_tokens": 1596,
+     "cost_usd": 0.010992,
+     "rejected_candidates": 4,
+     "beyond_playbook_actions": 3,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c17",
+   "title": "Lighting tech out 15:30-16:30",
+   "profile": "balanced",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 422,
+     "solver_evaluations": 133,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 145,
+     "solver_evaluations": 46,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 171,
+     "solver_evaluations": 16,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 42386,
+     "solver_evaluations": 3,
+     "model_calls": 8,
+     "prompt_tokens": 31356,
+     "completion_tokens": 7648,
+     "cost_usd": 0.01629,
+     "rejected_candidates": 3,
+     "beyond_playbook_actions": 3,
+     "finalized_by_model": true,
+     "top_pick_agrees": null,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c18",
+   "title": "Event lead out 16:45-17:30",
+   "profile": "sponsor",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 816,
+     "solver_evaluations": 133,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 203,
+     "solver_evaluations": 46,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 250,
+     "solver_evaluations": 12,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 32115,
+     "solver_evaluations": 3,
+     "model_calls": 7,
+     "prompt_tokens": 25895,
+     "completion_tokens": 5415,
+     "cost_usd": 0.012642,
+     "rejected_candidates": 3,
+     "beyond_playbook_actions": 3,
+     "finalized_by_model": true,
+     "top_pick_agrees": null,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c19",
+   "title": "Setup team out 14:30-15:30",
+   "profile": "balanced",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 4,
+     "best": {
+      "actions": [
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       },
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "event-lead"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 185.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 819,
+     "solver_evaluations": 123,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 281,
+     "solver_evaluations": 46,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": false,
+     "options": 0,
+     "best": null,
+     "invalid_options": 0,
+     "elapsed_ms": 334,
+     "solver_evaluations": 16,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "add_helper",
+        "task_id": "stage-rigging",
+        "resource_id": "transport-crew"
+       },
+       {
+        "type": "compress_task",
+        "task_id": "soundcheck",
+        "duration": 15
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1080,
+      "margin": 0,
+      "breaches": [],
+      "penalty": 185.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 24599,
+     "solver_evaluations": 6,
+     "model_calls": 8,
+     "prompt_tokens": 32595,
+     "completion_tokens": 3697,
+     "cost_usd": 0.013106,
+     "rejected_candidates": 3,
+     "beyond_playbook_actions": 5,
+     "finalized_by_model": false,
+     "top_pick_agrees": null,
+     "stop_reason": "budget_exhausted",
+     "error": null
+    }
+   }
+  },
+  {
+   "case_id": "c20",
+   "title": "Transport crew out 14:00-15:00",
+   "profile": "guest",
+   "methods": {
+    "oracle": {
+     "method": "oracle",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [],
+      "cost_cents": 0,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 150.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 8,
+     "solver_evaluations": 1,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "playbook_search": {
+     "method": "playbook_search",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [],
+      "cost_cents": 0,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 150.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 12,
+     "solver_evaluations": 1,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "greedy": {
+     "method": "greedy",
+     "found": true,
+     "options": 1,
+     "best": {
+      "actions": [],
+      "cost_cents": 0,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 150.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 12,
+     "solver_evaluations": 1,
+     "model_calls": 0,
+     "prompt_tokens": 0,
+     "completion_tokens": 0,
+     "cost_usd": 0.0,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 0,
+     "finalized_by_model": null,
+     "top_pick_agrees": null,
+     "stop_reason": null,
+     "error": null
+    },
+    "agent": {
+     "method": "agent",
+     "found": true,
+     "options": 3,
+     "best": {
+      "actions": [
+       {
+        "type": "assign_resource",
+        "task_id": "unload-truss",
+        "requirement_id": "crew",
+        "resource_id": "setup-team"
+       }
+      ],
+      "cost_cents": 0,
+      "readiness": 1060,
+      "margin": 20,
+      "breaches": [],
+      "penalty": 150.0
+     },
+     "invalid_options": 0,
+     "elapsed_ms": 18879,
+     "solver_evaluations": 3,
+     "model_calls": 6,
+     "prompt_tokens": 20852,
+     "completion_tokens": 2733,
+     "cost_usd": 0.008715,
+     "rejected_candidates": 0,
+     "beyond_playbook_actions": 2,
+     "finalized_by_model": true,
+     "top_pick_agrees": true,
+     "stop_reason": "submitted",
+     "error": null
+    }
+   }
+  }
+ ]
+}

@@ -394,3 +394,21 @@ async def test_last_call_forces_submit_when_candidates_exist(scenario: Scenario)
     options = next(e for e in events if e.type == "options")
     assert options.data["finalized_by_model"] is True
     assert next(e for e in events if e.type == "done").data["stop_reason"] == "submitted"
+
+
+def test_absorbed_incident_offers_verified_no_change_candidate(scenario: Scenario) -> None:
+    ctx = _ctx(scenario, _shocked(scenario, "dock-delay-20"))
+    assert "c0" in ctx.candidates
+    assert ctx.candidates["c0"].evaluation.status.value == "verified"
+    assert ctx.candidates["c0"].evaluation.patch.actions == ()
+    assert execute_tool(ctx, "get_situation", "{}").content["no_change_candidate"] == "c0"
+    first = execute_tool(
+        ctx,
+        "evaluate_patch",
+        json.dumps({"actions": [{"type": "activate_resource", "resource_id": "trolley-2"}], "rationale": "x"}),
+    )
+    assert first.content["candidate_id"] == "c1"
+
+
+def test_breaching_incident_has_no_change_candidate(scenario: Scenario) -> None:
+    assert "c0" not in _ctx(scenario, _shocked(scenario)).candidates

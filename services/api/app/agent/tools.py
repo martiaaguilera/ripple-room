@@ -29,6 +29,7 @@ TOOL_INSPECT_TASK = "inspect_task"
 TOOL_LIST_INTERVENTIONS = "list_interventions"
 TOOL_EVALUATE_PATCH = "evaluate_patch"
 TOOL_SUBMIT_OPTIONS = "submit_options"
+NO_CHANGE_ID = "c0"
 
 
 class Strict(BaseModel):
@@ -93,7 +94,7 @@ class AgentContext:
         max_evaluations: int,
         preferences: Preferences | None = None,
     ) -> AgentContext:
-        return cls(
+        ctx = cls(
             scenario=scenario,
             revision=revision,
             problem=problem,
@@ -103,6 +104,18 @@ class AgentContext:
             preferences=preferences or Preferences(),
             do_nothing=do_nothing_plan(problem, revision.state.plan),
         )
+        # If the incident is absorbed by slack, "change nothing" is itself a verified option (c0).
+        # It is verified by the same pipeline as any proposal and does not use the model's budget.
+        if ctx.impact.schedule.deadline_delta is not None and ctx.impact.schedule.deadline_delta <= 0:
+            state = revision.state
+            ev = evaluate_patch(
+                scenario, state.shocks, state.committed, Patch(rationale="Keep the current plan."), state.plan
+            )
+            if ev.status == EvaluationStatus.VERIFIED:
+                ctx.candidates[NO_CHANGE_ID] = Candidate(
+                    id=NO_CHANGE_ID, evaluation=ev, rationale="Keep the current plan: slack absorbs the delay."
+                )
+        return ctx
 
 
 @dataclass(frozen=True)
@@ -268,6 +281,7 @@ def _situation(ctx: AgentContext) -> dict[str, Any]:
     return {
         "deadline": fmt_clock(sched.deadline),
         "doors_ready_if_nobody_acts": fmt_clock(sched.readiness) if sched.readiness is not None else "never (blocked)",
+        "no_change_candidate": NO_CHANGE_ID if NO_CHANGE_ID in ctx.candidates else None,
         "minutes_late": sched.deadline_delta,
         "disruptions": [_shock_text(sc, s) for s in ctx.revision.state.shocks],
         "driving_path": [
@@ -394,7 +408,7 @@ def _evaluate(ctx: AgentContext, args: EvaluatePatchArgs) -> ToolOutcome:
     state = ctx.revision.state
     ev = evaluate_patch(ctx.scenario, state.shocks, state.committed, patch, state.plan)
     phase: Phase = "revise" if ctx.rejected_or_infeasible > 0 else "verify"
-    cid = f"c{len(ctx.candidates) + 1}"
+    cid = f"c{ctx.evaluations_used}"
     candidate = Candidate(id=cid, evaluation=ev, rationale=args.rationale)
     ctx.candidates[cid] = candidate
     if ev.status != EvaluationStatus.VERIFIED:
