@@ -94,3 +94,25 @@ Status legend: **PROVEN** (run and observed) · **NOT VERIFIED** · **BLOCKED** 
 1. After rotation: smoke test, live 20-case evaluation, live production check, revoke-verify old key.
 2. Visual 2.0 B/C: ripple synced into the scene, side-by-side before/after card, mobile pass, a11y audit.
 3. Crew change notice; README/architecture/Devpost drafts; demo storyboard.
+
+## 2026-10-17 (night) — Key rotation, live production, evaluation v2/v4, spend guard
+
+- **PROVEN** key rotation: new key works (smoke 473 ms / tool call 1.29 s); old key returns 401 (revoked);
+  local stash deleted. Vercel production env set by owner; production `ai.status=live`.
+- **PROVEN** production judge path live (`check_judge_demo.py` 11/11): agent run 20.8 s streamed (first event
+  70 ms), interpretation 1.5 s. Browser journey on prod: 5 proposals, 3 verified, transport-crew helper rejected
+  with "makes things worse" explanation.
+- **PROVEN** live evaluations v2 ($0.2435) and v4 ($0.2207): see `docs/evaluation/COMPARISON-v2-v4.md`.
+  v4 removes budget exhaustion (7/20 → 0/20); option quality not improved (9/17 → 7/17 best = oracle; one run each).
+- Spend guard: kill switch, per-process daily token/run budgets, per-IP daily caps, unforgeable client IP,
+  per-call token accounting; `docs/operations.md`. Deployed; CI green.
+- c0 ("keep the current plan") is now always offered when slack absorbs the incident (fixes the c14 miss;
+  live re-measurement paused).
+- **Live inference testing paused by owner** after the v4 run. Do not run live evals or smoke tests without approval.
+
+### Critical risks
+| Risk | Status |
+|---|---|
+| Nebius trial ends before judging; card may be charged when credits hit $0 | **OPEN** (owner: Nebius-side limits, organiser credits) |
+| App-side budget is per process, not a hard cap | Documented; lower budgets for December recommended |
+| Agent option quality ≈ playbook search (7–9/17 vs 8/17) | Prioritised fixes in comparison doc; needs authorised re-measure |

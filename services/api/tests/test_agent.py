@@ -412,3 +412,20 @@ def test_absorbed_incident_offers_verified_no_change_candidate(scenario: Scenari
 
 def test_breaching_incident_has_no_change_candidate(scenario: Scenario) -> None:
     assert "c0" not in _ctx(scenario, _shocked(scenario)).candidates
+
+
+async def test_no_change_option_is_always_offered_and_ranks_first_when_free(scenario: Scenario) -> None:
+    """The model submits a change, but 'keep the current plan' (c0) is still offered and wins on penalty."""
+    submit = (
+        "submit_options",
+        {"options": [{"candidate_id": "c1", "title": "Rent trolley", "why": "w"}], "summary": "s"},
+    )
+    evaluate = (
+        "evaluate_patch",
+        {"actions": [{"type": "activate_resource", "resource_id": "trolley-2"}], "rationale": "x"},
+    )
+    transport, _ = _transport([_ok(_completion([evaluate])), _ok(_completion([submit]))])
+    events = await _collect(_ctx(scenario, _shocked(scenario, "dock-delay-20")), _provider(transport))
+    options = next(e for e in events if e.type == "options").data["options"]
+    assert {o["candidate_id"] for o in options} == {"c0", "c1"}
+    assert options[0]["candidate_id"] == "c0" and options[0]["model_rank"] is None

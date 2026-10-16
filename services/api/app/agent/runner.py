@@ -19,7 +19,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from app.agent.prompts import FINAL_STEP, NUDGE, PROMPT_VERSION, SYSTEM_PROMPT, user_prompt
-from app.agent.tools import TOOL_SUBMIT_OPTIONS, AgentContext, execute_tool, preferences_view, tool_specs
+from app.agent.tools import NO_CHANGE_ID, TOOL_SUBMIT_OPTIONS, AgentContext, execute_tool, preferences_view, tool_specs
 from app.domain.preferences import PreferenceReport
 from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, EvaluationStatus
@@ -231,6 +231,10 @@ def _final_options(ctx: AgentContext) -> tuple[list[AgentOption], bool]:
             for c in ctx.candidates.values()
             if c.evaluation.status == EvaluationStatus.VERIFIED
         }
+    # The server-verified "keep the current plan" option is always offered when it exists:
+    # it costs nothing and needs no model judgement (measured miss in case c14).
+    if NO_CHANGE_ID in ctx.candidates and NO_CHANGE_ID not in chosen:
+        chosen[NO_CHANGE_ID] = (None, "Keep the current plan", ctx.candidates[NO_CHANGE_ID].rationale)
     ranked = rank_options(
         [(cid, ctx.candidates[cid].evaluation) for cid in chosen],
         ctx.preferences,
