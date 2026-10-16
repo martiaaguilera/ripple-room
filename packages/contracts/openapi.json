@@ -227,6 +227,32 @@
     "title": "CausalEdge",
     "type": "object"
    },
+   "ChangeNotice": {
+    "additionalProperties": false,
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/NoticeItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "unchanged": {
+      "description": "People whose day does not change",
+      "items": {
+       "type": "string"
+      },
+      "title": "Unchanged",
+      "type": "array"
+     }
+    },
+    "required": [
+     "items",
+     "unchanged"
+    ],
+    "title": "ChangeNotice",
+    "type": "object"
+   },
    "CompressTask": {
     "additionalProperties": false,
     "properties": {
@@ -902,6 +928,136 @@
      "tradeoff"
     ],
     "title": "MenuItem",
+    "type": "object"
+   },
+   "NoticeChange": {
+    "additionalProperties": false,
+    "properties": {
+     "after": {
+      "anyOf": [
+       {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "After"
+     },
+     "before": {
+      "anyOf": [
+       {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+         {
+          "type": "integer"
+         },
+         {
+          "type": "integer"
+         }
+        ],
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Before"
+     },
+     "task_id": {
+      "title": "Task Id",
+      "type": "string"
+     },
+     "task_label": {
+      "title": "Task Label",
+      "type": "string"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "task_id",
+     "task_label",
+     "before",
+     "after",
+     "text"
+    ],
+    "title": "NoticeChange",
+    "type": "object"
+   },
+   "NoticeItem": {
+    "additionalProperties": false,
+    "properties": {
+     "changes": {
+      "items": {
+       "$ref": "#/components/schemas/NoticeChange"
+      },
+      "title": "Changes",
+      "type": "array"
+     },
+     "kind": {
+      "enum": [
+       "crew",
+       "supplier"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "notify_by": {
+      "title": "Notify By",
+      "type": "integer"
+     },
+     "recipient_id": {
+      "title": "Recipient Id",
+      "type": "string"
+     },
+     "recipient_label": {
+      "title": "Recipient Label",
+      "type": "string"
+     }
+    },
+    "required": [
+     "recipient_id",
+     "recipient_label",
+     "kind",
+     "notify_by",
+     "changes"
+    ],
+    "title": "NoticeItem",
+    "type": "object"
+   },
+   "NoticeRequest": {
+    "additionalProperties": false,
+    "properties": {
+     "patch": {
+      "$ref": "#/components/schemas/Patch"
+     },
+     "plan": {
+      "$ref": "#/components/schemas/Plan"
+     },
+     "revision": {
+      "$ref": "#/components/schemas/Revision"
+     }
+    },
+    "required": [
+     "revision",
+     "patch",
+     "plan"
+    ],
+    "title": "NoticeRequest",
     "type": "object"
    },
    "Patch": {
@@ -2578,6 +2734,44 @@
      }
     },
     "summary": "Interpret Incident"
+   }
+  },
+  "/api/notice": {
+   "post": {
+    "operationId": "notice_api_notice_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NoticeRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ChangeNotice"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Notice"
    }
   },
   "/api/recover": {

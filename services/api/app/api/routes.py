@@ -11,6 +11,7 @@ from app import __version__
 from app.core.config import get_settings
 from app.core.errors import ApiError
 from app.domain.models import Patch, Plan, Scenario, Shock
+from app.domain.notice import ChangeNotice
 from app.domain.preferences import Preferences
 from app.domain.reports import Evaluation
 from app.domain.revision import Revision, baseline_revision
@@ -130,6 +131,17 @@ def evaluate(req: EvaluateRequest) -> Evaluation:
 @router.post("/search")
 def search(req: SearchRequest) -> workflow.SearchResponse:
     return workflow.search(req.revision, req.preferences)
+
+
+class NoticeRequest(In):
+    revision: Revision
+    patch: Patch
+    plan: Plan
+
+
+@router.post("/notice")
+def notice(req: NoticeRequest) -> ChangeNotice:
+    return workflow.notice(req.revision, req.patch, req.plan)
 
 
 @router.post("/apply")

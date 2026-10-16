@@ -8,6 +8,7 @@ from app.core.errors import ApiError
 from app.domain.analysis import impact_report, schedule_timings
 from app.domain.effective import EffectiveProblem, InvalidShockError, compile_problem
 from app.domain.models import Patch, Plan, Scenario, Shock
+from app.domain.notice import ChangeNotice, build_notice
 from app.domain.preferences import PreferenceReport, Preferences
 from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, ImpactReport, ScheduleMetrics, TaskTiming
@@ -170,3 +171,15 @@ def apply(revision: Revision, base_revision_id: str, patch: Patch, plan: Plan) -
     if not result.verified:  # defensive: pins/assignments are encoded in the plan itself
         raise ApiError(500, "INTERNAL", "Applied plan failed re-verification.")
     return result
+
+
+def notice(revision: Revision, patch: Patch, plan: Plan) -> ChangeNotice:
+    """Who must be told what, for a verified plan relative to the plan people currently hold."""
+    scenario = verify_revision(revision)
+    state = revision.state
+    merged = Patch(actions=(*state.committed.actions, *(a for a in patch.actions if a not in state.committed.actions)))
+    problem = _problem(scenario, state.shocks, merged)
+    violations = validate_plan(problem, plan)
+    if violations:
+        raise ApiError(422, "PLAN_INVALID", "Plan violates hard constraints.", [v.model_dump() for v in violations])
+    return build_notice(problem, state.plan, plan, patch, now=0)

@@ -92,6 +92,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Notice */
+        post: operations["notice_api_notice_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recover": {
         parameters: {
             query?: never;
@@ -254,6 +271,16 @@ export interface components {
             to_id: string;
             /** Wave */
             wave: number;
+        };
+        /** ChangeNotice */
+        ChangeNotice: {
+            /** Items */
+            items: components["schemas"]["NoticeItem"][];
+            /**
+             * Unchanged
+             * @description People whose day does not change
+             */
+            unchanged: string[];
         };
         /** CompressTask */
         CompressTask: {
@@ -476,6 +503,47 @@ export interface components {
             label: string;
             /** Tradeoff */
             tradeoff: string;
+        };
+        /** NoticeChange */
+        NoticeChange: {
+            /** After */
+            after: [
+                number,
+                number
+            ] | null;
+            /** Before */
+            before: [
+                number,
+                number
+            ] | null;
+            /** Task Id */
+            task_id: string;
+            /** Task Label */
+            task_label: string;
+            /** Text */
+            text: string;
+        };
+        /** NoticeItem */
+        NoticeItem: {
+            /** Changes */
+            changes: components["schemas"]["NoticeChange"][];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "crew" | "supplier";
+            /** Notify By */
+            notify_by: number;
+            /** Recipient Id */
+            recipient_id: string;
+            /** Recipient Label */
+            recipient_label: string;
+        };
+        /** NoticeRequest */
+        NoticeRequest: {
+            patch: components["schemas"]["Patch"];
+            plan: components["schemas"]["Plan"];
+            revision: components["schemas"]["Revision"];
         };
         /** Patch */
         Patch: {
@@ -1161,6 +1229,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Interpretation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    notice_api_notice_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoticeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangeNotice"];
                 };
             };
             /** @description Validation Error */

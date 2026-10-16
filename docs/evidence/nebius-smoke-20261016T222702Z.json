@@ -1,0 +1,38 @@
+{
+  "timestamp_utc": "2026-10-16T22:27:00.605704+00:00",
+  "base_url": "https://api.tokenfactory.nebius.com/v1/",
+  "probe": {
+    "model_requested": "nvidia/nemotron-3-super-120b-a12b",
+    "extra_body": {},
+    "plain": {
+      "model_reported": "nvidia/nemotron-3-super-120b-a12b",
+      "request_id": "4ad3cb2c1c9da0ad0a990533313b0e1a",
+      "latency_ms": 473,
+      "usage": {
+        "prompt_tokens": 22,
+        "completion_tokens": 30,
+        "total_tokens": 52
+      },
+      "content": "\n\nREADY",
+      "has_reasoning_field": true,
+      "finish_reason": "stop"
+    },
+    "tool_calling": {
+      "request_id": "299d38f399e09a0cc12536ee370fad23",
+      "latency_ms": 1292,
+      "usage": {
+        "prompt_tokens": 409,
+        "completion_tokens": 108,
+        "total_tokens": 517
+      },
+      "tool_calls": [
+        {
+          "name": "evaluate_patch",
+          "arguments": "{\"actions\": [{\"action\": \"activate\", \"resource\": \"trolley-2\"}], \"rationale\": \"Activating trolley-2 ensures availability for upcoming tasks requiring transport resources.\"}"
+        }
+      ],
+      "finish_reason": "tool_calls",
+      "has_reasoning_field": true
+    }
+  }
+}
