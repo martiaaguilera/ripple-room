@@ -5,9 +5,9 @@ export function StartCard({ onTruck, disabled }: { onTruck: () => void; disabled
   return (
     <section aria-labelledby="start-h" className="rounded-2xl border border-amber/50 bg-[#17130b] p-4">
       <h2 id="start-h" className="font-display text-[1.7rem] leading-tight font-extrabold">
-        Everything on the left is connected.
+        Every job in this plan is connected.
       </h2>
-      <p className="mt-1 text-sm text-muted">Break one thing and watch what follows.</p>
+      <p className="mt-1 text-sm text-muted">Break one thing and watch the delay ripple through to the doors.</p>
       <button
         type="button"
         onClick={onTruck}
