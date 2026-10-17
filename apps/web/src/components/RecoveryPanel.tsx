@@ -2,23 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/lib/useReducedMotion";
-import type { AgentEvent } from "@/lib/api/sse";
 import type { Health, Preferences, Scenario } from "@/lib/api/types";
 import { clock, delta, eur } from "@/lib/format";
 import type { RoomView } from "@/lib/viewmodel";
 import type { Phase, RecoveryOption, RoomState } from "@/state/room";
+import { AgentRun, AgentTrace } from "./AgentRun";
 import { NoticeCard } from "./NoticeCard";
 import { PreferencesPanel } from "./PreferencesPanel";
 import { VerifierBoard } from "./VerifierBoard";
-
-const PHASE_TEXT: Record<string, string> = {
-  perceive: "Reading the situation",
-  diagnose: "Diagnosing the delay",
-  plan: "Weighing permitted fixes",
-  verify: "Verifying a proposal",
-  revise: "Revising after verifier feedback",
-  present: "Presenting options",
-};
 
 const SOURCE_TEXT: Record<RecoveryOption["source"], string> = {
   nemotron: "Proposed by Nemotron",
@@ -42,13 +33,17 @@ export function modelName(id: string): string {
   return m;
 }
 
+// On phones the badge may wrap to two short lines so the top bar stays one row; the words never shorten.
+const BADGE =
+  "inline-flex min-w-0 items-center gap-1.5 rounded-lg border px-2 py-1 text-xs leading-tight sm:rounded-full sm:px-2.5";
+
 export function AiBadge({ health }: { health: Health | null }) {
   if (!health)
     return <span className="text-xs text-faint">AI status unknown</span>;
   if (health.ai.status === "paused" || health.ai.status === "budget_exhausted")
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber/50 px-2.5 py-1 text-xs text-amber">
-        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />
+      <span className={`${BADGE} border-amber/50 text-amber`}>
+        <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber max-sm:hidden" />
         {health.ai.status === "paused"
           ? "Live AI paused"
           : "Today's live AI budget used"}
@@ -57,67 +52,17 @@ export function AiBadge({ health }: { health: Health | null }) {
   const live = health.ai.mode === "live";
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${live ? "border-focus/50 text-focus" : "border-line text-muted"}`}
+      className={`${BADGE} ${live ? "border-focus/50 text-focus" : "border-line text-muted"}`}
     >
       <span
         aria-hidden
-        className={`h-1.5 w-1.5 rounded-full ${live ? "heartbeat bg-focus" : "bg-faint"}`}
+        className={`h-1.5 w-1.5 shrink-0 rounded-full ${live ? "heartbeat bg-focus" : "bg-faint max-sm:hidden"}`}
       />
       {live
         ? `${modelName(health.ai.planner_model)} on Nebius Token Factory`
         : "Simulated agent, no model calls"}
     </span>
   );
-}
-
-function TraceRow({ event }: { event: AgentEvent }) {
-  const d = event.data as Record<string, unknown>;
-  const t = `${(event.at_ms / 1000).toFixed(1)}s`;
-  switch (event.type) {
-    case "phase":
-      return (
-        <li className="pt-2 text-xs font-semibold text-porcelain">
-          {PHASE_TEXT[String(d.name)] ?? String(d.name)}
-        </li>
-      );
-    case "model_call": {
-      const usage = d.usage as { total_tokens?: number } | undefined;
-      const rid = d.request_id ? String(d.request_id).slice(0, 10) : null;
-      const real = Boolean(rid) || Number(d.latency_ms) > 0;
-      return (
-        <li className="text-xs text-focus">
-          <span className="text-faint">{t} </span>
-          {real
-            ? `Model call ${String(d.n)}: ${((Number(d.latency_ms) || 0) / 1000).toFixed(1)}s${usage?.total_tokens ? `, ${usage.total_tokens.toLocaleString("en")} tokens` : ""}${rid ? `, request ${rid}` : ""}`
-            : `Scripted step ${String(d.n)}`}
-        </li>
-      );
-    }
-    case "tool_result":
-      return (
-        <li className={`text-xs ${d.ok ? "text-muted" : "text-amber"}`}>
-          <span className="text-faint">{t} </span>
-          <code className="text-porcelain">{String(d.name)}</code>{" "}
-          {String(d.summary)}
-        </li>
-      );
-    case "error":
-      return (
-        <li className="text-xs font-semibold text-coral">
-          {String(d.message)}
-        </li>
-      );
-    case "done":
-      return (
-        <li className="pt-1 text-xs text-faint">
-          Finished in {((Number(d.elapsed_ms) || 0) / 1000).toFixed(1)}s:{" "}
-          {String(d.model_calls)} model calls, {String(d.evaluations)} verifier
-          checks.
-        </li>
-      );
-    default:
-      return null;
-  }
 }
 
 function PenaltyBar({ option }: { option: RecoveryOption }) {
@@ -368,6 +313,13 @@ export function RecoveryPanel(props: PanelProps) {
     state.health?.ai.status === "budget_exhausted";
   const late = doNothingReadiness != null && doNothingReadiness > room.deadline;
   const hasOptions = run.options.length > 0;
+  const runLabel = run.provider
+    ? run.provider.live
+      ? `${modelName(run.provider.model)} on Nebius`
+      : "Simulated agent"
+    : live
+      ? "The agent"
+      : "Simulated agent";
   const showComposer =
     (phase === "impact" || phase === "options") &&
     run.status !== "running" &&
@@ -519,52 +471,30 @@ export function RecoveryPanel(props: PanelProps) {
         </div>
       )}
 
+      {run.status === "running" && run.source !== "search" && (
+        <AgentRun
+          events={run.events}
+          label={runLabel}
+          live={run.provider?.live ?? live}
+          onStop={onCancel}
+        />
+      )}
+
       {run.source !== "search" && run.status !== "idle" && (
         <VerifierBoard
           events={run.events}
           deadline={room.deadline}
           doNothing={doNothingReadiness}
+          running={run.status === "running"}
         />
       )}
 
       {run.status !== "idle" && run.source !== "search" && (
-        <details
-          open={run.status === "running"}
-          className="rounded-xl border border-line bg-panel p-3"
-          aria-live="polite"
-        >
-          <summary className="cursor-pointer text-sm font-semibold">
-            {run.provider
-              ? run.provider.live
-                ? `${modelName(run.provider.model)} on Nebius`
-                : "Simulated agent"
-              : "Starting…"}
-            <span className="ml-2 text-xs font-normal text-muted">
-              {run.status === "running"
-                ? "working"
-                : `${run.events.filter((e) => e.type === "tool_result").length} tool calls`}
-            </span>
-          </summary>
-          {run.status === "running" && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="mt-1 text-xs text-muted underline underline-offset-2 hover:text-porcelain"
-            >
-              Stop
-            </button>
-          )}
-          <ol className="mt-1 max-h-56 space-y-1 overflow-y-auto pr-1">
-            {run.events.map((e) => (
-              <TraceRow key={e.seq} event={e} />
-            ))}
-            {run.status === "running" && (
-              <li className="heartbeat text-xs text-focus">
-                Waiting for the next step…
-              </li>
-            )}
-          </ol>
-        </details>
+        <AgentTrace
+          events={run.events}
+          running={run.status === "running"}
+          label={run.status === "running" ? "Agent trace" : runLabel}
+        />
       )}
 
       {run.status === "failed" && run.error && (

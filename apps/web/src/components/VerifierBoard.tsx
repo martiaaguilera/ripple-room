@@ -66,7 +66,7 @@ function Legend() {
  * Filled = verified feasible; hollow = proven infeasible (plotted at the best it could do);
  * cross = rejected as malformed or not permitted. Built only from real candidate events.
  */
-export function VerifierBoard({ events, deadline, doNothing }: { events: AgentEvent[]; deadline: number; doNothing: number | null }) {
+export function VerifierBoard({ events, deadline, doNothing, running = false }: { events: AgentEvent[]; deadline: number; doNothing: number | null; running?: boolean }) {
   const points = events.filter((e) => e.type === "candidate").map(pointOf);
   if (points.length === 0) return null;
   const minutes = points.flatMap((p) => (p.minute != null ? [p.minute] : []));
@@ -84,10 +84,17 @@ export function VerifierBoard({ events, deadline, doNothing }: { events: AgentEv
       <figcaption>
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-sm font-semibold">Verifier board</span>
-          <span className="font-display text-xl leading-none font-bold">
-            <span className={verified ? "text-signal" : "text-coral"}>{verified}</span>
-            <span className="text-muted"> of {points.length} proposals hold</span>
-          </span>
+          {running ? (
+            <span className="font-display text-xl leading-none font-bold">
+              <span className={verified ? "text-signal" : "text-porcelain"}>{verified}</span>
+              <span className="text-muted"> of {points.length} hold so far</span>
+            </span>
+          ) : (
+            <span className="font-display text-xl leading-none font-bold">
+              <span className={verified ? "text-signal" : "text-coral"}>{verified}</span>
+              <span className="text-muted"> of {points.length} proposals hold</span>
+            </span>
+          )}
         </div>
         <p className="mt-1 text-xs text-muted">Each AI proposal, placed where the solver says doors would be ready.</p>
       </figcaption>
