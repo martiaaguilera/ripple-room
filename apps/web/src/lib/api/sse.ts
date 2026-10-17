@@ -38,12 +38,17 @@ export async function streamRecover(
       body: JSON.stringify({ revision, priorities, preferences }),
       signal,
     });
-  } catch (err) {
+  } catch {
     if (signal?.aborted) return;
-    throw new ApiError(0, "NETWORK", err instanceof Error ? err.message : "Network error");
+    throw new ApiError(0, "NETWORK", "Cannot reach the Ripple Room server. Check your connection and retry.");
   }
   if (!res.ok || !res.body) throw await toApiError(res);
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let finished = false;
+  const emit = (event: AgentEvent) => {
+    if (event.type === "done") finished = true;
+    onEvent(event);
+  };
   let buffer = "";
   for (;;) {
     const { value, done } = await reader.read();
@@ -53,10 +58,18 @@ export async function streamRecover(
     while (cut !== -1) {
       const event = parseFrame(buffer.slice(0, cut));
       buffer = buffer.slice(cut + 2);
-      if (event) onEvent(event);
+      if (event) emit(event);
       cut = buffer.indexOf("\n\n");
     }
   }
   const tail = parseFrame(buffer.trim());
-  if (tail) onEvent(tail);
+  if (tail) emit(tail);
+  // A run always ends with "done"; without it the connection was cut (proxy or platform timeout).
+  if (!finished && !signal?.aborted) {
+    throw new ApiError(
+      0,
+      "STREAM_CUT",
+      "The connection closed before the run finished. Nothing was changed; retry or use the playbook search.",
+    );
+  }
 }
