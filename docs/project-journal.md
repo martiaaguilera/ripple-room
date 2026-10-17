@@ -116,3 +116,19 @@ Status legend: **PROVEN** (run and observed) · **NOT VERIFIED** · **BLOCKED** 
 | Nebius trial ends before judging; card may be charged when credits hit $0 | **OPEN** (owner: Nebius-side limits, organiser credits) |
 | App-side budget is per process, not a hard cap | Documented; lower budgets for December recommended |
 | Agent option quality ≈ playbook search (7–9/17 vs 8/17) | Prioritised fixes in comparison doc; needs authorised re-measure |
+
+## 2026-10-18 — Post-benchmark priorities (no live inference)
+
+- Audit: production still `ai.status=live` (public can trigger paid calls within per-instance caps).
+  Recommendation to owner: set `AI_KILL_SWITCH=true` in Vercel until Nebius-side billing limits are confirmed.
+- Global quota (Upstash Redis REST, free tier, no card; atomic Lua reservation, daily + lifetime budgets,
+  refunds, `AI_REQUIRE_GLOBAL_QUOTA` fail-closed). Implemented + tested with a fake store; **inactive** until the
+  owner approves creating an Upstash database and sets its env vars.
+- Agent v5 (hybrid): idle people on the critical chain, minutes-gained feedback, verified playbook options p1..pn
+  always in the pool (incl. "reschedule only"), origin labels in UI/reports, c0 always offered. Mock harness:
+  hybrid best = oracle 8/17 (= playbook floor). **Not measured live.**
+- Docs: CASES-c19-c09.md (reproducible tests), README + Devpost draft with measured numbers only.
+- Tests: 155 backend, 14 web unit, 16/16 E2E; CI green.
+
+### Next measurable milestone (needs owner approval, ~$0.25)
+Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed best = oracle" separately.

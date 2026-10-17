@@ -17,6 +17,13 @@ differs from this script (different proposals, different rejections), narrate wh
 | 2:18–2:32 | Quick cut: breakdown +90 → "No verified recovery found" with the 18:30 bound. Then the evaluation table from the README. | "And when there's no way to make it, it says so — no fake green plan. On twenty test cases, every option every method returned passed independent re-validation." *(Quote only numbers from docs/evaluation.)* |
 | 2:32–2:45 | Architecture card (from README) → product title + URL. | "Nemotron on Nebius to reason, a CP-SAT solver to prove, and a human to decide. Ripple Room: see the chain reaction, fix the day." |
 
+## The three moments the video must show (from real runs only)
+1. **A useful model strategy:** a fix outside the playbook, e.g. the event lead (free mid-afternoon)
+   helping rig the stage, verified at €0 with no guest impact. Card label must read "Proposed by Nemotron".
+2. **A rejected proposal:** e.g. "transport crew helps rigging … makes things worse than doing nothing".
+3. **A validated recovery:** preview (before/after strip), approve, change notice, undo.
+If a take doesn't produce (1) or (2), record another take or narrate what actually happened — never edit results in.
+
 ## Checklist before recording
 - [ ] `/api/health` reports `"mode":"live"`; run `scripts/check_judge_demo.py` first.
 - [ ] Fresh browser profile (no cached state), 1920×1080.
