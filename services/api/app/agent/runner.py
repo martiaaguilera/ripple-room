@@ -9,7 +9,6 @@ tokens and wall-clock time.
 from __future__ import annotations
 
 import asyncio
-import json
 import time
 import uuid
 from collections.abc import AsyncIterator
@@ -19,7 +18,14 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from app.agent.prompts import FINAL_STEP, NUDGE, PROMPT_VERSION, SYSTEM_PROMPT, user_prompt
-from app.agent.tools import TOOL_SUBMIT_OPTIONS, AgentContext, execute_tool, preferences_view, tool_specs
+from app.agent.tools import (
+    TOOL_SUBMIT_OPTIONS,
+    AgentContext,
+    execute_tool,
+    preferences_view,
+    tool_content_json,
+    tool_specs,
+)
 from app.domain.preferences import PreferenceReport
 from app.domain.ranking import rank_options
 from app.domain.reports import Evaluation, EvaluationStatus
@@ -190,9 +196,7 @@ async def run_agent(
                     rationale=outcome.candidate.rationale,
                     evaluation=outcome.candidate.evaluation.model_dump(mode="json"),
                 )
-            messages.append(
-                {"role": "tool", "tool_call_id": call.id, "content": json.dumps(outcome.content, separators=(",", ":"))}
-            )
+            messages.append({"role": "tool", "tool_call_id": call.id, "content": tool_content_json(outcome.content)})
             terminal = terminal or outcome.terminal
         if terminal:
             stop_reason = "submitted"

@@ -247,7 +247,7 @@ async def test_loop_feeds_combination_fact_back_and_model_uses_it(scenario: Scen
     ctx = _ctx(scenario, _truck(65))
     events = [ev async for ev in run_agent(ctx, provider, budget, "", mode_label="test")]
 
-    assert events[0].data["prompt_version"] == "rr-agent-v6"
+    assert events[0].data["prompt_version"] == "rr-agent-v7"
     last_tool = json.loads([m for m in seen[4]["messages"] if m.get("role") == "tool"][-1]["content"])
     assert last_tool["combinable_partial_fixes"]["groups"][0]["candidate_ids"] == ["c1", "c2", "c3"]
     options = next(e for e in events if e.type == "options").data["options"]

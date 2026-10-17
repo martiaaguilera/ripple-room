@@ -14,7 +14,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from app.agent.feedback import COMBINE_NOTE, combinable_partials, coverage
+from app.agent.feedback import combinable_partials, coverage
 from app.domain.analysis import fmt_clock, impact_report
 from app.domain.effective import EffectiveProblem
 from app.domain.models import Intervention, Patch, Plan, Scenario, Shock, TaskDelayShock
@@ -180,7 +180,8 @@ def tool_specs() -> list[dict[str, Any]]:
     return [
         fn(
             TOOL_GET_SITUATION,
-            "Current plan state after the disruption: deadline, readiness, driving path, delayed tasks, resources, dependencies.",
+            "Plan after the disruption: deadline, driving path, tasks (with dependencies), resources, idle people,"
+            " verified playbook options.",
             empty,
         ),
         fn(
@@ -253,76 +254,113 @@ def _shock_text(scenario: Scenario, shock: Shock) -> str:
     return f"{res.label} unavailable {fmt_clock(shock.window.start)}-{fmt_clock(shock.window.end)}"
 
 
-def _situation(ctx: AgentContext) -> dict[str, Any]:
-    sc, impact = ctx.scenario, ctx.impact
-    timings = {t.task_id: t for t in impact.timings}
-    status = {t.task_id: t for t in impact.tasks}
-    tasks = []
+def tool_content_json(content: dict[str, Any]) -> str:
+    """The exact text a tool result is sent to the model as: compact, UTF-8 (no \\u escapes), stable order."""
+    return json.dumps(content, separators=(",", ":"), ensure_ascii=False)
+
+
+def _named(item_id: str, label: str) -> dict[str, str]:
+    """``id`` plus ``label`` only when the label says more than the id in words ("unload-truss" = "Unload truss")."""
+    return {"id": item_id} if label.lower() == item_id.replace("-", " ") else {"id": item_id, "label": label}
+
+
+def _span(start: int, duration: int) -> str:
+    return fmt_clock(start) if duration == 0 else f"{fmt_clock(start)}-{fmt_clock(start + duration)}"
+
+
+def _task_rows(ctx: AgentContext) -> list[dict[str, Any]]:
+    """One row per active task. Defaults and empty fields are omitted; dependencies live on the task ("after")."""
+    sc = ctx.scenario
+    timings = {t.task_id: t for t in ctx.impact.timings}
+    status = {t.task_id: t.status.value for t in ctx.impact.tasks}
+    after: dict[str, list[str]] = {}
+    for d in ctx.problem.dependencies:
+        after.setdefault(d.to_id, []).append(d.from_id)
+    rows = []
     for task in sc.tasks:
         if task.id not in ctx.problem.tasks:
             continue
+        duration = ctx.problem.tasks[task.id].duration
+        row: dict[str, Any] = {**_named(task.id, task.label), "duration": duration}
         t = timings.get(task.id)
-        row: dict[str, Any] = {
-            "id": task.id,
-            "label": task.label,
-            "duration": ctx.problem.tasks[task.id].duration,
-            "needs": [r.skill for r in task.requirements],
-            "status": status[task.id].status.value if task.id in status else "on_track",
-        }
         if t is not None:
-            row |= {"start": fmt_clock(t.start), "end": fmt_clock(t.end), "assigned": t.assignments}
+            row["time"] = _span(t.start, t.end - t.start)
+        if status.get(task.id, "on_track") != "on_track":
+            row["status"] = status[task.id]
+        if task.requirements:
+            row["needs"] = [r.skill for r in task.requirements]
+        if t is not None and t.assignments:
+            row["assigned"] = t.assignments
+        if task.id in after:
+            row["after"] = after[task.id]
         if task.min_duration is not None:
             row["can_shorten_to"] = task.min_duration
         if task.helper is not None:
             row["helper"] = {
                 "shortens_to": task.helper.duration,
-                "needs_skill": task.helper.skill,
                 "qualified": [r.id for r in sc.resources if task.helper.skill in r.skills],
-                "note": task.helper.note,
             }
         if task.optional:
             row["optional"] = True
         if task.deadline is not None:
             row["deadline"] = fmt_clock(task.deadline)
-        tasks.append(row)
-    resources = [
-        {
-            "id": r.id,
-            "label": r.label,
+        rows.append(row)
+    return rows
+
+
+def _resource_rows(ctx: AgentContext) -> list[dict[str, Any]]:
+    rows = []
+    for r in ctx.scenario.resources:
+        row: dict[str, Any] = {
+            **_named(r.id, r.label),
             "skills": list(r.skills),
             "available": f"{fmt_clock(r.available.start)}-{fmt_clock(r.available.end)}",
-            "blocked": [f"{fmt_clock(w.start)}-{fmt_clock(w.end)}" for w in ctx.problem.resources[r.id].blocked]
-            if r.id in ctx.problem.resources
-            else [],
-            "standby": r.standby and r.id not in ctx.problem.activated,
         }
-        for r in sc.resources
-    ]
+        blocked = ctx.problem.resources[r.id].blocked if r.id in ctx.problem.resources else ()
+        if blocked:
+            row["blocked"] = [f"{fmt_clock(w.start)}-{fmt_clock(w.end)}" for w in blocked]
+        if r.standby and r.id not in ctx.problem.activated:
+            row["standby"] = True
+        rows.append(row)
+    return rows
+
+
+def _playbook_view(ctx: AgentContext, c: Candidate) -> dict[str, Any]:
+    """A server-verified option, compared on the same measures as the model's own verified results."""
+    view = {"candidate_id": c.id, "what": c.rationale, **_evaluation_view(c.evaluation)}
+    del view["status"]  # always verified: playbook options are registered only after verification
+    view["tasks_changed_vs_doing_nothing"] = len(touched_tasks(c.evaluation, ctx.do_nothing))
+    return view
+
+
+def _situation(ctx: AgentContext) -> dict[str, Any]:
+    """The disrupted plan, as facts only. Coordinator preferences are in the user message, not repeated here."""
+    sc, impact = ctx.scenario, ctx.impact
+    timings = {t.task_id: t for t in impact.timings}
     sched = impact.schedule
-    return {
+    out: dict[str, Any] = {
         "deadline": fmt_clock(sched.deadline),
         "doors_ready_if_nobody_acts": fmt_clock(sched.readiness) if sched.readiness is not None else "never (blocked)",
-        "no_change_candidate": NO_CHANGE_ID if NO_CHANGE_ID in ctx.candidates else None,
         "minutes_late": sched.deadline_delta,
-        "disruptions": [_shock_text(sc, s) for s in ctx.revision.state.shocks],
-        "driving_path": [
-            {"task": tid, "start": fmt_clock(timings[tid].start), "why_not_earlier": timings[tid].binding.text}
-            for tid in sched.driving_path
-            if tid in timings
-        ],
-        "already_applied": [a.model_dump() for a in ctx.revision.state.committed.actions],
-        "coordinator_preferences": preferences_view(ctx.preferences),
-        "tasks": tasks,
-        "resources": resources,
-        "dependencies": [f"{d.from_id} -> {d.to_id}" for d in ctx.problem.dependencies],
-        "idle_people_during_critical_chain": idle_people(ctx),
-        "verified_playbook_options": [
-            {"candidate_id": c.id, "what": c.rationale, **_evaluation_view(c.evaluation)}
-            for c in ctx.candidates.values()
-            if c.origin == "playbook"
-        ],
-        **progress_facts(ctx),
     }
+    if NO_CHANGE_ID in ctx.candidates:
+        out["no_change_candidate"] = NO_CHANGE_ID
+    out["disruptions"] = [_shock_text(sc, s) for s in ctx.revision.state.shocks]
+    # "task HH:MM: why it cannot start earlier", in chain order.
+    out["driving_path"] = [
+        f"{tid} {fmt_clock(timings[tid].start)}: {timings[tid].binding.text}"
+        for tid in sched.driving_path
+        if tid in timings
+    ]
+    if ctx.revision.state.committed.actions:
+        out["already_applied"] = [a.model_dump() for a in ctx.revision.state.committed.actions]
+    out["tasks"] = _task_rows(ctx)
+    out["resources"] = _resource_rows(ctx)
+    out["idle_people_during_critical_chain"] = idle_people(ctx)
+    out["verified_playbook_options"] = [
+        _playbook_view(ctx, c) for c in ctx.candidates.values() if c.origin == "playbook"
+    ]
+    return out | progress_facts(ctx)
 
 
 def _inspect(ctx: AgentContext, args: InspectTaskArgs) -> ToolOutcome:
@@ -364,7 +402,6 @@ def _menu(ctx: AgentContext) -> ToolOutcome:
     content = {
         "menu": [
             {
-                "id": m.id,
                 "label": m.label,
                 "actions": [a.model_dump() for a in m.actions],
                 "cost": m.cost_hint,
@@ -373,13 +410,14 @@ def _menu(ctx: AgentContext) -> ToolOutcome:
             for m in ctx.menu
         ],
         "free_form_rules": [
-            "assign_resource {task_id, requirement_id, resource_id}: resource must have the skill and be active (activate standby first).",
+            "assign_resource {task_id, requirement_id, resource_id}: resource needs the skill and must be active"
+            " (activate standby first).",
             "pin_start {task_id, start 'HH:MM'}: fix a start time to force a resequence (e.g. unload something earlier).",
-            "add_helper {task_id, resource_id}: a second qualified person joins a task that allows it, shortening it."
-            " The helper is then busy for that time, which can delay their other work; the verifier shows the net effect.",
-            "compress_task accepts any duration between the minimum and the nominal; guest impact scales with the minutes cut,"
+            "add_helper {task_id, resource_id}: a second qualified person shortens a task that allows it; the helper"
+            " is busy meanwhile, which can delay their other work.",
+            "compress_task: any duration from the minimum to the nominal; guest impact scales with minutes cut,"
             " so cut only what is needed.",
-            "Combine menu actions and free-form actions in one patch. Smaller patches are better.",
+            "Menu and free-form actions combine in one patch. Smaller patches are better.",
         ],
         "evaluations_remaining": ctx.max_evaluations - ctx.evaluations_used,
     }
@@ -449,14 +487,10 @@ def idle_people(ctx: AgentContext) -> list[dict[str, Any]]:
                 could_help.append({"task": tid, "as": "helper (add_helper)", "shortens_to": task.helper.duration})
             elif any(req.skill in res.skills for req in task.requirements):
                 could_help.append({"task": tid, "as": "qualified to do it"})
-        out.append(
-            {
-                "person": res.id,
-                "label": res.label,
-                "free": [f"{fmt_clock(a)}-{fmt_clock(b)}" for a, b in free],
-                "could_help_on_chain": could_help,
-            }
-        )
+        row: dict[str, Any] = {"person": res.id, "free": [f"{fmt_clock(a)}-{fmt_clock(b)}" for a, b in free]}
+        if could_help:
+            row["could_help_on_chain"] = could_help
+        out.append(row)
     return out
 
 
@@ -470,7 +504,7 @@ def progress_facts(ctx: AgentContext) -> dict[str, Any]:
         out["coverage_of_your_verified_options"] = cov
     combos = combinable_partials(mine, ctx.impact.schedule.readiness)
     if combos:
-        out["combinable_partial_fixes"] = {"groups": combos, "note": COMBINE_NOTE}
+        out["combinable_partial_fixes"] = {"groups": combos}
     return out
 
 
@@ -485,7 +519,6 @@ def _evaluation_view(ev: Evaluation) -> dict[str, Any]:
             "service_impacts": [s.text for s in ev.service_impacts],
             "disruption_minutes": ev.disruption_minutes,
             "reassignments": ev.reassignments,
-            "changed_tasks": len(ev.changes),
         }
     if ev.violations:
         out["violations"] = [{"constraint": v.constraint_id, "message": v.message} for v in ev.violations]

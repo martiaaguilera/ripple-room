@@ -131,8 +131,6 @@ def coverage(
     return {
         "your_verified_options": [cid for cid, _ in mine],
         "not_yet_covered_by_your_options": gaps,
-        "note": "Gaps in your own verified options only. Whether an option filling a gap exists is unknown;"
-        " only evaluate_patch can tell.",
     }
 
 
@@ -195,9 +193,3 @@ def combinable_partials(
             )
     groups.sort(key=lambda g: g[0])
     return [g for _, g in groups[:MAX_COMBINATIONS]]
-
-
-COMBINE_NOTE = (
-    "Your own infeasible proposals that each gained minutes and change different tasks, not yet tried"
-    " together. Gains are not additive; put their actions in one evaluate_patch call to find out."
-)
