@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import type { Preferences, Scenario } from "@/lib/api/types";
 
 type Level = Preferences["guest_experience"];
@@ -34,8 +35,9 @@ export function PreferencesPanel({ scenario, value, onChange }: { scenario: Scen
   const set = (patch: Partial<Preferences>) => onChange({ ...value, ...patch, source: "structured" });
   const protectable = scenario.tasks.filter((t) => t.optional || t.min_duration != null);
   const protectedSet = new Set(value.protected_tasks ?? []);
+  const protectId = useId();
   return (
-    <div className="space-y-2" aria-label="Priorities">
+    <div role="group" className="space-y-2" aria-label="Priorities">
       <Segmented label="Guest experience" value={value.guest_experience} onChange={(v) => set({ guest_experience: v })} />
       <Segmented label="Extra spend" value={value.spend} onChange={(v) => set({ spend: v })} />
       <Segmented label="Crew plan" value={value.crew_stability} onChange={(v) => set({ crew_stability: v })} />
@@ -66,8 +68,8 @@ export function PreferencesPanel({ scenario, value, onChange }: { scenario: Scen
           className="w-20 rounded-md border border-line bg-raised px-2 py-1 text-right text-porcelain"
         />
       </div>
-      <div className="text-xs text-muted">
-        <span>Do not touch</span>
+      <div className="text-xs text-muted" role="group" aria-labelledby={protectId}>
+        <span id={protectId}>Do not touch</span>
         <div className="mt-1 flex flex-wrap gap-1.5">
           {protectable.map((t) => {
             const on = protectedSet.has(t.id);

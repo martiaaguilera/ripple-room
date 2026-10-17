@@ -101,12 +101,14 @@ export function ControlRoom() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line px-4 py-2.5 lg:px-6">
-        <Link
-          href="/"
-          className="font-display text-2xl font-extrabold tracking-wide"
-        >
-          Ripple Room
-        </Link>
+        <h1>
+          <Link
+            href="/"
+            className="font-display text-2xl font-extrabold tracking-wide"
+          >
+            Ripple Room
+          </Link>
+        </h1>
         <p className="text-sm text-muted">
           <span className="font-semibold text-porcelain">{scenario.name}</span>{" "}
           at {scenario.venue}, {date}
@@ -289,8 +291,10 @@ export function ControlRoom() {
           </div>
         </section>
 
+        {/* Scrolls sideways on phones and holds no controls, so it takes focus itself for arrow-key scrolling. */}
         <section
           aria-label="Timeline"
+          tabIndex={0}
           className="min-w-0 overflow-x-auto rounded-2xl border border-line bg-panel p-2 lg:col-start-1"
         >
           <div className="flex items-center justify-between px-2 pb-1 text-xs text-faint">

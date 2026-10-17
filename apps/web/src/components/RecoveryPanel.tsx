@@ -538,8 +538,10 @@ export function RecoveryPanel(props: PanelProps) {
               ? run.provider.live
                 ? `${modelName(run.provider.model)} on Nebius`
                 : "Simulated agent"
-              : "Starting…"}
-            <span className="ml-2 text-xs font-normal text-muted">
+              : run.status === "running"
+                ? "Starting…"
+                : "Agent did not start"}{" "}
+            <span className="ml-1 text-xs font-normal text-muted">
               {run.status === "running"
                 ? "working"
                 : `${run.events.filter((e) => e.type === "tool_result").length} tool calls`}
