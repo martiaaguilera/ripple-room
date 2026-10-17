@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from collections.abc import AsyncIterator
@@ -104,14 +105,17 @@ def _refund_global(reservation: Reservation | None, used: int) -> None:
         _quota.refund(reservation, used)
 
 
-def _guard(request: Request, scope: str) -> None:
-    """Kill switch, daily budget and per-client limits, checked before any model call."""
-    settings = get_settings()
-    if settings.ai_kill_switch:
+def _precheck(request: Request, scope: str, live: bool) -> None:
+    """Cheap, stateless checks that must run before any solver or model work."""
+    if live and get_settings().ai_kill_switch:
         raise ApiError(503, "AI_PAUSED", "Live AI is paused by the operator. The playbook search (no AI) still works.")
-    client = _client_key(request)
-    if not _limiter.allow(f"{scope}:{client}"):
+    if not _limiter.allow(f"{scope}:{_client_key(request)}"):
         raise ApiError(429, "RATE_LIMITED", "Too many requests. Try again in a minute.")
+
+
+def _guard(request: Request, scope: str) -> None:
+    """Daily budget and per-client allowance, charged only once a run will really start."""
+    client = _client_key(request)
     refusal = inference_budget.try_start(client)
     if refusal == "budget":
         raise ApiError(
@@ -130,17 +134,21 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
         provider = planner_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
+    _precheck(request, "recover", provider.live)
     preferences = req.preferences.model_copy(update={"source": "structured"}) if req.preferences else None
-    try:
-        ctx = AgentContext.build(scenario, req.revision, problem, settings.agent_max_evaluations, preferences)
-    except (KeyError, ValueError) as exc:
-        raise ApiError(400, "INVALID_REVISION", "The revision's plan cannot be analysed.") from exc
 
-    # Order matters: a busy instance must not consume the visitor's daily allowance or budget.
+    # Order matters: a busy instance must not consume the visitor's daily allowance or budget,
+    # and the (CPU-bound) context build only happens once a slot is held.
     if not _gate.try_acquire():
         raise ApiError(503, "BUSY", "Recovery engine is busy. Try again shortly.")
     reservation: Reservation | None = None
     try:
+        try:
+            ctx = await asyncio.to_thread(
+                AgentContext.build, scenario, req.revision, problem, settings.agent_max_evaluations, preferences
+            )
+        except (KeyError, ValueError) as exc:
+            raise ApiError(400, "INVALID_REVISION", "The revision's plan cannot be analysed.") from exc
         if provider.live:
             _guard(request, "recover")
             reservation = _reserve_global(settings.agent_max_total_tokens)
@@ -165,6 +173,7 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
 
     async def stream() -> AsyncIterator[str]:
         used_tokens = 0
+        clean_finish = False  # reached "done" with no provider error: every call's usage is known
         try:
             async for ev in run_agent(ctx, provider, budget, req.priorities, mode_label=mode):
                 if ev.type in ("model_call", "error", "done"):
@@ -174,9 +183,18 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
                     call_tokens = int(ev.data.get("usage", {}).get("total_tokens", 0))
                     used_tokens += call_tokens
                     inference_budget.record_tokens(call_tokens)
+                if ev.type == "error":
+                    clean_finish = False
+                if ev.type == "done":
+                    clean_finish = ev.data.get("stop_reason") != "provider_error"
                 yield f"event: {ev.type}\ndata: {ev.model_dump_json()}\n\n"
         finally:
-            release(used_tokens)
+            if provider.live and not clean_finish:
+                # A call may have been cut off or failed after being billed upstream: keep the reservation.
+                inference_budget.record_tokens(max(0, settings.agent_max_total_tokens - used_tokens))
+                release(settings.agent_max_total_tokens)
+            else:
+                release(used_tokens)
 
     # If the stream never starts (client gone before the first byte), the background task still releases.
     return StreamingResponse(
@@ -196,6 +214,7 @@ async def interpret_incident(req: InterpretRequest, request: Request) -> Interpr
         provider = fast_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
+    _precheck(request, "interpret", provider.live)
     reservation: Reservation | None = None
     if provider.live:
         _guard(request, "interpret")

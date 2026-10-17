@@ -123,3 +123,77 @@ def test_correlation_id_is_sanitised() -> None:
     assert client.get("/api/health", headers={"x-correlation-id": "abc-123"}).headers["x-correlation-id"] == "abc-123"
     weird = client.get("/api/health", headers={"x-correlation-id": "<script>" * 50}).headers["x-correlation-id"]
     assert "<" not in weird and len(weird) <= 64
+
+
+def test_kill_switch_refuses_recover_before_any_solver_work(
+    scenario: Scenario, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = Settings(ai_mode="live", nebius_api_key="test-key", ai_kill_switch=True)
+    monkeypatch.setattr(agent_routes, "get_settings", lambda: settings)
+
+    def boom(*_a: object, **_k: object) -> None:
+        raise AssertionError("context build (playbook search) must not run when AI is paused")
+
+    monkeypatch.setattr(agent_routes.AgentContext, "build", boom)
+    try:
+        res = TestClient(create_app()).post(
+            "/api/recover", json={"revision": baseline_revision(scenario).model_dump(mode="json")}
+        )
+        assert res.status_code == 503 and res.json()["error"]["code"] == "AI_PAUSED"
+    finally:
+        get_settings.cache_clear()
+
+
+def test_recover_is_rate_limited_before_solver_work(scenario: Scenario, monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.core.ratelimit import SlidingWindowLimiter
+
+    monkeypatch.setattr(agent_routes, "_limiter", SlidingWindowLimiter(1))
+    client = TestClient(create_app())
+    rev = baseline_revision(scenario).model_dump(mode="json")
+    with client.stream("POST", "/api/recover", json={"revision": rev}) as first:
+        assert first.status_code == 200
+        "".join(first.iter_text())
+    assert client.post("/api/recover", json={"revision": rev}).status_code == 429
+
+
+def test_unknown_resource_in_forged_plan_is_400_everywhere(scenario: Scenario) -> None:
+    state = baseline_revision(scenario).state
+    entries = tuple(
+        e.model_copy(update={"assignments": {"crew": "ghost-crew"}}) if e.task_id == "unload-truss" else e
+        for e in state.plan.entries
+    )
+    forged = make_revision(state.model_copy(update={"plan": Plan(entries=entries)})).model_dump(mode="json")
+    client = TestClient(create_app())
+    for path, extra in (("/api/view", {}), ("/api/search", {})):
+        assert client.post(path, json={"revision": forged, **extra}).status_code == 400, path
+    assert client.post("/api/shock", json={"revision": forged, "preset_id": "truck-delay-35"}).status_code == 400
+    plan = baseline_revision(scenario).state.plan.model_dump(mode="json")
+    assert (
+        client.post("/api/notice", json={"revision": forged, "patch": {"actions": []}, "plan": plan}).status_code == 400
+    )
+
+
+def test_failed_live_run_keeps_its_whole_reservation(scenario: Scenario, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A provider error may follow a billed call: the global quota must not refund it."""
+    settings = Settings(ai_mode="live", nebius_api_key="test-key", agent_max_total_tokens=50_000)
+    monkeypatch.setattr(agent_routes, "get_settings", lambda: settings)
+    fake = FakeUpstash()
+    monkeypatch.setattr(agent_routes, "_quota", _quota(fake, daily=10**9, lifetime=10**9))
+    failing = NebiusProvider(
+        api_key="k",
+        base_url="https://x.invalid/v1",
+        model="m",
+        max_retries=0,
+        transport=httpx.MockTransport(lambda r: httpx.Response(500, json={})),
+    )
+    monkeypatch.setattr(agent_routes, "planner_provider", lambda _s: failing)
+    try:
+        rev = baseline_revision(scenario).model_dump(mode="json")
+        with TestClient(create_app()).stream("POST", "/api/recover", json={"revision": rev}) as res:
+            assert res.status_code == 200
+            body = "".join(res.iter_text())
+        assert "event: error" in body
+        assert agent_routes._quota is not None
+        assert agent_routes._quota.usage()["today"] == 50_000
+    finally:
+        get_settings.cache_clear()

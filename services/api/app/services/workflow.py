@@ -82,6 +82,11 @@ def ensure_plan_shape(problem: EffectiveProblem, plan: Plan) -> None:
     entries = [e.task_id for e in plan.entries]
     if len(entries) != len(set(entries)) or set(entries) != set(problem.tasks):
         raise ApiError(400, "INVALID_REVISION", "The revision's plan does not match the scenario.")
+    known_resources = {r.id for r in problem.scenario.resources}
+    for entry in plan.entries:
+        slots = {req.id for req in problem.tasks[entry.task_id].requirements}
+        if not set(entry.assignments) <= slots or not set(entry.assignments.values()) <= known_resources:
+            raise ApiError(400, "INVALID_REVISION", "The revision's plan assigns unknown slots or resources.")
 
 
 def load_problem(scenario: Scenario, revision: Revision) -> EffectiveProblem:
@@ -106,7 +111,8 @@ def view(revision: Revision) -> RevisionView:
 
 
 def add_shock(revision: Revision, shock: Shock) -> RevisionView:
-    verify_revision(revision)
+    scenario = verify_revision(revision)
+    load_problem(scenario, revision)
     state = revision.state
     if len(state.shocks) >= 4:
         raise ApiError(422, "INVALID_SHOCK", "At most 4 disruptions per scenario; reset to start over.")
@@ -191,6 +197,7 @@ def apply(revision: Revision, base_revision_id: str, patch: Patch, plan: Plan) -
 def notice(revision: Revision, patch: Patch, plan: Plan) -> ChangeNotice:
     """Who must be told what, for a verified plan relative to the plan people currently hold."""
     scenario = verify_revision(revision)
+    load_problem(scenario, revision)
     state = revision.state
     merged = Patch(actions=(*state.committed.actions, *(a for a in patch.actions if a not in state.committed.actions)))
     problem = _problem(scenario, state.shocks, merged)
