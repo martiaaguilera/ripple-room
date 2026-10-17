@@ -175,3 +175,27 @@ Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed b
 ### Open
 - Owner: AI_KILL_SWITCH, Upstash approval, Nebius billing limits, live v6 re-measure (~$0.08 targeted / ~$0.25 full), video.
 - UX leftovers: venue scene scrolls sideways on phones; two-row top bar on phones.
+
+## 2026-10-18 — QA: automated accessibility gate (no live inference)
+
+- Added `@axe-core/playwright` 4.13.0 (pinned exact; 4.14.0 was two days old) and `apps/web/e2e/a11y.spec.ts`
+  (18 tests x desktop + mobile): axe (WCAG 2.0/2.1/2.2 A+AA + best-practice) on first screen, after truck +35,
+  options listed (mock run), recovery applied (incident desk open), live AI refused (error banner); serious/critical
+  fail, lower impacts become annotations. Finite animations are awaited first so contrast is measured on final colours.
+  Second gate: every rendered control is reached by Tab (radio groups = one stop) and has a role + non-empty name
+  in Chromium's accessibility tree (CDP); inventory attached to each test. Two self-tests prove both gates fail on
+  injected bad markup.
+- **Violations found and fixed:** `color-contrast` (serious) — `--faint` #66788a was 3.6–4.3:1 on graphite/panel/raised
+  (step labels, footer, hints, inspector labels, timeline captions) → #798a99 (>= 4.58:1 everywhere, still well
+  below `--muted`); `scrollable-region-focusable` (serious, mobile) — timeline section scrolls with no focusable
+  content → `tabIndex={0}` (already a named region); `page-has-heading-one` — brand wrapped in `<h1>`.
+  Name/semantics fixes proven by failing tests first: "Do not touch" toggles had no group context (now
+  `role=group` labelled by the visible text); trace summary read "Simulated agent6 tool calls" (missing space);
+  a refused run left the trace saying "Starting…" (now "Agent did not start"); `aria-label="Priorities"` on a
+  role-less div (now `role=group`).
+- Flake hardening: playbook-search and mock-run waits get 15 s (search is ~0.09 s alone; >5 s only seen in full
+  parallel runs while other agents loaded the machine).
+- **PROVEN:** web tsc, eslint, 20 unit, next build; Playwright 70/70 twice on port 8213 (8012 was held by another
+  process); backend 191 passed. Screenshots of the full journey reviewed, no console errors.
+- Observed, not changed: option cards are whole-card buttons whose accessible name is the entire card text (long
+  but complete); timeline row hover has no keyboard equivalent, but the graph nodes expose the same focus action.
