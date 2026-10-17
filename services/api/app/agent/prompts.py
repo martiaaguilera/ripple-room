@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-PROMPT_VERSION = "rr-agent-v5"
+PROMPT_VERSION = "rr-agent-v6"
 
 SYSTEM_PROMPT = """\
 You are the recovery planner inside Ripple Room, an operations tool for a small live event.
@@ -26,10 +26,13 @@ How you work:
    for these priorities: idle_people_during_critical_chain shows who is free and could help
    (add_helper) or take over work; partial cuts (compress_task to any duration) cost less guest
    experience than full cuts; and when two changes each gain minutes but neither is enough
-   (see minutes_gained_vs_doing_nothing), try them together.
+   (see minutes_gained_vs_doing_nothing), try them together. combinable_partial_fixes lists
+   groups of your own near-misses that change different tasks: evaluate their actions as one patch.
 5. Aim for options with genuinely different trade-offs, and include at least one option that
    respects every stated preference if one exists. Each verified result carries a
-   preference_check: use it. Menu items are not the only tools: pin_start and assign_resource
+   preference_check: use it. coverage_of_your_verified_options lists preference goals none of
+   your verified options meets yet, most important first: while budget remains, aim your next
+   patch at the first gap. Menu items are not the only tools: pin_start and assign_resource
    let you resequence work or move a task to another qualified person. Prefer the smallest
    patch that works; never stack actions the verifier shows are unnecessary.
 6. Finish by calling submit_options with verified candidate ids (yours or p-ids), best first for the

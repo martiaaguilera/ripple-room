@@ -14,6 +14,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from app.agent.feedback import COMBINE_NOTE, combinable_partials, coverage
 from app.domain.analysis import fmt_clock, impact_report
 from app.domain.effective import EffectiveProblem
 from app.domain.models import Intervention, Patch, Plan, Scenario, Shock, TaskDelayShock
@@ -320,6 +321,7 @@ def _situation(ctx: AgentContext) -> dict[str, Any]:
             for c in ctx.candidates.values()
             if c.origin == "playbook"
         ],
+        **progress_facts(ctx),
     }
 
 
@@ -458,6 +460,20 @@ def idle_people(ctx: AgentContext) -> list[dict[str, Any]]:
     return out
 
 
+def progress_facts(ctx: AgentContext) -> dict[str, Any]:
+    """Coverage gaps and untried combinations, computed only from the model's own candidates."""
+    mine = [(c.id, c.evaluation) for c in ctx.candidates.values() if c.origin == "model"]
+    server = [(c.id, c.evaluation) for c in ctx.candidates.values() if c.origin != "model"]
+    out: dict[str, Any] = {}
+    cov = coverage(mine, server, ctx.preferences, ctx.do_nothing)
+    if cov is not None:
+        out["coverage_of_your_verified_options"] = cov
+    combos = combinable_partials(mine, ctx.impact.schedule.readiness)
+    if combos:
+        out["combinable_partial_fixes"] = {"groups": combos, "note": COMBINE_NOTE}
+    return out
+
+
 def _evaluation_view(ev: Evaluation) -> dict[str, Any]:
     out: dict[str, Any] = {"status": ev.status.value}
     if ev.schedule is not None and ev.schedule.readiness is not None:
@@ -514,6 +530,7 @@ def _evaluate(ctx: AgentContext, args: EvaluatePatchArgs) -> ToolOutcome:
             "penalty_points": report.total_points,
             "tasks_changed_vs_doing_nothing": len(touched),
         }
+    content |= progress_facts(ctx)
     summary = f"{cid}: {ev.status.value}"
     if "doors_ready" in content:
         summary += f", doors ready {content['doors_ready']}"
