@@ -35,7 +35,8 @@ def create_app() -> FastAPI:
 
     @app.middleware("http")
     async def correlation_id(request: Request, call_next):  # type: ignore[no-untyped-def]
-        cid = request.headers.get("x-correlation-id") or uuid.uuid4().hex[:12]
+        raw = request.headers.get("x-correlation-id", "")
+        cid = raw[:64] if raw and raw.replace("-", "").isalnum() else uuid.uuid4().hex[:12]
         request.state.correlation_id = cid
         response: Response = await call_next(request)
         response.headers["x-correlation-id"] = cid

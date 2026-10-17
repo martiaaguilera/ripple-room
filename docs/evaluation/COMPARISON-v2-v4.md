@@ -51,3 +51,6 @@ v4 = v2 + (a) the last allowed model call forces `submit_options`; (b) a server-
 3. Raise the verifier-check budget from 6 to 8 only if (2) is not enough — measure cost per run first.
 
 Live re-measurement is **paused** until the owner authorises more inference spend.
+
+## Run integrity (from the raw JSON)
+- Model calls: 146 (v2) + 137 (v4) = 283; runs that ended with a provider error: 0 in both.

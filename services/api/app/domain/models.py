@@ -141,11 +141,13 @@ class Dependency(Frozen):
 class PlanEntry(Frozen):
     task_id: Identifier
     start: Minute
-    assignments: dict[str, Identifier] = Field(default_factory=dict, description="requirement id -> resource id")
+    assignments: dict[str, Identifier] = Field(
+        default_factory=dict, max_length=8, description="requirement id -> resource id"
+    )
 
 
 class Plan(Frozen):
-    entries: tuple[PlanEntry, ...]
+    entries: tuple[PlanEntry, ...] = Field(max_length=64)
 
     def by_task(self) -> dict[str, PlanEntry]:
         return {e.task_id: e for e in self.entries}

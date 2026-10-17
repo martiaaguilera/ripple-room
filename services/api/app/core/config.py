@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     recover_rate_per_minute: int = Field(default=3, ge=1, le=120)
     recover_max_concurrent: int = Field(default=3, ge=1, le=64)
+    solver_rate_per_minute: int = Field(default=40, ge=1, le=1_000)
 
     # Spend controls (per process, per UTC day). See docs/operations.md for the real worst case.
     ai_kill_switch: bool = Field(default=False, description="Emergency stop: no model calls at all.")

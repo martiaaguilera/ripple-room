@@ -255,7 +255,10 @@ async def interpret(scenario: Scenario, text: str, provider: ChatProvider, *, ma
 
     incidents: list[InterpretedIncident] = []
     rejected: list[RejectedItem] = []
-    for raw in (payload.get("incidents") or [])[:3]:
+    raw_incidents = payload.get("incidents") or []
+    if not isinstance(raw_incidents, list):
+        raise ProviderError("BAD_RESPONSE", "The model returned incidents in an unexpected shape.")
+    for raw in raw_incidents[:3]:
         outcome = _incident(scenario, raw if isinstance(raw, dict) else {"value": raw})
         if isinstance(outcome, InterpretedIncident):
             incidents.append(outcome)

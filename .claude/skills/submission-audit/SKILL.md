@@ -14,6 +14,6 @@ allowed-tools: Bash(git *) Bash(grep *)
    claim statistical significance or that the agent is "better" overall.
 3. Attribution: Claude Code is the dev tool only; runtime AI is Nemotron on Nebius. Mock output never
    described as live. Fictional scenario stated.
-4. Secrets: `git grep -nE "NEBIUS_API_KEY=.{8,}|v1\.CmQK|Bearer [A-Za-z0-9]{20,}"` must be empty;
+4. Secrets: `git grep -nE "NEBIUS_API_KEY=[^[:space:]]{8,}|v1\.CmQK|Bearer [A-Za-z0-9]{20,}"` must be empty;
    `.env` files untracked.
 5. Output a PASS / FIX / BLOCKED table with file:line references. Do not submit anything to Devpost.

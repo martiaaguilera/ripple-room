@@ -104,13 +104,14 @@ class UpstashQuota:
         return Reservation(tokens=tokens, day=day) if granted else None
 
     def refund(self, reservation: Reservation, used: int) -> None:
-        unused = max(0, reservation.tokens - max(0, used))
-        if unused == 0:
+        delta = reservation.tokens - max(0, used)  # > 0: give back; < 0: charge the overshoot
+        if delta == 0:
             return
         daily_key, total_key = self._keys(reservation.day)
+        op = "DECRBY" if delta > 0 else "INCRBY"
         try:
-            self._command("DECRBY", daily_key, unused)
-            self._command("DECRBY", total_key, unused)
+            self._command(op, daily_key, abs(delta))
+            self._command(op, total_key, abs(delta))
         except QuotaUnavailableError:
             pass  # failing to refund only overcounts spend; never undercounts
 

@@ -29,7 +29,7 @@ EventType = Literal[
     "run_started", "phase", "model_call", "tool_call", "tool_result", "candidate", "options", "error", "done"
 ]
 
-_EXCERPT = 600
+_EXCERPT = 240  # model text echoed to clients is kept short (abuse surface)
 # On the last allowed call the model must choose from what it has verified, so every run ends with its own pick.
 _FINALIZE: dict[str, Any] = {"type": "function", "function": {"name": TOOL_SUBMIT_OPTIONS}}
 

@@ -9,21 +9,22 @@ from collections.abc import AsyncIterator
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
+from starlette.background import BackgroundTask
 
 from app.agent.interpret import MAX_TEXT, Interpretation, interpret
 from app.agent.runner import Budget, run_agent
 from app.agent.tools import AgentContext
 from app.core.budget import BudgetLimits, InferenceBudget
+from app.core.clientip import client_key
 from app.core.config import get_settings
 from app.core.errors import ApiError
 from app.core.quota import GlobalQuota, QuotaUnavailableError, Reservation, UpstashQuota
 from app.core.ratelimit import ConcurrencyGate, SlidingWindowLimiter
-from app.domain.effective import compile_problem
 from app.domain.preferences import Preferences
 from app.domain.revision import Revision
 from app.providers.base import ProviderError
 from app.providers.factory import fast_provider, planner_provider
-from app.services.workflow import verify_revision
+from app.services.workflow import load_problem, verify_revision
 
 log = logging.getLogger("ripple.agent")
 router = APIRouter(prefix="/api")
@@ -56,16 +57,7 @@ class InterpretRequest(BaseModel):
 
 
 def _client_key(request: Request) -> str:
-    """Client IP for rate limiting. Prefer headers the platform sets and clients cannot forge:
-    on Vercel, x-vercel-forwarded-for / x-real-ip; the first x-forwarded-for entry is client-controlled."""
-    for header in ("x-vercel-forwarded-for", "x-real-ip"):
-        value = request.headers.get(header, "").split(",")[0].strip()
-        if value:
-            return value
-    forwarded = [h.strip() for h in request.headers.get("x-forwarded-for", "").split(",") if h.strip()]
-    if forwarded:
-        return forwarded[-1]  # the hop appended by the nearest proxy, not the client's claim
-    return request.client.host if request.client else "unknown"
+    return client_key(request)
 
 
 _quota: GlobalQuota | None = None
@@ -133,25 +125,28 @@ def _guard(request: Request, scope: str) -> None:
 async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
     settings = get_settings()
     scenario = verify_revision(req.revision)
-    state = req.revision.state
-    problem, static = compile_problem(scenario, state.shocks, state.committed)
-    if problem is None:
-        raise ApiError(
-            400, "INVALID_REVISION", "Committed interventions are invalid.", [v.model_dump() for v in static]
-        )
+    problem = load_problem(scenario, req.revision)  # 400 on malformed or forged plans, before any cost
     try:
         provider = planner_provider(settings)
     except ProviderError as exc:
         raise ApiError(503, "MODEL_UNAVAILABLE", str(exc)) from exc
-    reservation: Reservation | None = None
-    if provider.live:
-        _guard(request, "recover")
-        reservation = _reserve_global(settings.agent_max_total_tokens)
-    if not _gate.try_acquire():
-        _refund_global(reservation, 0)
-        raise ApiError(503, "BUSY", "Recovery engine is busy. Try again shortly.")
+    preferences = req.preferences.model_copy(update={"source": "structured"}) if req.preferences else None
+    try:
+        ctx = AgentContext.build(scenario, req.revision, problem, settings.agent_max_evaluations, preferences)
+    except (KeyError, ValueError) as exc:
+        raise ApiError(400, "INVALID_REVISION", "The revision's plan cannot be analysed.") from exc
 
-    ctx = AgentContext.build(scenario, req.revision, problem, settings.agent_max_evaluations, req.preferences)
+    # Order matters: a busy instance must not consume the visitor's daily allowance or budget.
+    if not _gate.try_acquire():
+        raise ApiError(503, "BUSY", "Recovery engine is busy. Try again shortly.")
+    reservation: Reservation | None = None
+    try:
+        if provider.live:
+            _guard(request, "recover")
+            reservation = _reserve_global(settings.agent_max_total_tokens)
+    except BaseException:
+        _gate.release()
+        raise
     budget = Budget(
         max_model_calls=settings.agent_max_model_calls,
         max_total_tokens=settings.agent_max_total_tokens,
@@ -159,17 +154,21 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
         max_output_tokens=settings.agent_max_output_tokens,
     )
     mode = "live" if provider.live else "mock"
+    released = False
+
+    def release(used: int) -> None:
+        nonlocal released
+        if not released:
+            released = True
+            _gate.release()
+            _refund_global(reservation, used)
 
     async def stream() -> AsyncIterator[str]:
         used_tokens = 0
         try:
             async for ev in run_agent(ctx, provider, budget, req.priorities, mode_label=mode):
                 if ev.type in ("model_call", "error", "done"):
-                    log.info(
-                        "agent_event type=%s data=%s",
-                        ev.type,
-                        json.dumps(ev.data, default=str)[:600],
-                    )
+                    log.info("agent_event type=%s data=%s", ev.type, json.dumps(ev.data, default=str)[:600])
                 if ev.type == "model_call" and provider.live:
                     # Counted per call, so a client that disconnects mid-run is still charged to the budget.
                     call_tokens = int(ev.data.get("usage", {}).get("total_tokens", 0))
@@ -177,13 +176,14 @@ async def recover(req: RecoverRequest, request: Request) -> StreamingResponse:
                     inference_budget.record_tokens(call_tokens)
                 yield f"event: {ev.type}\ndata: {ev.model_dump_json()}\n\n"
         finally:
-            _gate.release()
-            _refund_global(reservation, used_tokens)
+            release(used_tokens)
 
+    # If the stream never starts (client gone before the first byte), the background task still releases.
     return StreamingResponse(
         stream(),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
+        background=BackgroundTask(release, settings.agent_max_total_tokens),
     )
 
 
@@ -208,6 +208,8 @@ async def interpret_incident(req: InterpretRequest, request: Request) -> Interpr
             inference_budget.record_tokens(result.total_tokens)
         return result
     except ProviderError as exc:
+        if provider.live:  # the call may have been billed even though parsing failed
+            inference_budget.record_tokens(settings.ai_interpret_token_reservation)
         status = 429 if exc.code == "RATE_LIMITED" else 503
         code = exc.code if exc.code in ("RATE_LIMITED", "CREDIT_EXHAUSTED") else "MODEL_UNAVAILABLE"
         raise ApiError(status, code, str(exc)) from exc

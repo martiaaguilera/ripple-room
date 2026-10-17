@@ -4,13 +4,15 @@ from __future__ import annotations
 
 from importlib.metadata import version
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import __version__
 from app.api.agent_routes import inference_budget
+from app.core.clientip import client_key
 from app.core.config import get_settings
 from app.core.errors import ApiError
+from app.core.ratelimit import SlidingWindowLimiter
 from app.domain.models import Patch, Plan, Scenario, Shock
 from app.domain.notice import ChangeNotice
 from app.domain.preferences import Preferences
@@ -19,6 +21,15 @@ from app.domain.revision import Revision, baseline_revision
 from app.fixtures import DEMO_SCENARIO_ID, SHOCK_PRESETS, ShockPreset, load_scenario, preset
 from app.services import workflow
 from app.solver.search import MenuItem, intervention_menu
+
+_solver_limiter = SlidingWindowLimiter(get_settings().solver_rate_per_minute)
+
+
+def solver_rate_limit(request: Request) -> None:
+    """Every solver-backed endpoint costs CPU; cap it per client so the free tier stays up."""
+    if not _solver_limiter.allow(client_key(request)):
+        raise ApiError(429, "RATE_LIMITED", "Too many requests. Try again in a minute.")
+
 
 router = APIRouter(prefix="/api")
 
@@ -115,7 +126,7 @@ def demo() -> DemoPayload:
     )
 
 
-@router.post("/shock")
+@router.post("/shock", dependencies=[Depends(solver_rate_limit)])
 def shock(req: ShockRequest) -> workflow.RevisionView:
     if (req.preset_id is None) == (req.shock is None):
         raise ApiError(422, "INVALID_SHOCK", "Provide exactly one of preset_id or shock.")
@@ -130,19 +141,20 @@ def shock(req: ShockRequest) -> workflow.RevisionView:
     return workflow.add_shock(req.revision, chosen)
 
 
-@router.post("/view")
+@router.post("/view", dependencies=[Depends(solver_rate_limit)])
 def view(req: RevisionRequest) -> workflow.RevisionView:
     return workflow.view(req.revision)
 
 
-@router.post("/evaluate")
+@router.post("/evaluate", dependencies=[Depends(solver_rate_limit)])
 def evaluate(req: EvaluateRequest) -> Evaluation:
     return workflow.evaluate(req.revision, req.patch)
 
 
-@router.post("/search")
+@router.post("/search", dependencies=[Depends(solver_rate_limit)])
 def search(req: SearchRequest) -> workflow.SearchResponse:
-    return workflow.search(req.revision, req.preferences)
+    prefs = req.preferences.model_copy(update={"source": "structured"}) if req.preferences else None
+    return workflow.search(req.revision, prefs)
 
 
 class NoticeRequest(In):
@@ -151,11 +163,11 @@ class NoticeRequest(In):
     plan: Plan
 
 
-@router.post("/notice")
+@router.post("/notice", dependencies=[Depends(solver_rate_limit)])
 def notice(req: NoticeRequest) -> ChangeNotice:
     return workflow.notice(req.revision, req.patch, req.plan)
 
 
-@router.post("/apply")
+@router.post("/apply", dependencies=[Depends(solver_rate_limit)])
 def apply(req: ApplyRequest) -> workflow.RevisionView:
     return workflow.apply(req.revision, req.base_revision_id, req.patch, req.plan)

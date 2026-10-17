@@ -38,6 +38,9 @@ class FakeUpstash:
                 return httpx.Response(200, json={"result": -1})
             self.data[day_key], self.data[total_key] = day, total
             return httpx.Response(200, json={"result": day})
+        if op == "INCRBY":
+            self.data[cmd[1]] = self.data.get(cmd[1], 0) + int(cmd[2])
+            return httpx.Response(200, json={"result": self.data[cmd[1]]})
         if op == "DECRBY":
             self.data[cmd[1]] = self.data.get(cmd[1], 0) - int(cmd[2])
             return httpx.Response(200, json={"result": self.data[cmd[1]]})

@@ -77,10 +77,25 @@ def _problem(scenario: Scenario, shocks: tuple[Shock, ...], committed: Patch) ->
     return problem
 
 
+def ensure_plan_shape(problem: EffectiveProblem, plan: Plan) -> None:
+    """Reject forged revisions whose plan does not schedule exactly the scenario's tasks."""
+    entries = [e.task_id for e in plan.entries]
+    if len(entries) != len(set(entries)) or set(entries) != set(problem.tasks):
+        raise ApiError(400, "INVALID_REVISION", "The revision's plan does not match the scenario.")
+
+
+def load_problem(scenario: Scenario, revision: Revision) -> EffectiveProblem:
+    """Compile the revision's problem and check its plan's shape (shared by every endpoint)."""
+    state = revision.state
+    problem = _problem(scenario, state.shocks, state.committed)
+    ensure_plan_shape(problem, state.plan)
+    return problem
+
+
 def view(revision: Revision) -> RevisionView:
     scenario = verify_revision(revision)
     state = revision.state
-    problem = _problem(scenario, state.shocks, state.committed)
+    problem = load_problem(scenario, revision)
     violations = validate_plan(problem, state.plan)
     if not violations:
         timings, schedule = schedule_timings(problem, state.plan)
@@ -110,14 +125,14 @@ def add_shock(revision: Revision, shock: Shock) -> RevisionView:
 def evaluate(revision: Revision, patch: Patch) -> Evaluation:
     scenario = verify_revision(revision)
     state = revision.state
-    _problem(scenario, state.shocks, state.committed)
+    load_problem(scenario, revision)
     return evaluate_patch(scenario, state.shocks, state.committed, patch, state.plan)
 
 
 def search(revision: Revision, preferences: Preferences | None = None) -> SearchResponse:
     scenario = verify_revision(revision)
     state = revision.state
-    problem = _problem(scenario, state.shocks, state.committed)
+    problem = load_problem(scenario, revision)
     result = search_recoveries(scenario, state.shocks, state.committed, state.plan)
     combos = {f"search-{i + 1}": combo for i, combo in enumerate(result.verified)}
     ranked = rank_options(
