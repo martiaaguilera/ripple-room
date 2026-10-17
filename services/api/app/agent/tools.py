@@ -604,7 +604,9 @@ _ARGS: dict[str, type[Strict]] = {
 def execute_tool(ctx: AgentContext, name: str, raw_arguments: str) -> ToolOutcome:
     model = _ARGS.get(name)
     if model is None:
-        return ToolOutcome({"error": f"unknown tool {name!r}"}, "diagnose", f"rejected unknown tool {name!r}", ok=False)
+        return ToolOutcome(
+            {"error": f"unknown tool {name[:48]!r}"}, "diagnose", f"rejected unknown tool {name[:48]!r}", ok=False
+        )
     try:
         parsed_json = json.loads(raw_arguments or "{}")
     except json.JSONDecodeError:

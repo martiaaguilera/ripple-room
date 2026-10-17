@@ -165,6 +165,14 @@ def _system_prompt(scenario: Scenario) -> str:
     )
 
 
+_RAW_KEYS = ("kind", "task_id", "delay_minutes", "resource_id", "start", "end", "evidence")
+
+
+def _safe_raw(raw: dict[str, Any]) -> dict[str, Any]:
+    """Echo only known keys, with short values: rejected items must not become a free-text channel."""
+    return {k: (str(raw[k])[:120] if not isinstance(raw[k], int | float) else raw[k]) for k in _RAW_KEYS if k in raw}
+
+
 def _parse_clock(value: str | None) -> int | None:
     if not value:
         return None
@@ -180,15 +188,15 @@ def _incident(scenario: Scenario, raw: dict[str, Any]) -> InterpretedIncident | 
     try:
         item = _RawIncident.model_validate(raw)
     except ValidationError as exc:
-        return RejectedItem(raw=raw, reason=f"Malformed incident: {exc.errors()[0]['msg']}")
+        return RejectedItem(raw=_safe_raw(raw), reason=f"Malformed incident: {exc.errors()[0]['msg']}")
     task_ids = {t.id for t in scenario.tasks}
     resource_ids = {r.id for r in scenario.resources if not r.standby}
     try:
         if item.kind == "task_delay":
             if item.task_id not in task_ids:
-                return RejectedItem(raw=raw, reason=f"Unknown task {item.task_id!r}.")
+                return RejectedItem(raw=_safe_raw(raw), reason=f"Unknown task {item.task_id!r}.")
             if item.delay_minutes is None:
-                return RejectedItem(raw=raw, reason="No delay length was stated.")
+                return RejectedItem(raw=_safe_raw(raw), reason="No delay length was stated.")
             shock: Shock = TaskDelayShock(task_id=item.task_id, delay_minutes=item.delay_minutes)
             task = scenario.task(item.task_id)
             text = (
@@ -196,14 +204,14 @@ def _incident(scenario: Scenario, raw: dict[str, Any]) -> InterpretedIncident | 
             )
         else:
             if item.resource_id not in resource_ids:
-                return RejectedItem(raw=raw, reason=f"Unknown resource {item.resource_id!r}.")
+                return RejectedItem(raw=_safe_raw(raw), reason=f"Unknown resource {item.resource_id!r}.")
             start, end = _parse_clock(item.start), _parse_clock(item.end)
             if start is None or end is None:
-                return RejectedItem(raw=raw, reason="The unavailable time window is missing or unreadable.")
+                return RejectedItem(raw=_safe_raw(raw), reason="The unavailable time window is missing or unreadable.")
             shock = ResourceUnavailableShock(resource_id=item.resource_id, window=Window(start=start, end=end))
             text = f"{scenario.resource(item.resource_id).label} unavailable {fmt_clock(start)}–{fmt_clock(end)}"
     except ValidationError as exc:
-        return RejectedItem(raw=raw, reason=f"Out of bounds: {exc.errors()[0]['msg']}")
+        return RejectedItem(raw=_safe_raw(raw), reason=f"Out of bounds: {exc.errors()[0]['msg']}")
     return InterpretedIncident(shock=shock, restatement=text, evidence=item.evidence)
 
 
@@ -268,7 +276,8 @@ async def interpret(scenario: Scenario, text: str, provider: ChatProvider, *, ma
     prefs, notes = _preferences(scenario, payload.get("priorities"), source)
     summary = str(payload.get("summary") or "")[:300]
     prefs = prefs.model_copy(update={"summary": summary})
-    unclear = [str(u)[:200] for u in (payload.get("unclear") or [])][:5] + notes
+    raw_unclear = payload.get("unclear") or []
+    unclear = [str(u)[:200] for u in (raw_unclear if isinstance(raw_unclear, list) else [raw_unclear])][:5] + notes
     return Interpretation(
         incidents=incidents,
         rejected=rejected,

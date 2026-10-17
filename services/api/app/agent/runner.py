@@ -183,12 +183,14 @@ async def run_agent(
 
         terminal = False
         for call in result.tool_calls:
-            yield event("tool_call", id=call.id, name=call.name, arguments=_excerpt(call.arguments))
+            yield event("tool_call", id=call.id[:64], name=call.name[:48], arguments=_excerpt(call.arguments))
             outcome = await asyncio.to_thread(execute_tool, ctx, call.name, call.arguments)
             if outcome.phase != last_phase:
                 last_phase = outcome.phase
                 yield event("phase", name=outcome.phase)
-            yield event("tool_result", id=call.id, name=call.name, ok=outcome.ok, summary=outcome.summary)
+            yield event(
+                "tool_result", id=call.id[:64], name=call.name[:48], ok=outcome.ok, summary=outcome.summary[:240]
+            )
             if outcome.candidate is not None:
                 yield event(
                     "candidate",

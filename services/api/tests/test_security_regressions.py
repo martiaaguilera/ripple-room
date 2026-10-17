@@ -197,3 +197,33 @@ def test_failed_live_run_keeps_its_whole_reservation(scenario: Scenario, monkeyp
         assert agent_routes._quota.usage()["today"] == 50_000
     finally:
         get_settings.cache_clear()
+
+
+async def test_rejected_interpretation_items_are_not_a_free_text_channel(scenario: Scenario) -> None:
+    long_text = "x" * 5000
+    args = {
+        "incidents": [
+            {"kind": "task_delay", "task_id": "ghost", "delay_minutes": 5, "evidence": long_text, "essay": long_text}
+        ],
+        "priorities": {},
+        "unclear": 7,
+        "summary": "",
+    }
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        msg = {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                {"id": "c", "type": "function", "function": {"name": "report_situation", "arguments": json.dumps(args)}}
+            ],
+        }
+        return httpx.Response(200, json={"model": "m", "choices": [{"message": msg}], "usage": {"total_tokens": 9}})
+
+    provider = NebiusProvider(
+        api_key="k", base_url="https://x.invalid/v1", model="m", transport=httpx.MockTransport(handler)
+    )
+    result = await interpret(scenario, "late", provider)
+    raw = result.rejected[0].raw
+    assert "essay" not in raw and len(raw["evidence"]) <= 120
+    assert result.unclear[0] == "7"
