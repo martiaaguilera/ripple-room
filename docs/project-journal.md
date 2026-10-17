@@ -132,3 +132,27 @@ Status legend: **PROVEN** (run and observed) · **NOT VERIFIED** · **BLOCKED** 
 
 ### Next measurable milestone (needs owner approval, ~$0.25)
 Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed best = oracle" separately.
+
+## 2026-10-18 — QA: failure states, keyboard journey, spend-guard accounting (no live inference)
+
+- New E2E `apps/web/e2e/resilience.spec.ts` (12 tests x desktop + mobile), all AI failures faked with
+  `page.route`: health `paused` / `budget_exhausted` (AI button disabled with reason, playbook recovers + applies,
+  zero `/api/recover|interpret` calls); recover 503 `AI_PAUSED` / `AI_BUDGET_EXHAUSTED` / `MODEL_UNAVAILABLE`
+  (message shown, revision unchanged, no Nemotron attribution, playbook recovers); interpret 503; apply failing by
+  network drop / 409 stale / 502 HTML (banner, plan + revision unchanged, retry succeeds); keyboard-only
+  start → find → option card → Apply → Undo with `:focus-visible` ring checked at each step.
+- **Bugs found and fixed** (`apps/web/src/lib/api/sse.ts`, proven by failing E2E first):
+  1. A recovery stream that closed without a `done` event (proxy/platform timeout) left the UI "working /
+     Waiting for the next step…" forever with Undo disabled. Now rejects with `STREAM_CUT` and a recoverable message.
+  2. A network failure on `/api/recover` showed the raw browser text "Failed to fetch". Now the same plain-language
+     message as every other endpoint.
+- New unit tests `src/lib/api/sse.test.ts` (4) and backend `tests/test_guards_and_revisions.py` (17): real-older and
+  double-submit stale revisions (409), tampered revision precedes stale check, edited plan → PLAN_INVALID,
+  `/api/notice` happy path + tampered + infeasible + schema validation, mock runs never touch the budget,
+  per-client cap and rate limit refuse before any model call, BUSY refunds the global reservation, live run
+  (fake Nebius transport) charges actual tokens and refunds the rest, interpret failure keeps worst-case charge.
+- **PROVEN:** backend 172 tests, ruff, ruff format, mypy clean; web 18 unit, eslint, tsc clean; Playwright 40/40
+  (and 72/72 with `--repeat-each=3` on the new spec). E2E ran on port 8031 because 8012 was in use by another process.
+- Observed, not changed (product decisions): after a 503 from `/api/recover` the AI badge still says live and the
+  composer still credits Nemotron until reload; `_guard` counts a local run before the global reservation, so a
+  refused global reservation or BUSY still consumes one local daily run.
