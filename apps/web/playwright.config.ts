@@ -6,7 +6,7 @@ import path from "node:path";
  * origin, with the clearly labelled mock agent (no network, no model cost).
  * Build first: `npm run build`.
  */
-const PORT = 8010;
+const PORT = Number(process.env.E2E_PORT ?? 8010);
 const apiDir = path.resolve(__dirname, "../../services/api");
 
 export default defineConfig({
