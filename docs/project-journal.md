@@ -156,3 +156,22 @@ Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed b
 - Observed, not changed (product decisions): after a 503 from `/api/recover` the AI badge still says live and the
   composer still credits Nemotron until reload; `_guard` counts a local run before the global reservation, so a
   refused global reservation or BUSY still consumes one local daily run.
+
+## 2026-10-18 — Specialist agents (project agents + skills)
+
+- Added `.claude/agents/` (ux-designer, qa-engineer, agent-engineer, security-auditor, submission-writer) and
+  `.claude/skills/` (visual-qa, solver-audit, submission-audit). New agent types register on the next session;
+  this session ran them as general-purpose agents that load their definition and skills.
+- Merged results (all tests green, CI green):
+  - agent-engineer: prompt v6 — coverage gaps + combinable near-misses fed back to the model (10 tests). Live effect NOT VERIFIED.
+  - security-auditor: 16 findings; fixed the reproduced /recover slot leak and budget-drain paths, overshoot
+    charging, solver-endpoint rate limit, interpretation accounting, size limits, headers (regression tests).
+  - qa-engineer: 2 real UI bugs fixed (hung run on truncated stream; raw "Failed to fetch"); resilience E2E,
+    keyboard journey, guard/revision tests. Totals: backend 191, web unit 20, E2E 40/40.
+  - ux-designer: doors-gap header, legible verifier board, compact option cards, mobile copy/step guide.
+  - submission-writer: Devpost draft, feedback write-up, README; corrected c19-v2 claim and Super's region.
+- Production still `ai.status=live` at time of writing (kill switch not yet set by owner).
+
+### Open
+- Owner: AI_KILL_SWITCH, Upstash approval, Nebius billing limits, live v6 re-measure (~$0.08 targeted / ~$0.25 full), video.
+- UX leftovers: venue scene scrolls sideways on phones; two-row top bar on phones.
