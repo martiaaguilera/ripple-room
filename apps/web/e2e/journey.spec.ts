@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const lateHeading = (page: Page) => page.getByRole("heading", { name: /Doors \d+ min late/ });
+/** CP-SAT search is ~0.1 s alone; allow for CPU contention when suites run in parallel. */
+const SEARCH_TIMEOUT = 15_000;
 const startButton = (page: Page) => page.getByRole("button", { name: "What if the truck arrives 35 minutes late?" });
 
 test.describe("control room journey", () => {
@@ -60,7 +62,7 @@ test.describe("control room journey", () => {
     await expect(lateHeading(page)).toBeVisible();
     await page.getByText("Protect").nth(1).click(); // Extra spend: protect
     await page.getByRole("button", { name: "Or run the playbook search without AI" }).click();
-    await expect(page.locator("article").first()).toContainText("€0");
+    await expect(page.locator("article").first()).toContainText("€0", { timeout: SEARCH_TIMEOUT });
   });
 
   test("impossible incident is reported honestly", async ({ page }) => {
@@ -68,7 +70,7 @@ test.describe("control room journey", () => {
     await page.getByRole("button", { name: /Truck breakdown \+90/ }).click();
     await expect(lateHeading(page)).toBeVisible();
     await page.getByRole("button", { name: "Or run the playbook search without AI" }).click();
-    await expect(page.getByText("No verified recovery found.")).toBeVisible();
+    await expect(page.getByText("No verified recovery found.")).toBeVisible({ timeout: SEARCH_TIMEOUT });
     await expect(page.getByRole("button", { name: "Apply this plan" })).toHaveCount(0);
   });
 

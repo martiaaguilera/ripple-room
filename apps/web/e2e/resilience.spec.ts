@@ -39,7 +39,8 @@ async function shockTruck(page: Page) {
 }
 
 async function playbookWorksAndApplies(page: Page) {
-  await expect(page.getByText("Standard fix from the playbook search, verified").first()).toBeVisible();
+  // CP-SAT menu search: allow for CPU contention when the suite runs in parallel.
+  await expect(page.getByText("Standard fix from the playbook search, verified").first()).toBeVisible({ timeout: 15_000 });
   await applyButton(page).click();
   await expect(page.getByRole("heading", { name: "Recovery applied" })).toBeVisible();
 }
