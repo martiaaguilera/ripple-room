@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import type { AgentEvent } from "@/lib/api/sse";
 import type { Health, Preferences, Scenario } from "@/lib/api/types";
 import { clock, delta, eur } from "@/lib/format";
@@ -174,7 +175,7 @@ function OptionCard({
   return (
     <li>
       <article
-        className={`rounded-xl border p-3 transition-colors ${selected ? "border-focus bg-[#121b2a]" : "border-line bg-panel"}`}
+        className={`rounded-xl border p-3 transition-colors ${selected ? "border-focus bg-[#121b2a]" : "border-line bg-panel hover:border-line-strong"}`}
       >
         <button
           type="button"
@@ -207,13 +208,13 @@ function OptionCard({
                         : `Simulated agent listed it #${option.modelRank}`}
               </p>
             </div>
-            <span className="shrink-0 rounded border border-signal/40 px-1.5 py-px text-[11px] font-semibold text-signal">
-              Verified
+            <span className="shrink-0 rounded border border-signal/50 bg-[#0d2422] px-1.5 py-px text-[11px] font-bold text-signal">
+              <span aria-hidden>✓ </span>Verified
             </span>
           </div>
           <dl className="mt-2 grid grid-cols-3 gap-2 text-xs">
             <div>
-              <dt className="text-faint">Ready</dt>
+              <dt className="text-muted">Ready</dt>
               <dd className="font-display text-xl font-bold">
                 {ready != null ? clock(ready) : "—"}
               </dd>
@@ -226,54 +227,73 @@ function OptionCard({
               </dd>
             </div>
             <div>
-              <dt className="text-faint">Extra cost</dt>
+              <dt className="text-muted">Extra cost</dt>
               <dd className="font-display text-xl font-bold">
                 {eur(ev.cost_cents)}
               </dd>
             </div>
             <div>
-              <dt className="text-faint">Tasks touched</dt>
+              <dt className="text-muted">Tasks touched</dt>
               <dd className="font-display text-xl font-bold">
                 {option.touched.length}
               </dd>
             </div>
           </dl>
-          <p
-            className={`mt-2 text-xs ${impacts.length ? "text-amber" : "text-muted"}`}
-          >
-            {impacts.length
-              ? `Guest-facing trade-off: ${impacts.join("; ")}`
-              : "No guest-facing trade-off."}
-          </p>
-          {breaches.length > 0 ? (
-            <ul className="mt-1 space-y-0.5 text-xs text-amber">
-              {breaches.map((b) => (
-                <li key={b.text}>▲ {b.text}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-1 text-xs text-signal">
-              Fits every priority you set.
-            </p>
-          )}
-          <div className="mt-2">
-            <PenaltyBar option={option} />
-          </div>
-          {option.why && option.origin === "model" && (
-            <p className="mt-2 border-l-2 border-focus/50 pl-2 text-xs text-muted">
-              <span className="text-focus">
-                {option.source === "nemotron" ? "Nemotron: " : "Agent note: "}
+          <ul className="mt-2 space-y-0.5 text-xs">
+            <li className={impacts.length ? "text-amber" : "text-muted"}>
+              <span aria-hidden className="mr-1">
+                {impacts.length ? "▲" : "–"}
               </span>
-              {option.why}
+              {impacts.length
+                ? `Guest-facing trade-off: ${impacts.join("; ")}`
+                : "No guest-facing trade-off."}
+            </li>
+            {breaches.length > 0 ? (
+              breaches.map((b) => (
+                <li key={b.text} className="text-amber">
+                  <span aria-hidden className="mr-1">
+                    ▲
+                  </span>
+                  {b.text}
+                </li>
+              ))
+            ) : (
+              <li className="text-signal">
+                <span aria-hidden className="mr-1">
+                  ✓
+                </span>
+                Fits every priority you set.
+              </li>
+            )}
+          </ul>
+          {selected ? (
+            <>
+              <div className="mt-3">
+                <PenaltyBar option={option} />
+              </div>
+              {option.why && option.origin === "model" && (
+                <p className="mt-2 border-l-2 border-focus/50 pl-2 text-xs text-muted">
+                  <span className="text-focus">
+                    {option.source === "nemotron"
+                      ? "Nemotron: "
+                      : "Agent note: "}
+                  </span>
+                  {option.why}
+                </p>
+              )}
+              <p className="mt-2 text-[11px] text-faint">
+                Checked by CP-SAT (
+                {ev.solver.status === "OPTIMAL"
+                  ? "least disruptive timing for this fix, proven"
+                  : "feasible, not proven least disruptive"}
+                , {ev.solver.wall_ms} ms).
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-xs font-semibold text-focus">
+              Preview on the plan
             </p>
           )}
-          <p className="mt-2 text-[11px] text-faint">
-            Checked by CP-SAT (
-            {ev.solver.status === "OPTIMAL"
-              ? "least disruptive timing for this fix, proven"
-              : "feasible, not proven least disruptive"}
-            , {ev.solver.wall_ms} ms).
-          </p>
         </button>
         {selected && (
           <button
@@ -329,6 +349,18 @@ export function RecoveryPanel(props: PanelProps) {
   } = props;
   const [words, setWords] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const appliedRef = useRef<HTMLHeadingElement>(null);
+  const reduced = useReducedMotion();
+  // The Apply button usually sits far down the page (always on phones): bring the
+  // confirmation into view and move focus to it so the outcome is never off-screen.
+  useEffect(() => {
+    if (phase !== "applied") return;
+    appliedRef.current?.focus({ preventScroll: true });
+    appliedRef.current?.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [phase, reduced]);
   const run = state.run;
   const live = state.health?.ai.mode === "live";
   const aiBlocked =
@@ -344,7 +376,12 @@ export function RecoveryPanel(props: PanelProps) {
   if (phase === "ready" || phase === "applied") {
     return (
       <section aria-labelledby="rec-h" className="space-y-3">
-        <h2 id="rec-h" className="font-display text-2xl font-bold">
+        <h2
+          id="rec-h"
+          ref={appliedRef}
+          tabIndex={-1}
+          className="scroll-mt-4 font-display text-2xl font-bold"
+        >
           {phase === "applied" ? "Recovery applied" : "The plan holds"}
         </h2>
         {phase === "applied" && (

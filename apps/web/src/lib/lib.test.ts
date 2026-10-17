@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import fixtures from "@/test/fixtures.json";
 import { parseFrame } from "./api/sse";
 import type { DemoPayload, RevisionView, SearchResponse } from "./api/types";
-import { clock, delta, eur } from "./format";
+import { clock, delta, doorsGap, eur } from "./format";
 import { layoutGraph } from "./layout";
 import { buildRoomView, touchedTasks } from "./viewmodel";
 
@@ -20,6 +20,13 @@ describe("format", () => {
     expect(eur(3500)).toBe("€35");
     expect(eur(12750)).toBe("€127.50");
     expect(eur(0)).toBe("€0");
+  });
+
+  it("states the doors verdict in words, not only colour", () => {
+    expect(doorsGap(1095, 1080)).toEqual({ text: "15 min late", tone: "late" });
+    expect(doorsGap(1060, 1080)).toEqual({ text: "20 min spare", tone: "spare" });
+    expect(doorsGap(1080, 1080)).toEqual({ text: "on time", tone: "tight" });
+    expect(doorsGap(null, 1080)).toEqual({ text: "blocked", tone: "blocked" });
   });
 });
 
