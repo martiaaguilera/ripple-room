@@ -18,6 +18,31 @@ constraint solver checks every fix before a human approves it.
 **Built with:** NVIDIA Nemotron 3 Super (`nvidia/nemotron-3-super-120b-a12b`), Nebius Token Factory,
 Google OR-Tools CP-SAT, Python, FastAPI, Pydantic, Next.js, TypeScript, Tailwind CSS, Playwright, Vercel.
 
+## Try it in 60 seconds (for judges)
+Open https://ripple-room-five.vercel.app. No login. Desktop browser recommended.
+1. Check the top bar. The badge should read **"Nemotron 3 Super on Nebius Token Factory"**.
+2. Click the amber button **"What if the truck arrives 35 minutes late?"**. The header now reads
+   **"Ready for doors 18:15"**, **"15 min late"**, **"Doors open 18:00"**.
+3. In the right column, under **"What matters most today?"**, set **Guest experience** to **Protect**.
+   Click **"Find recovery options"**. Nemotron's proposals land on the **"Verifier board"**: kept
+   (filled green) or rejected (red, with a reason). A run takes about 20 seconds (median 18.4–19.5 s
+   in our benchmark).
+4. Click the first option card (**"Preview on the plan"**). The whole day replays with the fix. Each card
+   says where it came from: Nemotron or the playbook search.
+5. Click **"Apply this plan"**. You get **"Recovery applied"** and **"Who needs to know"**. Click **"Undo"**.
+
+Two more things to try (click **"Reset"** in the top bar first):
+- **Beyond the playbook.** In the box under **"Or try another incident"**, type
+  `Our setup team has to step out from 14:30 to 15:30.` Click **"Read the incident"**, then
+  **"Apply to the plan"**. Leave all priorities on **Balance** and click **"Find recovery options"**.
+  Our playbook search finds no fix here. In both benchmark runs Nemotron found one (a free person helps
+  rig the stage, plus a shorter line check). Results can differ from run to run.
+- **Honest "none".** Click **"Truck breakdown +90 min"**, then **"Find recovery options"**. Expect
+  **"No verified recovery found."**
+
+If the badge reads **"Live AI paused"** or **"Today's live AI budget used"**, the AI is off for spend
+control. Use **"Or run the playbook search without AI"**: the solver, preview, apply and undo all still work.
+
 **New project:** built from scratch during the submission period (first commit 16 Oct 2026). The event,
 people and costs in the demo are fictional.
 
@@ -115,8 +140,9 @@ sure no suggestion reaches the user unless a solver has checked it.
   the model more ways to act without making the product less safe.
 
 ## What's next
-- Measure the current hybrid agent (v5) live on the same 20 cases, with several runs per case so we
-  can see run-to-run variation. It has not been measured live yet.
+- Measure the current hybrid agent (prompt v6, with verified playbook options always in the pool) live
+  on the same 20 cases, with several runs per case so we can see run-to-run variation. It has not been
+  measured live yet.
 - Help the agent combine fixes (the c09 gap) and explore further before stopping.
 - Import a real run-of-show sheet instead of a fixed fictional scenario.
 - Multi-day productions, shared sessions for a team, and sending the change notice through calendar

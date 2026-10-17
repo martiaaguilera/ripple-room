@@ -69,7 +69,7 @@ What this does and does not show:
   miss: a free person helps rig, plus a shorter line check. See `docs/evaluation/CASES-c19-c09.md`.
 - It does **not** show better overall plan quality than the playbook. There is one run per version, and
   fixes that need three changes at once (c09) are still missed.
-- Full data: `docs/evaluation/`. The current agent (v5, hybrid) has not yet been measured live.
+- Full data: `docs/evaluation/`. The current agent (hybrid, prompt v6) has not yet been measured live.
 
 ## Run locally
 Prerequisites: Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 24.
