@@ -199,3 +199,20 @@ Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed b
   process); backend 191 passed. Screenshots of the full journey reviewed, no console errors.
 - Observed, not changed: option cards are whole-card buttons whose accessible name is the entire card text (long
   but complete); timeline row hover has no keyboard equivalent, but the graph nodes expose the same focus action.
+
+## 2026-10-18 — Round 2 merged: security re-audit, agent v7, phone layout, accessibility (no live inference)
+
+- Security re-audit fixes on main: pre-checks (kill switch, per-minute limit) before any solver work; unclean live
+  runs keep their full reservation; extended plan-shape checks (unknown slots/resources → 400); every
+  model-originated string echoed to clients bounded (ids 64, names 48, summaries 240; interpretation `raw` is an
+  allowlist of keys with 120-char values). Agent prompt rr-agent-v7: ~12% smaller payload, measured offline only.
+- ux-designer: phones get a stacked venue scene (road → dock → crew room → one row per room → doors verdict in
+  words; shared logic in `lib/scene.ts` with tests; caught an exact-start-minute "Now/Next" bug), a one-row top bar
+  with a "More" menu, and an agent-run card with a live phase stepper built only from streamed events
+  ("so far" wording mid-run; mock labelled "Simulated agent" / "scripted step"). Desktop drawing unchanged.
+- qa-engineer: axe gate (entry above). Merge resolution kept the `<h1>` brand inside the new one-row header and the
+  "Agent did not start" / separate-words trace label in the new `AgentTrace` component.
+- **PROVEN on merged main:** backend 227 passed, ruff + mypy clean; web tsc, eslint, 28 unit, next build;
+  Playwright 70/70 (incl. axe over the new phone scene and run card).
+- Leftovers: "How it spreads" and the timeline still scroll sideways inside their panels on phones; phone scene is
+  ~620 px tall, first call to action ~960 px down; live status badge under 360 px only checked with a faked status.

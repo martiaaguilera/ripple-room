@@ -6,6 +6,7 @@ import { shortId } from "@/lib/format";
 import { useRoom } from "@/state/useRoom";
 import { impactStory } from "@/lib/story";
 import { IncidentDesk } from "./IncidentDesk";
+import { HeaderMenu } from "./HeaderMenu";
 import { Inspector } from "./LeftRail";
 import { SceneHeader } from "./SceneHeader";
 import { StartCard } from "./StartCard";
@@ -98,22 +99,47 @@ export function ControlRoom() {
     { day: "numeric", month: "long" },
   );
 
+  const exportReport = () =>
+    downloadReport(
+      {
+        generated_at: new Date().toISOString(),
+        disclaimer: scenario.disclaimer,
+        revision: view.revision,
+        verified: view.verified,
+        readiness: room.readiness,
+        deadline: room.deadline,
+        impact_metrics: view.impact?.metrics ?? null,
+        agent_trace: state.run.events,
+        options: state.run.options.map((o) => ({
+          id: o.id,
+          title: o.title,
+          source: o.source,
+          status: o.evaluation.status,
+          cost_cents: o.evaluation.cost_cents,
+          readiness: o.evaluation.schedule?.readiness,
+          patch: o.evaluation.patch,
+        })),
+      },
+      `ripple-room-${shortId(view.revision.id)}.json`,
+    );
+
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line px-4 py-2.5 lg:px-6">
-        <h1>
+      <header className="flex items-center gap-x-3 gap-y-2 border-b sm:gap-x-5 border-line px-4 py-2 sm:flex-wrap sm:py-2.5 lg:px-6">
+        <h1 className="shrink-0">
           <Link
             href="/"
-            className="font-display text-2xl font-extrabold tracking-wide"
+            className="font-display text-[15px] leading-[0.95] font-extrabold tracking-wide sm:text-2xl sm:leading-normal"
           >
-            Ripple Room
+            Ripple <br className="sm:hidden" />
+            Room
           </Link>
         </h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-muted max-sm:hidden">
           <span className="font-semibold text-porcelain">{scenario.name}</span>{" "}
           at {scenario.venue}, {date}
         </p>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="ml-auto flex min-w-0 items-center justify-end gap-1.5 max-sm:flex-1 sm:flex-wrap sm:gap-2">
           <AiBadge health={state.health} />
           <span
             className="hidden rounded-md border border-line px-2 py-1 text-xs text-muted sm:inline"
@@ -125,7 +151,7 @@ export function ControlRoom() {
             type="button"
             onClick={actions.undo}
             disabled={state.history.length <= 1 || busy}
-            className="rounded-md border border-line px-2.5 py-1 text-xs hover:border-porcelain disabled:opacity-40"
+            className="min-h-10 shrink-0 rounded-md border border-line px-2 py-1 text-xs hover:border-porcelain disabled:opacity-40 sm:min-h-0 sm:px-2.5"
           >
             Undo
           </button>
@@ -133,40 +159,41 @@ export function ControlRoom() {
             type="button"
             onClick={actions.reset}
             disabled={state.history.length <= 1}
-            className="rounded-md border border-line px-2.5 py-1 text-xs hover:border-porcelain disabled:opacity-40"
+            className="min-h-10 shrink-0 rounded-md border border-line px-2 py-1 text-xs hover:border-porcelain disabled:opacity-40 sm:min-h-0 sm:px-2.5"
           >
             Reset
           </button>
           <button
             type="button"
-            onClick={() =>
-              downloadReport(
-                {
-                  generated_at: new Date().toISOString(),
-                  disclaimer: scenario.disclaimer,
-                  revision: view.revision,
-                  verified: view.verified,
-                  readiness: room.readiness,
-                  deadline: room.deadline,
-                  impact_metrics: view.impact?.metrics ?? null,
-                  agent_trace: state.run.events,
-                  options: state.run.options.map((o) => ({
-                    id: o.id,
-                    title: o.title,
-                    source: o.source,
-                    status: o.evaluation.status,
-                    cost_cents: o.evaluation.cost_cents,
-                    readiness: o.evaluation.schedule?.readiness,
-                    patch: o.evaluation.patch,
-                  })),
-                },
-                `ripple-room-${shortId(view.revision.id)}.json`,
-              )
-            }
-            className="rounded-md border border-line px-2.5 py-1 text-xs hover:border-porcelain"
+            onClick={exportReport}
+            className="rounded-md border border-line px-2.5 py-1 text-xs hover:border-porcelain max-sm:hidden"
           >
             Export report
           </button>
+          <HeaderMenu>
+            {(close) => (
+              <>
+                <p className="text-muted">
+                  <span className="font-semibold text-porcelain">{scenario.name}</span>{" "}
+                  at {scenario.venue}, {date}
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  Revision {shortId(view.revision.id)}, {state.history.length}{" "}
+                  {state.history.length === 1 ? "version" : "versions"} kept for undo
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    exportReport();
+                    close();
+                  }}
+                  className="mt-3 min-h-10 w-full rounded-md border border-line-strong px-3 py-2 text-left text-sm font-semibold hover:border-porcelain"
+                >
+                  Export report (JSON)
+                </button>
+              </>
+            )}
+          </HeaderMenu>
         </div>
       </header>
 
