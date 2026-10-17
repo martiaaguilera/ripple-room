@@ -3,25 +3,31 @@
 **See the chain reaction. Fix the day.**
 
 When one thing goes wrong at a live event, Ripple Room shows everything it affects and helps you find a
-recovery plan you can trust: **NVIDIA Nemotron on Nebius Token Factory proposes, an OR-Tools CP-SAT
-verifier proves, and a human approves.**
+recovery plan you can trust. **NVIDIA Nemotron on Nebius Token Factory proposes, an OR-Tools CP-SAT
+verifier checks, and a human approves.**
 
 - **Live demo:** https://ripple-room-five.vercel.app (no login)
 - **Video:** _to be added_
 - Built for the Nebius x NVIDIA Global AI Hackathon 2026, track *Best Apps and Agents*.
-- The event (Signal Night at Bay Hall), people and costs are fictional. "Ripple Room" is a working title,
-  unrelated to Ripple Labs / XRP or other projects named "Ripple".
+- The event (Signal Night at Bay Hall), people and costs are fictional. "Ripple Room" is a working
+  title, unrelated to Ripple Labs / XRP or other projects named "Ripple".
 
-## What you can do in 60 seconds
-1. Watch the day run: an illustrative venue scene driven by the plan's real times, doors at 18:00.
+## Why it matters
+Event coordinators run a day on one fixed opening time and many jobs that depend on each other. When a
+truck is late or a technician is out, they must work out quickly what else slips and what to change,
+usually from a spreadsheet that does not show the knock-on effects. Ripple Room shows the chain
+reaction, suggests fixes, and only offers a fix after a solver has checked that it really works. The
+coordinator stays in charge: nothing changes until they approve, and they get a list of who to tell.
+
+## Try it
+1. Watch the day run: a venue scene driven by the plan's real times. Doors open at 18:00.
 2. Press **"What if the truck arrives 35 minutes late?"** (or describe an incident in your own words).
-   The delay ripples through the dependency map; the header explains it: *doors would be ready at
-   18:15, 15 minutes late.*
+   The delay ripples through the dependency map: *doors would be ready at 18:15, 15 minutes late.*
 3. Set what matters (guest experience, spend, crew stability, budget, spare time) and press
-   **Find recovery options**. Watch Nemotron's proposals land on the verifier board — kept or
-   rejected, each with a reason.
-4. Preview an option (the whole day replays with it), approve it, and get the list of who needs to be
-   told what, by when. Undo is one click.
+   **Find recovery options**. Nemotron's proposals land on the verifier board, kept or rejected, each
+   with a reason.
+4. Preview an option on the whole day, approve it, and get the list of who needs to be told what, by
+   when. Undo is one click.
 
 ## How it works
 ```text
@@ -35,13 +41,14 @@ Browser ──▶ FastAPI (stateless; client holds content-hashed revisions)
              └─ apply: re-verifies from scratch; stale revision → 409; change notice
 ```
 - **The model never edits the plan.** It calls five allow-listed tools with strictly validated
-  arguments. Only patches the verifier accepts can become options; a timeout is "unknown", never green.
-- **Rejections are explained** from the solver's own results: *"Bringing in the backup AV technician
-  does not touch what sets the doors time…"*, *"…makes things worse than doing nothing (18:15)"*.
-- **Priorities are soft, deadlines are hard.** Options are ranked by preference breaches, then a
-  recomputable penalty breakdown shown on each card.
-- **Hybrid by design.** Verified playbook options are always in the pool, so the system never ranks
-  below the deterministic playbook; options are labelled by origin (Nemotron / playbook / no change).
+  arguments. Only fixes the verifier accepts become options. A timeout is "unknown", never green.
+- **Rejections are explained** from the solver's own results, for example *"…makes things worse than
+  doing nothing (18:15)"*.
+- **Priorities are soft, deadlines are hard.** Options are ranked by priority breaches, then by a
+  penalty breakdown shown on each card.
+- **Hybrid by design.** Verified playbook options are always in the pool, so the final list is never
+  worse than the playbook's best under the same ranking. Each option is labelled by origin (Nemotron,
+  playbook, or no change).
 - Raw model reasoning never leaves the server.
 
 **Claude Code was the development tool. At runtime the only AI is NVIDIA Nemotron served by Nebius
@@ -58,11 +65,11 @@ Token Factory.**
 | Cost of the 20 runs (list price) | $0.24 | $0.22 | 0 | 0 |
 
 What this does and does not show:
-- The agent found a recovery in c19 (setup team away) that both deterministic baselines miss, using
-  a helper plus a line check — see `docs/evaluation/CASES-c19-c09.md`.
-- It does **not** show better overall plan quality than the deterministic playbook; samples are tiny
-  (one run each), and combined three-change fixes (c09) are still missed.
-- Full data: `docs/evaluation/`. The current agent (v5, hybrid) has not yet been re-measured live.
+- In case c19 (setup team away) the agent found a verified recovery that both deterministic baselines
+  miss: a free person helps rig, plus a shorter line check. See `docs/evaluation/CASES-c19-c09.md`.
+- It does **not** show better overall plan quality than the playbook. There is one run per version, and
+  fixes that need three changes at once (c09) are still missed.
+- Full data: `docs/evaluation/`. The current agent (v5, hybrid) has not yet been measured live.
 
 ## Run locally
 Prerequisites: Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 24.
@@ -70,9 +77,9 @@ Prerequisites: Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 24.
 cd services/api && uv sync && uv run uvicorn app.main:app --port 8000          # mock agent by default
 cd apps/web && npm ci && NEXT_PUBLIC_API_BASE=http://localhost:8000 npm run dev  # http://localhost:3000
 ```
-Live mode: copy `.env.example` to `services/api/.env`, set `AI_MODE=live` and `NEBIUS_API_KEY`, then
-`uv run python ../../scripts/smoke_nebius.py --probe`. Spend controls and the kill switch are
-documented in `docs/operations.md`.
+Mock mode is labelled "simulated" in the UI. Live mode: copy `.env.example` to `services/api/.env`, set
+`AI_MODE=live` and `NEBIUS_API_KEY`, then `uv run python ../../scripts/smoke_nebius.py --probe`. Spend
+controls and the kill switch are in `docs/operations.md`.
 
 ## Tests
 ```bash
@@ -85,7 +92,7 @@ uv run python scripts/check_judge_demo.py https://ripple-room-five.vercel.app   
 `services/api/app/domain` scheduling domain · `app/solver` CP-SAT, verifier, playbook search, greedy ·
 `app/agent` tools, prompts, loop, interpretation · `app/providers` Nebius adapter + labelled mock ·
 `app/evaluation` 20-case harness · `apps/web` Next.js app · `docs/` architecture, decisions,
-evaluation, operations, journal.
+evaluation, operations, journal, feedback.
 
 ## License
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

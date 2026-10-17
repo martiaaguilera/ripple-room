@@ -44,3 +44,6 @@ services/api/.traces/
 # local dev server logs
 .dev-*.log
 .eval-*.log
+
+# agent worktrees
+.claude/worktrees/

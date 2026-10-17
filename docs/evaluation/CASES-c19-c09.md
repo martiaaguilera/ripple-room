@@ -11,8 +11,8 @@ statistical claim is made from them.
 - **What works:** a *combination* the playbook cannot express — a second person on stage rigging
   (`add_helper`) plus a line check (`compress_task soundcheck → 15`). Verified, €0, ready by 18:00.
 - **Agent, v2:** found and verified *transport crew helps rigging + line check* — a recovery in a case
-  where both deterministic baselines report none (worse than the oracle's choice under the ranking,
-  because it pulls the transport crew off unloading).
+  where both deterministic baselines report none. Under the preference ranking it scores the same as the
+  oracle's choice (185 penalty points each).
 - **Agent, v4:** found and verified *event lead helps rigging + line check* — exactly the oracle's best.
 - **The novel contribution:** using a person who is not assigned to the stalled work as a helper, and
   pairing it with a partial service cut, discovered through tool use (`get_situation`,
