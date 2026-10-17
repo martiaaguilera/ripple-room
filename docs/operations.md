@@ -29,6 +29,15 @@ deterministic playbook search keeps working. Mock mode never touches the budget.
 - Smoke tests and ~5 interactive live runs: well under $0.10.
 - Dashboard balance reported by the owner on 17 Oct: ~$30.25 promotional credits.
 
+## Account state (reported by the owner, 18 Oct 2026)
+- Trial credits: $0.47 left of $1, trial ends in 29 days (~16 Nov) — all spend so far came from these.
+- Account balance: **$30.25 promotional credits, no expiry** — pays for inference after the trial.
+- Measured cost ≈ $0.011 per recovery → the balance covers ~2,700 recoveries; judging needs far fewer.
+- Two owner checks remain: (1) what "Stop usage after trial" does exactly — if it stops usage at trial end
+  even with balance left, it must be off before ~16 Nov; if it only prevents card charges once the balance
+  is used, keep it on; (2) keep the app's lifetime cap below the balance (global quota, e.g. 10M tokens ≈
+  ≤ $9 worst case) so the balance cannot reach $0 through the app.
+
 ## Keeping the demo live through 1–15 December without uncontrolled charges (owner decisions)
 1. **Check Nebius-side controls first** (owner): whether the account offers a spending limit, budget
    alerts, or a setting that stops usage when credits run out. The dashboard warns that usage may
