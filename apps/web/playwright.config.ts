@@ -30,6 +30,7 @@ export default defineConfig({
       STATIC_DIR: path.resolve(__dirname, "out"),
       CORS_ORIGINS: "",
       RECOVER_RATE_PER_MINUTE: "120",
+      SOLVER_RATE_PER_MINUTE: "1000",
     },
   },
 });

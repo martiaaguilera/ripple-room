@@ -116,7 +116,8 @@ export type RoomAction =
   | { type: "applied"; view: RevisionView; title: string; notice: ChangeNotice | null }
   | { type: "undo" }
   | { type: "reset" }
-  | { type: "focus"; taskId: string | null };
+  | { type: "focus"; taskId: string | null }
+  | { type: "health"; health: Health };
 
 export const current = (s: RoomState): RevisionView | null => s.history[s.history.length - 1] ?? null;
 
@@ -245,5 +246,7 @@ export function roomReducer(state: RoomState, action: RoomAction): RoomState {
       return state.demo ? { ...initialRoom, demo: state.demo, health: state.health, history: [state.demo.initial] } : state;
     case "focus":
       return { ...state, focusTaskId: action.taskId };
+    case "health":
+      return { ...state, health: action.health };
   }
 }

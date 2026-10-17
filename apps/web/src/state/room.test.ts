@@ -60,3 +60,10 @@ describe("room reducer", () => {
     expect(phaseOf(s)).toBe("ready");
   });
 });
+
+describe("health refresh", () => {
+  it("replaces the AI status after the server reports it paused", () => {
+    const s = roomReducer(booted(), { type: "health", health: { status: "ok", api_version: "x", ortools: "x", ai: { mode: "live", status: "paused", provider: "nebius-token-factory", planner_model: "m", fast_model: "m", configured: true } } });
+    expect(s.health?.ai.status).toBe("paused");
+  });
+});

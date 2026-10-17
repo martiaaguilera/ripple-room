@@ -68,7 +68,14 @@ export function useRoom() {
           controller.signal,
         );
       } catch (err) {
-        if (!controller.signal.aborted) dispatch({ type: "runFailed", error: asError(err) });
+        if (!controller.signal.aborted) {
+          const error = asError(err);
+          dispatch({ type: "runFailed", error });
+          // The server just told us live AI is off: refresh the badge so the UI stops implying it is live.
+          if (["AI_PAUSED", "AI_BUDGET_EXHAUSTED", "MODEL_UNAVAILABLE"].includes(error.code)) {
+            void api.health().then((health) => dispatch({ type: "health", health }), () => undefined);
+          }
+        }
       }
     },
     [view, state.preferences],
