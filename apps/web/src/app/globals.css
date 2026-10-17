@@ -179,12 +179,45 @@ body {
   transition: transform 520ms cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 
+/* Phone scene: a crew token arriving in the room of its next job. */
+@keyframes token-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.token-in {
+  animation: token-in 260ms cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+
+/* Agent run: the step the agent is on right now. */
+@keyframes step-live {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--focus) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--focus) 0%, transparent);
+  }
+}
+
+.step-live {
+  animation: step-live 1.6s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .room-hit {
     animation: none !important;
     opacity: 0.08;
   }
   .scene-move,
+  .token-in,
+  .step-live,
   .verifier-point,
   .timeline-bar {
     animation: none !important;
