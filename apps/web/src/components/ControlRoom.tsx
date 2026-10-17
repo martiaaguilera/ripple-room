@@ -114,7 +114,7 @@ export function ControlRoom() {
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <AiBadge health={state.health} />
           <span
-            className="rounded-md border border-line px-2 py-1 text-xs text-muted"
+            className="hidden rounded-md border border-line px-2 py-1 text-xs text-muted sm:inline"
             title={view.revision.id}
           >
             Revision {shortId(view.revision.id)} ({state.history.length})
@@ -201,7 +201,6 @@ export function ControlRoom() {
           <SceneHeader
             room={room}
             story={story}
-            title={`${scenario.name} at ${scenario.venue}`}
             beforeIncident={
               view.revision.state.plan.entries.find(
                 (e) => e.task_id === scenario.deadline_task_id,
@@ -267,8 +266,8 @@ export function ControlRoom() {
               How it spreads
             </h2>
             <p className="text-xs text-faint">
-              Each line is a dependency. Point at a job to see what holds it in
-              place.
+              Each line is a dependency: a job waits for every job that feeds
+              it.
             </p>
           </div>
           <div className="overflow-x-auto">
