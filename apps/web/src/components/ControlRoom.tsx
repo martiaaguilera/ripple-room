@@ -256,6 +256,7 @@ export function ControlRoom() {
               <StartCard
                 onTruck={() => void actions.shock("truck-delay-35")}
                 disabled={busy}
+                health={state.health}
               />
               {incidentDesk("Or try another incident")}
             </>
