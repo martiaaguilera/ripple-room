@@ -12,6 +12,14 @@ verifier checks, and a human approves.**
 - The event (Signal Night at Bay Hall), people and costs are fictional. "Ripple Room" is a working
   title, unrelated to Ripple Labs / XRP or other projects named "Ripple".
 
+![One truck 35 minutes late: 13 tasks slip and the doors would open 15 minutes late](docs/submission/gallery/02-ripple.png)
+
+| Who | Does | Cannot |
+|---|---|---|
+| NVIDIA Nemotron 3 Super on Nebius Token Factory | reads the situation through tools, proposes typed fixes, revises after a rejection | change the plan, or call a fix "verified" |
+| OR-Tools CP-SAT + an independent validator | decides whether a fix holds, and explains why not | be overruled: a timeout is "unknown", never green |
+| You | set priorities, compare verified options, approve one or none | nothing changes until you approve |
+
 ## Why it matters
 Event coordinators run a day on one fixed opening time and many jobs that depend on each other. When a
 truck is late or a technician is out, they must work out quickly what else slips and what to change,
@@ -30,6 +38,8 @@ coordinator stays in charge: nothing changes until they approve, and they get a 
    when. Undo is one click.
 
 ## How it works
+![The model proposes. The solver decides. You approve.](docs/submission/gallery/07-architecture.png)
+
 ```text
 Browser ──▶ FastAPI (stateless; client holds content-hashed revisions)
              ├─ impact: do-nothing propagation, causal waves, slack, driving path
@@ -55,6 +65,8 @@ Browser ──▶ FastAPI (stateless; client holds content-hashed revisions)
 Token Factory.**
 
 ## Measured results (live Nemotron 3 Super, 20 fixed cases, one run per version)
+![Measured on live Nemotron 3 Super against three baselines, losses included](docs/submission/gallery/08-evaluation.png)
+
 | | Agent v2 | Agent v4 | Playbook search | Greedy |
 |---|---|---|---|---|
 | Verified recovery found when one exists | 16/17 | 16/17 | 15/17 | 15/17 |
@@ -69,7 +81,22 @@ What this does and does not show:
   miss: a free person helps rig, plus a shorter line check. See `docs/evaluation/CASES-c19-c09.md`.
 - It does **not** show better overall plan quality than the playbook. There is one run per version, and
   fixes that need three changes at once (c09) are still missed.
-- Full data: `docs/evaluation/`. The current agent (hybrid, prompt v6) has not yet been measured live.
+- Full data: `docs/evaluation/`. The current agent (hybrid, prompt v7) has not yet been measured live.
+
+## What is live, what is simulated, what is not done
+- **Live:** recoveries and free-text incidents on the public demo call Nemotron 3 Super on Nebius Token
+  Factory, unless the badge says the AI is paused or the day's budget is used. Solver, ranking, apply
+  and notice are deterministic code.
+- **Simulated:** the event, people and costs. The venue scene is illustrative (driven by the plan's
+  times, not live tracking). Local runs and tests use a scripted mock agent labelled "Simulated agent".
+- **Not done:** importing a real run-of-show, shared team sessions, sending the change notice. Fixes that
+  need three changes at once (case c09) were found only by the exhaustive oracle.
+
+## Accessibility
+An axe gate (WCAG 2.0/2.1/2.2 A and AA) runs on five journey states on desktop and mobile. Every control
+must be keyboard-reachable and named, and a keyboard-only journey test applies and undoes a recovery. Status
+is always written in words, not colour alone. Animations follow the system's reduced-motion setting, and the
+"Play animations" button under the venue scene opts back in.
 
 ## Run locally
 Prerequisites: Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 24.
@@ -84,7 +111,7 @@ controls and the kill switch are in `docs/operations.md`.
 ## Tests
 ```bash
 cd services/api && uv run pytest -q && uv run ruff check . && uv run mypy app
-cd apps/web && npm run typecheck && npm run lint && npm test && npm run build && npm run e2e
+cd apps/web && npm run typecheck && npm run lint && npm test && npm run build && npm run e2e   # desktop, mobile, Firefox
 uv run python scripts/check_judge_demo.py https://ripple-room-five.vercel.app   # production judge path (makes live calls)
 ```
 

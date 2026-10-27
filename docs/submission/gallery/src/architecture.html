@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ripple Room architecture</title>
+<!-- Mirrors docs/architecture.md. Rendered to PNG by scripts/gallery.mjs. -->
+<style>
+  * { box-sizing:border-box; margin:0; }
+  body { width:1440px; height:960px; background:#090d13; color:#ece7df; font-family:"Segoe UI", system-ui, sans-serif; }
+  svg text { fill:#ece7df; font-family:inherit; }
+  .h { font-size:22px; font-weight:700; }
+  .t { font-size:16px; fill:#9caab5; }
+  .k { font-size:13px; font-weight:700; letter-spacing:1.5px; }
+  .lab { font-size:15px; fill:#ece7df; }
+</style>
+</head>
+<body>
+<svg width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-label="Ripple Room architecture: the model proposes, the solver decides, the human approves">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9caab5"/>
+    </marker>
+  </defs>
+
+  <text x="64" y="84" style="font-size:40px;font-weight:800">The model proposes. The solver decides. You approve.</text>
+  <text x="64" y="120" class="t" style="font-size:19px">Ripple Room recovery loop. Nothing reaches the screen as "verified" unless the verifier has checked it.</text>
+
+  <!-- lane labels -->
+  <text x="430" y="182" class="k" style="fill:#81a9ff">PROPOSES</text>
+  <text x="930" y="182" class="k" style="fill:#5bd2c1">DECIDES</text>
+  <text x="70" y="402" class="k" style="fill:#f0b85d">APPROVES</text>
+
+  <!-- You -->
+  <rect x="60" y="414" width="290" height="236" rx="16" fill="#17130b" stroke="#f0b85d" stroke-opacity=".6"/>
+  <text x="84" y="452" class="h">You</text>
+  <text x="84" y="488" class="t">Break the plan: a preset, or</text>
+  <text x="84" y="510" class="t">your own words (confirmed first)</text>
+  <text x="84" y="546" class="t">Set priorities: guests, spend,</text>
+  <text x="84" y="568" class="t">crew, budget cap, do-not-touch</text>
+  <text x="84" y="604" class="t">Approve one option, or none.</text>
+  <text x="84" y="626" class="t">Undo is one click.</text>
+
+  <!-- Nemotron -->
+  <rect x="420" y="194" width="400" height="250" rx="16" fill="#111923" stroke="#81a9ff" stroke-opacity=".7"/>
+  <text x="444" y="232" class="h">NVIDIA Nemotron 3 Super</text>
+  <text x="444" y="258" class="t">on Nebius Token Factory (server-side key)</text>
+  <text x="444" y="296" class="lab">Bounded agent loop, up to 8 model calls</text>
+  <text x="444" y="326" class="t">tools: get_situation · inspect_task</text>
+  <text x="444" y="348" class="t">list_interventions · evaluate_patch</text>
+  <text x="444" y="370" class="t">submit_options (forced on the last call)</text>
+  <text x="444" y="408" class="lab">Output: typed patches only</text>
+  <text x="444" y="430" class="t">allow-listed actions, extra fields rejected</text>
+
+  <!-- Verifier -->
+  <rect x="940" y="194" width="440" height="250" rx="16" fill="#0d1c1a" stroke="#5bd2c1" stroke-opacity=".7"/>
+  <text x="964" y="232" class="h">Verifier: the only authority</text>
+  <text x="964" y="258" class="t">on whether a plan holds</text>
+  <text x="964" y="296" class="lab">OR-Tools CP-SAT, doors deadline as a hard limit</text>
+  <text x="964" y="326" class="t">then an independent plan validator re-checks</text>
+  <text x="964" y="348" class="t">every solver plan (disagreement = error, never shown)</text>
+  <text x="964" y="386" class="lab">verified · infeasible · rejected · unknown</text>
+  <text x="964" y="416" class="t">with a reason: "helps but not enough",</text>
+  <text x="964" y="438" class="t">"makes things worse than doing nothing"</text>
+
+  <!-- loop arrows -->
+  <path d="M820,268 L938,268" stroke="#9caab5" stroke-width="2" marker-end="url(#a)" fill="none"/>
+  <text x="826" y="256" class="lab" style="font-size:13px">evaluate_patch</text>
+  <path d="M938,372 L822,372" stroke="#9caab5" stroke-width="2" marker-end="url(#a)" fill="none"/>
+  <text x="832" y="396" class="lab" style="font-size:13px">verdict → revise</text>
+
+  <!-- Playbook -->
+  <rect x="940" y="500" width="440" height="120" rx="16" fill="#111923" stroke="#344657"/>
+  <text x="964" y="536" class="h" style="font-size:20px">Playbook search (no AI)</text>
+  <text x="964" y="566" class="t">deterministic; its verified options always</text>
+  <text x="964" y="588" class="t">join the pool, labelled by origin</text>
+
+  <!-- Ranking -->
+  <rect x="420" y="500" width="400" height="120" rx="16" fill="#111923" stroke="#344657"/>
+  <text x="444" y="536" class="h" style="font-size:20px">Rank by your priorities</text>
+  <text x="444" y="566" class="t">deterministic penalty points you can</text>
+  <text x="444" y="588" class="t">recompute from each option card</text>
+
+  <path d="M620,444 L620,498" stroke="#9caab5" stroke-width="2" marker-end="url(#a)" fill="none"/>
+  <text x="630" y="478" class="lab" style="font-size:13px">submit_options (verified only)</text>
+  <path d="M938,560 L822,560" stroke="#9caab5" stroke-width="2" marker-end="url(#a)" fill="none"/>
+  <path d="M420,560 L352,560" stroke="#9caab5" stroke-width="2" marker-end="url(#a)" fill="none"/>
+  <text x="358" y="548" class="lab" style="font-size:13px">options</text>
+
+  <!-- Apply -->
+  <rect x="420" y="684" width="960" height="110" rx="16" fill="#111923" stroke="#344657"/>
+  <text x="444" y="720" class="h" style="font-size:20px">Apply</text>
+  <text x="444" y="750" class="t">The server re-verifies the whole plan from scratch; a stale revision gets HTTP 409.</text>
+  <text x="444" y="772" class="t">Then it lists who needs to be told what, and by when.</text>
+  <path d="M205,652 L205,739 L418,739" stroke="#9caab5" stroke-width="2" marker-end="url(#a)" fill="none"/>
+  <text x="214" y="726" class="lab" style="font-size:13px">approve</text>
+
+  <!-- footer -->
+  <line x1="64" y1="846" x2="1376" y2="846" stroke="#233140"/>
+  <text x="64" y="882" class="t">Stateless FastAPI on Vercel · the browser holds content-hashed revisions · raw model reasoning never leaves the server</text>
+  <text x="64" y="910" class="t">Spend guard: kill switch, daily token and run budgets, per-IP and per-minute limits, optional global quota (fail-closed)</text>
+</svg>
+</body>
+</html>

@@ -216,3 +216,26 @@ Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed b
   Playwright 70/70 (incl. axe over the new phone scene and run card).
 - Leftovers: "How it spreads" and the timeline still scroll sideways inside their panels on phones; phone scene is
   ~620 px tall, first call to action ~960 px down; live status badge under 360 px only checked with a faked status.
+
+## 2026-10-27 — Winning-patterns pass, reduced-motion override, gallery (no live inference)
+
+- Research (`docs/research/winning-patterns.md`): this hackathon's judges' "Will It Ship?" advice
+  (aha in 30 s of the video, show which model does what, publish limitations, call out accessibility,
+  no edits after the deadline) plus all 16 All Things Agentic winners vs 16 random non-winners
+  (winners: median 1,856 words vs 682, 5 images vs 2, hard limits "in code" 16/16 vs 6/16). Turned
+  into a 10-point checklist and scored Ripple Room against it.
+- Firefox "no animations" on the owner's desktop: root cause is Windows "Animation effects" = off
+  (read with SystemParametersInfo), which browsers expose as `prefers-reduced-motion: reduce`; the app
+  honoured it. Added an in-app override ("Play animations" under the scene, remembered per browser),
+  driven by a `data-motion` attribute set before first paint; CSS keys off it instead of the media query.
+- First screen names who does what (live model or "Simulated agent", CP-SAT, you).
+- Gallery: 8 images in `docs/submission/gallery` (app shots in mock mode, architecture, evaluation with
+  losses), rendered by `scripts/gallery.mjs`. Devpost draft: concrete opening (fictional, labelled),
+  roles table, "What is live, what is simulated, what is not done", accessibility; README gets images.
+  Demo script: audience + roles in shot 1; desktop-PC animation warning.
+- Playwright: new Firefox project (journey spec) also in CI; tests prove the override and that
+  animations actually run in Gecko (`document.getAnimations()`).
+- **PROVEN:** web tsc, eslint, 28 unit, next build; Playwright 84/84 (desktop, mobile, Firefox).
+  Submission audit: secrets grep empty, no tracked .env, every new number traced.
+- Owner: live verifier-board screenshot for the gallery (needs one live run), optional live v7
+  re-measure, video, submit by 29 Oct; nothing pushed after the deadline.

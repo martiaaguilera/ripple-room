@@ -1,12 +1,15 @@
 # Devpost submission draft (owner reviews and submits)
 
-Every number below comes from `docs/evaluation/` or `docs/evidence/`. Paste each section into the
+Every number below comes from `docs/evaluation/` or `docs/evidence/`, except the impact of the
+35-minute truck delay (13 tasks slip, doors ready 18:15, truck at 14:35 instead of 14:00), which is the
+deterministic engine's output, frozen in `apps/web/src/test/fixtures.json` (`shocked.impact.metrics`:
+12 delayed + 1 breach) and shown on screen. Paste each section into the
 matching Devpost field.
 
 **Title:** Ripple Room: See the chain reaction. Fix the day.
 
-**Tagline:** NVIDIA Nemotron on Nebius Token Factory proposes fixes for a disrupted event day. A
-constraint solver checks every fix before a human approves it.
+**Tagline (under 200 characters):** One late truck: 13 tasks slip and the doors open late. Ripple Room
+shows the chain reaction. NVIDIA Nemotron on Nebius proposes fixes, a solver verifies each one, you choose.
 
 **Track:** Best Apps and Agents
 
@@ -16,7 +19,20 @@ constraint solver checks every fix before a human approves it.
 - Video: _(YouTube URL, public, under 3 minutes; add after recording)_
 
 **Built with:** NVIDIA Nemotron 3 Super (`nvidia/nemotron-3-super-120b-a12b`), Nebius Token Factory,
-Google OR-Tools CP-SAT, Python, FastAPI, Pydantic, Next.js, TypeScript, Tailwind CSS, Playwright, Vercel.
+Google OR-Tools CP-SAT, Python, FastAPI, Pydantic, Next.js, TypeScript, Tailwind CSS, Playwright, axe-core, Vercel.
+
+**Image gallery** (upload in this order from `docs/submission/gallery/`; paste each caption):
+1. `02-ripple.png`: "One truck 35 minutes late: 13 tasks slip and the doors would open 15 minutes late. Every time comes from a scheduling engine."
+2. `04-verified-options.png`: "Every proposal goes to a constraint solver. Green holds, red is rejected with a reason. (Shown in simulated mode, as the badge says.)"
+3. `07-architecture.png`: "The model proposes. The solver decides. You approve. The model can only submit typed patches."
+4. `08-evaluation.png`: "Measured on live Nemotron 3 Super against a playbook search, a greedy heuristic and an exhaustive oracle, with the losses included."
+5. `05-applied.png`: "Nothing changes until you approve. The server re-verifies the plan, then lists who needs to be told what, and by when."
+6. `03-spread.png`: "How it spreads: each line is a dependency. Click any job to see what holds it in place."
+7. `06-phone.png`: "Works on a phone: the venue reads top to bottom in the order the day runs."
+8. `01-plan.png`: "The first screen names who does what before anything happens."
+
+Replace image 2 with a live-mode capture if one is taken during recording (the badge must read
+"Nemotron 3 Super on Nebius Token Factory").
 
 ## Try it in 60 seconds (for judges)
 Open https://ripple-room-five.vercel.app. No login. Desktop browser recommended.
@@ -43,17 +59,39 @@ Two more things to try (click **"Reset"** in the top bar first):
 If the badge reads **"Live AI paused"** or **"Today's live AI budget used"**, the AI is off for spend
 control. Use **"Or run the playbook search without AI"**: the solver, preview, apply and undo all still work.
 
+If your system asks for reduced motion, the animations are off. To see the ripple, click **"Play animations"**
+under the venue scene.
+
 **New project:** built from scratch during the submission period (first commit 16 Oct 2026). The event,
 people and costs in the demo are fictional.
 
 ## Inspiration
-A small live event runs on one fixed opening time and a set of jobs that depend on each other. When
-the truck is late, the coordinator has to work out, fast and often in their head, what else slips,
-whether doors still open on time, and what to change. A spreadsheet shows the plan. It does not show
-the chain reaction. We also wanted an AI helper whose suggestions a coordinator can trust, so we made
-sure no suggestion reaches the user unless a solver has checked it.
+It is 13:50. Doors open at 18:00. The driver calls: the truck with the stage deck is stuck on the ring
+road and will reach the dock at 14:35, not 14:00. The coordinator now has to work out, in their head and in minutes, what that
+pushes. Unloading, rigging, lighting focus, soundcheck, the safety walk and the crew briefing all wait
+on each other. Will the doors still open on time? And what is the cheapest change that saves them?
+
+(The event is invented, and so are the people and the costs. The problem is not: anyone who has run
+the day of a gig, a launch or a conference side event knows that moment.)
+
+The plan lives in a spreadsheet. A spreadsheet shows the plan, but it does not show the chain reaction.
+AI assistants will happily suggest a fix, but on show day nobody can afford a fix that only *sounds*
+right. So we built Ripple Room around one rule: **the model proposes, a solver decides, and a person
+approves.** No suggestion reaches the coordinator unless a constraint solver has checked it against the
+real deadline, skills, crew hours and the rule that one person does one job at a time.
+
+**Who it is for:** event coordinators and production managers of small live events, who run one fixed
+doors time with a small crew and no operations-research team.
 
 ## What it does
+**Who does what** (shown on the first screen, before you click anything):
+
+| Role | Does | Cannot |
+|---|---|---|
+| NVIDIA Nemotron 3 Super on Nebius Token Factory | Reads the situation through tools, proposes typed fixes, revises after a rejection; turns your words into typed incidents | Change the plan, or call a fix "verified" |
+| OR-Tools CP-SAT verifier + an independent validator | Decides whether a fix holds, and explains why not | Be overruled: a timeout is "unknown", never green |
+| You | Set priorities, compare verified options, approve one or none | (Nothing changes until you approve) |
+
 - Shows a fictional one-night event (Signal Night at Bay Hall) as a venue scene, a dependency map and
   a timeline. All three come from the same scheduling engine.
 - Lets you break the plan with a prepared incident ("the truck arrives 35 minutes late") or in your
@@ -71,7 +109,28 @@ sure no suggestion reaches the user unless a solver has checked it.
 - Changes the plan only when you approve. Then it lists who needs to be told what, and by when.
   Undo is one click.
 - Says "no verified recovery" when there is none. In a live run with a 90-minute truck breakdown,
-  Nemotron submitted zero options and named 18:30 as the earliest possible time.
+  Nemotron submitted zero options and named 18:30 as the earliest possible time. That refusal is the
+  system working: a fake green plan on show day is worse than a clear "no".
+
+## What is live, what is simulated, what is not done
+- **Live:** every recovery and every free-text incident on the public demo calls Nemotron 3 Super on
+  Nebius Token Factory, unless the badge says the AI is paused or the day's budget is used. The solver,
+  ranking, apply and notice are deterministic code, always running.
+- **Simulated:** the event, people and costs are fictional. The venue scene is illustrative and is
+  driven by the plan's times, not by live tracking. Local development and our automated tests use a
+  scripted mock agent, labelled "Simulated agent" everywhere it appears.
+- **Not done:** one fixed scenario (no import of a real run-of-show yet); one user at a time (no shared
+  sessions); the change notice is a list, not sent messages. The deployed hybrid agent (prompt v7) has
+  not been measured live; the measured numbers below are for prompts v2 and v4.
+- **Known failure:** fixes that need three changes at once (case c09, truck 65 minutes late) were found
+  only by the exhaustive oracle, never by the agent, the playbook search or greedy.
+
+## Accessibility
+An automated axe gate (WCAG 2.0/2.1/2.2 A and AA) runs on five states of the journey, on desktop and on
+mobile. Every control must be reachable by keyboard and have a name, and a keyboard-only test starts a
+run, picks an option, applies it and undoes it. Status is always in words, never colour alone ("15 min
+late", "holds", "rejected"). Animations follow the system's reduced-motion setting, with an in-app
+"Play animations" button for viewers who still want to see the ripple.
 
 ## How we built it
 - **Runtime AI:** `nvidia/nemotron-3-super-120b-a12b` on **Nebius Token Factory**, through its
@@ -91,8 +150,9 @@ sure no suggestion reaches the user unless a solver has checked it.
   timeline. API types are generated from the backend's OpenAPI schema.
 - **Deployment:** Vercel. The API is stateless: the browser holds content-hashed revisions, and the
   server re-verifies any plan on apply. A stale revision gets HTTP 409.
-- **Quality:** backend tests, web unit tests, Playwright journeys on desktop and mobile, CI with a
-  full-history secret scan, and a script that checks the full judge path on production.
+- **Quality:** backend tests, web unit tests, Playwright journeys on desktop, mobile and Firefox, an
+  accessibility gate, CI with a full-history secret scan, and a script that checks the full judge path
+  on production.
 - **Spend controls:** a kill switch, daily token and run budgets, and per-IP limits.
 - Claude Code was our development tool. Claude is not used at runtime.
 
@@ -140,7 +200,7 @@ sure no suggestion reaches the user unless a solver has checked it.
   the model more ways to act without making the product less safe.
 
 ## What's next
-- Measure the current hybrid agent (prompt v6, with verified playbook options always in the pool) live
+- Measure the current hybrid agent (prompt v7, with verified playbook options always in the pool) live
   on the same 20 cases, with several runs per case so we can see run-to-run variation. It has not been
   measured live yet.
 - Help the agent combine fixes (the c09 gap) and explore further before stopping.

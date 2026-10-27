@@ -52,6 +52,14 @@ deterministic playbook search keeps working. Mock mode never touches the budget.
 5. Never enable paid billing, buy credits or change billing preferences from this project; those are
    owner actions in the Nebius console.
 
+## After the deadline (30 Oct 2026, 10:00 PT = 18:00 Madrid)
+- Devpost update 46207: "Please do not edit your code repo, video, or any project materials after the
+  deadline, even minor changes could affect your eligibility." From the deadline on, push nothing to
+  `main`: every push redeploys production.
+- Vercel environment variables (kill switch, budgets) change runtime configuration, not code. Using
+  them to stop unexpected spend is the documented emergency path. NOT VERIFIED whether organisers would
+  count it as an edit; if it is needed for anything else, ask in the Nebius Discord first.
+
 ## Runbook
 - Health: `GET /api/health` → `ai.status` is `live`, `mock`, `paused`, `budget_exhausted` or `unconfigured`.
 - Full judge path: `uv run python scripts/check_judge_demo.py https://ripple-room-five.vercel.app`

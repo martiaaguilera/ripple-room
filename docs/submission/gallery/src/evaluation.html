@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ripple Room evaluation</title>
+<!-- Every number below is copied from docs/evaluation/COMPARISON-v2-v4.md (live runs, 16 Oct 2026). -->
+<style>
+  :root { --bg:#090d13; --panel:#111923; --line:#233140; --ink:#ece7df; --muted:#9caab5; --faint:#798a99;
+          --hi:#6a8fe6; --ctx:#5b6875; --signal:#5bd2c1; --amber:#f0b85d; }
+  * { box-sizing:border-box; margin:0; }
+  body { width:1440px; height:960px; background:var(--bg); color:var(--ink);
+         font:18px/1.4 "Segoe UI", system-ui, sans-serif; padding:72px 64px; }
+  h1 { font-size:40px; font-weight:800; letter-spacing:.2px; }
+  .sub { color:var(--muted); margin-top:6px; font-size:19px; }
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:40px; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+  .big { font-size:46px; font-weight:800; line-height:1.05; }
+  .tile p { color:var(--muted); font-size:16px; margin-top:6px; }
+  .charts { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:36px; }
+  .chart { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:24px 28px 20px; }
+  .chart h2 { font-size:20px; font-weight:700; }
+  .chart .note { color:var(--faint); font-size:15px; margin-top:2px; }
+  .row { display:grid; grid-template-columns:170px 1fr; align-items:center; gap:12px; margin-top:18px; }
+  .row .name { color:var(--muted); font-size:16px; text-align:right; }
+  .row.agent .name { color:var(--ink); font-weight:600; }
+  .track { position:relative; height:28px; border-left:1px solid var(--line); margin-right:64px; }
+  .bar { position:absolute; left:0; top:3px; height:22px; border-radius:0 4px 4px 0; background:var(--ctx); }
+  .agent .bar { background:var(--hi); }
+  .val { position:absolute; top:3px; margin-left:10px; font-variant-numeric:tabular-nums; font-size:17px; line-height:22px; }
+  .axis { display:grid; grid-template-columns:170px 1fr; gap:12px; margin-top:8px; color:var(--faint); font-size:13px; }
+  .axis span:nth-child(2) { margin-right:64px; }
+  .axis span:nth-child(2) { display:flex; justify-content:space-between; }
+  .foot { margin-top:32px; color:var(--muted); font-size:16px; line-height:1.5; }
+  .foot b { color:var(--ink); }
+</style>
+</head>
+<body>
+  <h1>Measured on live NVIDIA Nemotron 3 Super, not claimed</h1>
+  <p class="sub">2 prompt versions × the same 20 fixed incidents, on Nebius Token Factory. Compared with a deterministic playbook search, a greedy heuristic and an exhaustive oracle.</p>
+
+  <div class="tiles">
+    <div class="tile"><div class="big">0</div><p>options that failed independent re-validation, across all methods and both runs</p></div>
+    <div class="tile"><div class="big">3/3</div><p>honest "no verified recovery" when none exists</p></div>
+    <div class="tile"><div class="big">283</div><p>live model calls in the benchmark; 0 runs ended with a provider error</p></div>
+    <div class="tile"><div class="big">≈1¢</div><p>per recovery at list price ($0.2207 for 20 runs)</p></div>
+  </div>
+
+  <div class="charts">
+    <section class="chart" aria-label="Verified recovery found, out of 17 recoverable cases">
+      <h2>Verified recovery found</h2>
+      <p class="note">out of 17 cases where a recovery exists</p>
+      <div class="row agent"><span class="name">Agent, prompt v2</span><span class="track"><span class="bar" style="width:calc(16/17*100%)"></span><span class="val" style="left:calc(16/17*100%)">16/17</span></span></div>
+      <div class="row agent"><span class="name">Agent, prompt v4</span><span class="track"><span class="bar" style="width:calc(16/17*100%)"></span><span class="val" style="left:calc(16/17*100%)">16/17</span></span></div>
+      <div class="row"><span class="name">Playbook search</span><span class="track"><span class="bar" style="width:calc(15/17*100%)"></span><span class="val" style="left:calc(15/17*100%)">15/17</span></span></div>
+      <div class="row"><span class="name">Greedy heuristic</span><span class="track"><span class="bar" style="width:calc(15/17*100%)"></span><span class="val" style="left:calc(15/17*100%)">15/17</span></span></div>
+      <div class="axis"><span></span><span><span>0</span><span>17</span></span></div>
+    </section>
+    <section class="chart" aria-label="Best option equals the exhaustive oracle's, out of 17">
+      <h2>Best option equals the exhaustive oracle's</h2>
+      <p class="note">out of 17, ranked by the same deterministic preference score</p>
+      <div class="row agent"><span class="name">Agent, prompt v2</span><span class="track"><span class="bar" style="width:calc(9/17*100%)"></span><span class="val" style="left:calc(9/17*100%)">9/17</span></span></div>
+      <div class="row agent"><span class="name">Agent, prompt v4</span><span class="track"><span class="bar" style="width:calc(7/17*100%)"></span><span class="val" style="left:calc(7/17*100%)">7/17</span></span></div>
+      <div class="row"><span class="name">Playbook search</span><span class="track"><span class="bar" style="width:calc(8/17*100%)"></span><span class="val" style="left:calc(8/17*100%)">8/17</span></span></div>
+      <div class="row"><span class="name">Greedy heuristic</span><span class="track"><span class="bar" style="width:calc(6/17*100%)"></span><span class="val" style="left:calc(6/17*100%)">6/17</span></span></div>
+      <div class="axis"><span></span><span><span>0</span><span>17</span></span></div>
+    </section>
+  </div>
+
+  <p class="foot">
+    <b>Where the agent wins:</b> one case (setup team away for an hour) that the playbook and greedy could not solve: in both runs it found a verified, zero-cost fix outside the playbook, scoring the same as the oracle.
+    <b>Where it loses:</b> overall it is not better than the playbook search, and a three-change fix (truck 65 min late) was found only by the oracle.
+    One run per version, so 1–2 case differences are noise. The deployed hybrid agent (playbook options always in the pool) has not been measured live.
+  </p>
+</body>
+</html>
