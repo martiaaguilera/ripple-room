@@ -49,7 +49,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: (cd ../../services/api && uv sync --locked)
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox
       - run: npm run e2e
 
   secrets:

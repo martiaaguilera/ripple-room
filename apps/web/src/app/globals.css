@@ -210,29 +210,28 @@ body {
   animation: step-live 1.6s ease-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .room-hit {
-    animation: none !important;
-    opacity: 0.08;
-  }
-  .scene-move,
-  .token-in,
-  .step-live,
-  .verifier-point,
-  .timeline-bar {
-    animation: none !important;
-    transition: none !important;
-  }
-  .ripple-ring,
-  .edge-pulse,
-  .node-hit,
-  .heartbeat {
-    animation: none !important;
-  }
-  .ripple-ring {
-    display: none;
-  }
-  .node-status {
-    transition: none !important;
-  }
+/* Reduced motion: the system setting, unless the viewer chose otherwise (see lib/useReducedMotion). */
+:root[data-motion="reduce"] .room-hit {
+  animation: none !important;
+  opacity: 0.08;
+}
+:root[data-motion="reduce"] .scene-move,
+:root[data-motion="reduce"] .token-in,
+:root[data-motion="reduce"] .step-live,
+:root[data-motion="reduce"] .verifier-point,
+:root[data-motion="reduce"] .timeline-bar {
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-motion="reduce"] .ripple-ring,
+:root[data-motion="reduce"] .edge-pulse,
+:root[data-motion="reduce"] .node-hit,
+:root[data-motion="reduce"] .heartbeat {
+  animation: none !important;
+}
+:root[data-motion="reduce"] .ripple-ring {
+  display: none;
+}
+:root[data-motion="reduce"] .node-status {
+  transition: none !important;
 }

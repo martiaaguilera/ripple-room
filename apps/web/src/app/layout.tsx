@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Next, Big_Shoulders } from "next/font/google";
+import { MOTION_BOOT } from "@/lib/useReducedMotion";
 import "./globals.css";
 
 const display = Big_Shoulders({ subsets: ["latin"], variable: "--font-big-shoulders", axes: ["opsz"] });
@@ -19,7 +20,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    // The boot script sets data-motion on <html> before hydration, hence suppressHydrationWarning.
+    <html lang="en" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT }} />
+      </head>
       <body className="min-h-dvh antialiased">{children}</body>
     </html>
   );

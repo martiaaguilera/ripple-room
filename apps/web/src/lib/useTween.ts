@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motionReduced } from "./useReducedMotion";
 
 /**
  * Animate a number towards `target` with an ease-out curve. Under
- * prefers-reduced-motion (or with no previous value) it jumps straight there.
+ * reduced motion (or with no previous value) it jumps straight there.
  * All state updates happen in animation-frame callbacks, never synchronously in the effect.
  */
 export function useTween(target: number | null, ms = 900): number | null {
@@ -13,7 +14,7 @@ export function useTween(target: number | null, ms = 900): number | null {
   useEffect(() => {
     const start = shown.current;
     const instant =
-      target == null || start == null || start === target || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target == null || start == null || start === target || motionReduced();
     let frame = 0;
     const t0 = performance.now();
     const step = (now: number) => {

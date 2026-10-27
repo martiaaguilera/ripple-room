@@ -99,4 +99,28 @@ test.describe("control room journey", () => {
     await expect(page.getByRole("button", { name: "Replay the day" })).toBeVisible();
     await context.close();
   });
+
+  test("reduced motion can be overridden in the app, and the choice survives a reload", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "reduce");
+    await page.getByRole("button", { name: "Play animations" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "full");
+    await startButton(page).click();
+    await expect(page.locator("circle.ripple-ring").first()).toBeVisible();
+    expect(await page.evaluate(() => document.getAnimations().length)).toBeGreaterThan(0);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "full");
+    await page.getByRole("button", { name: "Reduce motion" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "reduce");
+    await context.close();
+  });
+
+  test("no motion control when the system allows motion", async ({ page }) => {
+    await page.goto("/");
+    await expect(startButton(page)).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "full");
+    await expect(page.getByRole("button", { name: "Play animations" })).toHaveCount(0);
+  });
 });

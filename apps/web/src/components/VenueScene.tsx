@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Scenario, Zone } from "@/lib/api/types";
 import { clock } from "@/lib/format";
 import { isChanged, roomLine, sceneFrame, sceneSpan, taskProgress, type RoomTagTone, type SceneFrame, type SceneToken } from "@/lib/scene";
-import { useReducedMotion } from "@/lib/useReducedMotion";
+import { setMotionOverride, useMotion } from "@/lib/useReducedMotion";
 import type { RoomView, TaskView } from "@/lib/viewmodel";
 
 /**
@@ -355,11 +355,32 @@ function Stacked({ scenario, room, zones, frame, minute, rippleKey }: LayoutProp
   );
 }
 
+/**
+ * Animations follow the system's reduced-motion setting. Viewers whose system asks for less motion
+ * can still opt in here (remembered in this browser); everyone else never sees the control.
+ */
+function MotionToggle({ system, reduced }: { system: boolean; reduced: boolean }) {
+  if (!system) return null;
+  return (
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 pb-2 text-xs text-muted sm:px-0">
+      <span>{reduced ? "Animations are off: your system asks for reduced motion." : "Animations on, despite your reduced-motion setting."}</span>
+      <button
+        type="button"
+        onClick={() => setMotionOverride(reduced ? "full" : null)}
+        className="rounded-md border border-line px-2.5 py-1 text-porcelain hover:border-porcelain"
+      >
+        {reduced ? "Play animations" : "Reduce motion"}
+      </button>
+    </p>
+  );
+}
+
 export function VenueScene({ scenario, room, rippleKey, previewKey }: { scenario: Scenario; room: RoomView; rippleKey: number; previewKey: string }) {
   const zones = useMemo(() => [...scenario.zones].sort((a, b) => a.order - b.order), [scenario]);
   const { dayStart, dayEnd } = sceneSpan(room);
 
-  const reduced = useReducedMotion();
+  const motion = useMotion();
+  const reduced = motion.reduced;
   const [t, setT] = useState<number>(dayStart);
   const [playing, setPlaying] = useState(true);
 
@@ -454,6 +475,7 @@ export function VenueScene({ scenario, room, rippleKey, previewKey }: { scenario
           {clock(dayStart)}–{clock(dayEnd)}
         </span>
       </figcaption>
+      <MotionToggle system={motion.system} reduced={reduced} />
     </figure>
   );
 }

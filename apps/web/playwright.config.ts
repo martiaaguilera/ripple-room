@@ -18,6 +18,8 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
     { name: "mobile", use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } } },
+    // Judges may use Firefox: the main journey (including the motion settings) runs on Gecko too.
+    { name: "firefox", testMatch: "journey.spec.ts", use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } } },
   ],
   webServer: {
     command: `uv run uvicorn app.main:app --port ${PORT}`,
