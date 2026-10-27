@@ -24,7 +24,7 @@ Ground rules
 
 | # | Time | On-screen action (exact) | Narration | Caption (burned in) |
 |---|---|---|---|---|
-| 1 | 0:00–0:14 (14 s) | Page freshly loaded. Let the venue scene play. Pointer rests on the amber card **"Every job in this plan is connected."**, then moves down over its three lines: **"Nemotron 3 Super on Nebius Token Factory"**, **"Constraint solver (OR-Tools CP-SAT)"**, **"You"**. | "Coordinators run show day on one fixed doors time, and every job waits on others. A spreadsheet won't show what one delay breaks. Here, NVIDIA Nemotron proposes fixes, a solver checks them, and I decide." | Signal Night, a fictional event. Nemotron proposes. A solver checks. You decide. |
+| 1 | 0:00–0:14 (14 s) | Page freshly loaded. Let the venue scene play. Pointer rests on the amber card **"Every job in this plan is connected."**, then moves down over its three lines: **"Nemotron 3 Super on Nebius Token Factory"**, **"Constraint solver (OR-Tools CP-SAT)"**, **"You"**. | "Coordinators run show day on one fixed doors time, and every job waits on others. This fictional event shows what one delay breaks. NVIDIA Nemotron proposes fixes, a solver checks them, and I decide." | Signal Night, a fictional event. Nemotron proposes. A solver checks. You decide. |
 | 2 | 0:14–0:30 (16 s) | Click **"What if the truck arrives 35 minutes late?"**. Let the ripple run. Header flips to **"If nobody acts"**: **"Ready for doors" 18:15**, chip **"15 min late"**, **"Doors open" 18:00**. | "The truck is thirty-five minutes late. Ripple Room traces the chain: unloading, rigging, lighting, soundcheck, the safety walk, the briefing. Doors would be ready at 18:15. That is fifteen minutes late. These times come from a scheduling engine, not an animation." | One late truck. Doors 15 minutes late. |
 | 3 | 0:30–0:36 (6 s) | Scroll to **"How it spreads"**. Click the **Stage rigging** node. Hold on the inspector line **"Why not earlier:"**. | "Click any job, and it tells you what holds it in place." | Every job explains its delay. |
 | 4 | 0:36–0:48 (12 s) | Right column, under **"What matters most today?"**: set **Guest experience** to **Protect**. Leave everything else on **Balance**. Point at the small line **"NVIDIA Nemotron on Nebius Token Factory proposes fixes…"**. Click **"Find recovery options"**. | "Now I ask for a recovery. I want to protect the guests. That is a preference. The doors time, skills and crew hours are hard rules. Nobody can bend them." | Priorities rank fixes. Hard rules never bend. |
@@ -80,6 +80,10 @@ Ground rules
 - [ ] **Health is live:** open https://ripple-room-five.vercel.app/api/health and confirm `"mode":"live"`
       and `"status":"live"`. Optional, owner-approved (makes real calls):
       `uv run python scripts/check_judge_demo.py https://ripple-room-five.vercel.app`.
+- [ ] **Run allowance:** each recovery and each "Read the incident" counts as one live request.
+      Production allows 12 per IP per day and 3 recoveries per minute, and a full take uses about 4
+      (shots 5-7, the intake and recovery in shot 8, shot 9). Record in segments, or raise
+      `AI_PER_IP_DAILY_RUNS` in Vercel for the recording day (owner decision, then set it back).
 - [ ] **Warm-up run:** do shots 2, 4 and 5 once off camera, so the first take does not hit a cold start.
 - [ ] **Reset:** click **"Reset"**, then reload the page, before each take.
 - [ ] **Mic:** quiet room, headset or USB mic, one test clip played back. No background music.
