@@ -246,4 +246,5 @@ Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed b
   portfolio project; README now says it was built during the hackathon and not submitted.
 - Account balances removed from `docs/operations.md`; new "After the hackathon" section: kill switch on
   by default, delete the Nebius key when no live demo is needed.
-- Owner: set `AI_KILL_SWITCH=true` in Vercel and redeploy; optionally delete the Nebius API key.
+- Production verified 1 Nov: `/api/health` reports `mode: mock`, `configured: false` (owner removed
+  `NEBIUS_API_KEY` and `AI_MODE` in Vercel and redeployed). The public demo makes no model calls.
