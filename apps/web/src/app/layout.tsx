@@ -6,10 +6,23 @@ import "./globals.css";
 const display = Big_Shoulders({ subsets: ["latin"], variable: "--font-big-shoulders", axes: ["opsz"] });
 const body = Atkinson_Hyperlegible_Next({ subsets: ["latin"], variable: "--font-atkinson" });
 
+const TITLE = "Ripple Room · Nebius × NVIDIA Global AI Hackathon 2026";
+const DESCRIPTION =
+  "Built at the Nebius × NVIDIA Global AI Hackathon 2026. Watch a disruption ripple through a live-event plan, then recover it: NVIDIA Nemotron on Nebius proposes fixes, a constraint solver verifies each one, and you approve.";
+
 export const metadata: Metadata = {
-  title: "Ripple Room — See the chain reaction. Fix the day.",
-  description:
-    "A live operations simulator for small events: watch a disruption ripple through the plan, then rescue it with NVIDIA Nemotron on Nebius and a constraint solver that checks every fix.",
+  metadataBase: new URL("https://ripple-room-five.vercel.app"),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Ripple Room",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Ripple Room: a late truck ripples through an event plan" }],
+  },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.png"] },
 };
 
 export const viewport: Viewport = {

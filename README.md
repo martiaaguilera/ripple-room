@@ -1,6 +1,7 @@
-# Ripple Room
+# Ripple Room · Nebius × NVIDIA Global AI Hackathon 2026
 
-**See the chain reaction. Fix the day.**
+**See the chain reaction. Fix the day.** Built at the Nebius × NVIDIA Global AI Hackathon 2026, track
+*Best Apps and Agents*.
 
 When one thing goes wrong at a live event, Ripple Room shows everything it affects and helps you find a
 recovery plan you can trust. **NVIDIA Nemotron on Nebius Token Factory proposes, an OR-Tools CP-SAT
@@ -10,8 +11,9 @@ verifier checks, and a human approves.**
   demo may be paused; the badge in the top bar says which mode it is in. The solver, playbook search,
   preview, apply and undo always work.
 - Built in October 2026 during the
-  [Nebius x NVIDIA Global AI Hackathon 2026](https://nebiusglobalaihackathon.devpost.com/)
-  (track *Best Apps and Agents*, 28,000+ registered participants). It was not submitted for judging.
+  [Nebius × NVIDIA Global AI Hackathon 2026](https://nebiusglobalaihackathon.devpost.com/)
+  (28,000+ registered participants). It was not submitted for judging. Not affiliated with or endorsed
+  by Nebius or NVIDIA.
 - The event (Signal Night at Bay Hall), people and costs are fictional. "Ripple Room" is a working
   title, unrelated to Ripple Labs / XRP or other projects named "Ripple".
 

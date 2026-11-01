@@ -68,10 +68,11 @@ async function phone() {
   for (const p of shots) rmSync(p);
 }
 
-async function rendered(name, file) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+async function rendered(name, file, viewport = { width: 1440, height: 960 }, dir = out) {
+  const page = await browser.newPage({ viewport });
   await page.goto(pathToFileURL(path.join(src, file)).href);
-  await page.screenshot({ path: `${out}/${name}` });
+  await page.waitForLoadState("load");
+  await page.screenshot({ path: path.join(dir, name) });
   await page.close();
 }
 
@@ -79,5 +80,7 @@ await desktop();
 await phone();
 await rendered("07-architecture.png", "architecture.html");
 await rendered("08-evaluation.png", "evaluation.html");
+// Link preview for LinkedIn / X / Slack, served by the web app (uses 02-ripple.png from this run).
+await rendered("og.png", "og.html", { width: 1200, height: 630 }, path.join(src, "..", "..", "..", "..", "apps", "web", "public"));
 await browser.close();
 console.log(`gallery written to ${out}`);

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ripple Room social preview</title>
+<!-- 1200x630 link preview (LinkedIn, X, Slack). Rendered to apps/web/public/og.png by scripts/gallery.mjs. -->
+<style>
+  * { box-sizing:border-box; margin:0; }
+  body { width:1200px; height:630px; background:#090d13; color:#ece7df; font-family:"Segoe UI", system-ui, sans-serif;
+         display:grid; grid-template-columns:560px 1fr; overflow:hidden; }
+  .text { padding:56px 0 48px 64px; display:flex; flex-direction:column; }
+  .eyebrow { display:inline-block; align-self:flex-start; border:1px solid #f0b85d; color:#f0b85d; border-radius:999px;
+             padding:7px 16px; font-size:19px; font-weight:700; letter-spacing:.3px; }
+  h1 { font-size:76px; font-weight:800; line-height:1; margin-top:34px; letter-spacing:-.5px; }
+  .tag { font-size:30px; font-weight:700; margin-top:14px; color:#ece7df; }
+  .roles { margin-top:auto; font-size:21px; line-height:1.5; color:#9caab5; }
+  .roles b { color:#ece7df; font-weight:600; }
+  .shot { position:relative; }
+  .shot img { position:absolute; left:24px; top:56px; width:900px; border-radius:16px; border:1px solid #344657;
+              box-shadow:0 24px 60px rgba(0,0,0,.55); }
+</style>
+</head>
+<body>
+  <div class="text">
+    <span class="eyebrow">Nebius × NVIDIA Global AI Hackathon 2026</span>
+    <h1>Ripple Room</h1>
+    <p class="tag">See the chain reaction. Fix the day.</p>
+    <p class="roles"><b>NVIDIA Nemotron</b> on Nebius proposes fixes.<br><b>A constraint solver</b> verifies each one.<br><b>You</b> approve.</p>
+  </div>
+  <div class="shot"><img src="../02-ripple.png" alt=""></div>
+</body>
+</html>

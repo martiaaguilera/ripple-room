@@ -125,6 +125,16 @@ export function ControlRoom() {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <p className="border-b border-line bg-panel px-4 py-1.5 text-xs text-muted lg:px-6">
+        Built at the <span className="font-semibold text-porcelain">Nebius × NVIDIA Global AI Hackathon 2026</span>
+        <span className="max-sm:hidden"> · track Best Apps and Agents</span> ·{" "}
+        <a
+          href="https://github.com/martiaaguilera/ripple-room"
+          className="underline underline-offset-2 hover:text-porcelain"
+        >
+          Code on GitHub
+        </a>
+      </p>
       <header className="flex items-center gap-x-3 gap-y-2 border-b sm:gap-x-5 border-line px-4 py-2 sm:flex-wrap sm:py-2.5 lg:px-6">
         <h1 className="shrink-0">
           <Link
