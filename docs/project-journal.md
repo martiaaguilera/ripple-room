@@ -239,3 +239,11 @@ Live v5 run of the 20 cases; report "system best = oracle" and "model-proposed b
   Submission audit: secrets grep empty, no tracked .env, every new number traced.
 - Owner: live verifier-board screenshot for the gallery (needs one live run), optional live v7
   re-measure, video, submit by 29 Oct; nothing pushed after the deadline.
+
+## 2026-11-01 — Not submitted; portfolio mode
+
+- The hackathon deadline passed without a submission (no video recorded). The repo stays public as a
+  portfolio project; README now says it was built during the hackathon and not submitted.
+- Account balances removed from `docs/operations.md`; new "After the hackathon" section: kill switch on
+  by default, delete the Nebius key when no live demo is needed.
+- Owner: set `AI_KILL_SWITCH=true` in Vercel and redeploy; optionally delete the Nebius API key.

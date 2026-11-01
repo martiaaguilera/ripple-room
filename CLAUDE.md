@@ -4,7 +4,7 @@
 Nebius Token Factory proposes typed intervention patches; a deterministic CP-SAT verifier is
 the only authority on feasibility; the human compares and applies. Truthful working
 functionality beats visual flourish. Hackathon: Nebius x NVIDIA 2026, track *Best Apps and
-Agents*, deadline **30 Oct 2026 18:00 Europe/Madrid** (target submit 29 Oct).
+Agents*. The deadline (30 Oct 2026) passed; **not submitted**. Now a portfolio project.
 
 Read on demand (do not paste into context wholesale):
 - `docs/project-journal.md` — status, blockers, next actions. **Update it at the end of every work unit.**
