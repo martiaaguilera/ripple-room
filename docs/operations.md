@@ -27,38 +27,32 @@ deterministic playbook search keeps working. Mock mode never touches the budget.
 ## Measured cost so far (list prices, prompt $0.30/M, completion $0.90/M)
 - Two live 20-case evaluations: $0.2435 + $0.2207.
 - Smoke tests and ~5 interactive live runs: well under $0.10.
-- Dashboard balance reported by the owner on 17 Oct: ~$30.25 promotional credits.
 
-## Account state (reported by the owner, 18 Oct 2026)
-- Trial credits: $0.47 left of $1, trial ends in 29 days (~16 Nov) — all spend so far came from these.
-- Account balance: **$30.25 promotional credits, no expiry** — pays for inference after the trial.
-- Measured cost ≈ $0.011 per recovery → the balance covers ~2,700 recoveries; judging needs far fewer.
-- Two owner checks remain: (1) what "Stop usage after trial" does exactly — if it stops usage at trial end
-  even with balance left, it must be off before ~16 Nov; if it only prevents card charges once the balance
-  is used, keep it on; (2) keep the app's lifetime cap below the balance (global quota, e.g. 10M tokens ≈
-  ≤ $9 worst case) so the balance cannot reach $0 through the app.
+## Account state
+Account balances and trial details are kept out of the public repo. The owner checks them in the
+Nebius console. Two rules hold regardless: keep the app's lifetime cap below the remaining credits, and
+assume usage can continue on a linked card once credits reach zero.
 
-## Keeping the demo live through 1–15 December without uncontrolled charges (owner decisions)
+## Running the live AI for a while without uncontrolled charges (owner decisions)
 1. **Check Nebius-side controls first** (owner): whether the account offers a spending limit, budget
    alerts, or a setting that stops usage when credits run out. The dashboard warns that usage may
    continue on the linked card once the balance reaches zero — treat that as the default.
-2. **Ask the organisers** whether credits are extended for judging; the rules require free access for
-   judges until 15 Dec.
-3. **Lower the daily budget for the judging window**, e.g. `AI_DAILY_TOKEN_BUDGET=400000` and
-   `AI_DAILY_RUN_BUDGET=15` → upper bound ≈ $0.36/day per instance (≈ $5.40 for 15 days per instance).
-4. **Emergency stop:** set `AI_KILL_SWITCH=true` in Vercel and redeploy (≈1 minute). The app stays
-   usable (incidents, ripple, playbook search, apply/undo) but makes no model calls — note this also
-   stops the Nebius runtime usage the rules require, so use it only to stop unexpected spend.
-5. Never enable paid billing, buy credits or change billing preferences from this project; those are
+2. **Lower the daily budget**, e.g. `AI_DAILY_TOKEN_BUDGET=400000` and `AI_DAILY_RUN_BUDGET=15`
+   → upper bound ≈ $0.36/day per instance.
+3. **Emergency stop:** set `AI_KILL_SWITCH=true` in Vercel and redeploy (≈1 minute). The app stays
+   usable (incidents, ripple, playbook search, apply/undo) but makes no model calls.
+4. Never enable paid billing, buy credits or change billing preferences from this project; those are
    owner actions in the Nebius console.
 
-## After the deadline (30 Oct 2026, 10:00 PT = 18:00 Madrid)
-- Devpost update 46207: "Please do not edit your code repo, video, or any project materials after the
-  deadline, even minor changes could affect your eligibility." From the deadline on, push nothing to
-  `main`: every push redeploys production.
-- Vercel environment variables (kill switch, budgets) change runtime configuration, not code. Using
-  them to stop unexpected spend is the documented emergency path. NOT VERIFIED whether organisers would
-  count it as an edit; if it is needed for anything else, ask in the Nebius Discord first.
+## After the hackathon (not submitted)
+The project was not submitted, so the post-deadline freeze does not apply. With no judges to serve,
+the public demo does not need live AI:
+1. **Default:** `AI_KILL_SWITCH=true` in Vercel (Production), then redeploy. `GET /api/health` should
+   show `"status":"paused"`. The app stays usable without model calls.
+2. **No key, no spend:** delete the Nebius API key in the Nebius console and remove `NEBIUS_API_KEY`
+   from Vercel. Create a new key only when a live demo is needed, then delete it again.
+3. To show the live agent: create a key, set it in Vercel, set `AI_KILL_SWITCH=false`, redeploy, demo,
+   then undo all three.
 
 ## Runbook
 - Health: `GET /api/health` → `ai.status` is `live`, `mock`, `paused`, `budget_exhausted` or `unconfigured`.

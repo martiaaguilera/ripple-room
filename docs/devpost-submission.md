@@ -1,5 +1,8 @@
 # Devpost submission draft (owner reviews and submits)
 
+> **Status:** not submitted. The hackathon deadline (30 Oct 2026, 10:00 PT) passed before the video
+> was recorded. This file is kept as the long-form project write-up; its numbers and sources still hold.
+
 Every number below comes from `docs/evaluation/` or `docs/evidence/`, except the impact of the
 35-minute truck delay (13 tasks slip, doors ready 18:15, truck at 14:35 instead of 14:00), which is the
 deterministic engine's output, frozen in `apps/web/src/test/fixtures.json` (`shocked.impact.metrics`:
